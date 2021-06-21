@@ -1,0 +1,478 @@
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 什么是Node.js
+  Javascript原本是一个前端的web语言，而Nodejs，则可以让js编写服务器端，Nodejs为js提供接口，操作数据库，操作文件等模块
+  Node.js为JavaScript提供了很多供服务器使用的API，这些API被包装到了每一个具体的的核心模块中，
+  例如文件操作的fs核心模块、HTTP服务器构建的http模块、path路径操作模块、os操作系统信息模块等等
+  实际应用：把可我们的电脑变成一个服务器，对应生成一个IP地址，我们通过IP地址来访问电脑上的文件，要求在同一局域网下面   
+
+
+
+※ 环境搭建
+  1.通过地址下载安装包https://nodejs.org/en/download
+  2.检测是否安装成功过  node -v
+    各系统的安装教程 https://www.runoob.com/nodejs/nodejs-install-setup.html
+
+
+※ 第一个Node.js例子
+  1.新建一个helloworld.js文件
+  2.文件里的内容为console.log("Hello World");
+  3.命令行node helloworld.js
+  程序执行后，正常的话，就会在终端输出 Hello World
+
+
+※ 学习：
+  https://www.runoob.com/nodejs/nodejs-tutorial.html
+  https://blog.csdn.net/qq_32842925/article/details/82759789
+  https://www.cnblogs.com/EricZLin/p/9281987.html
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+模块
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ Node.js的模块
+  Node.js是模块的概念，一个文件相当于一个模块，这个文件可能是JavaScript 代码、JSON 或者编译过的C/C++ 扩展。
+  一共有3类模块：
+   1.Node.js原本为我们提供了一些系统模块，比如fs、http、path等，
+   2.我们也安装一些别人写好的优秀模块，
+   3.当然也可以把本地某个文件当成一个模块  
+
+
+※ 系统的模块使用
+  var http = require('http');
+  ... //然后直接使用就好了
+
+
+※ 第三方优秀模块的使用
+  1.安装：npm install express
+  2.使用
+    var express = require('express');
+    ... //然后直接使用就好了
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Node.js提供的系统模块
+----------------------------------------------------------------------------------------------------------------------------------------‘
+
+※ http模块 本地文件作为一个服务器,可以供局域网访问
+    var http = require('http');
+
+    http.createServer(function (request, response) {
+      // 发送 HTTP 头部
+      // HTTP 状态值: 200 : OK
+      // 内容类型: text/plain
+      response.writeHead(200, {'Content-Type': 'text/plain'});
+
+      // 发送响应数据 "Hello World" 会在网页上显示
+      response.end('Hello World\n');
+    }).listen(8888);
+
+    // 终端$ node file.js后 会打印如下信息
+    console.log('Server running at http://127.0.0.1:8888/');
+    例子：https://www.runoob.com/nodejs/nodejs-http-server.html
+
+
+
+※ fs 文件系统模块 https://www.runoob.com/nodejs/nodejs-fs.html
+  var fs = require("fs");
+
+  // 异步读取
+  fs.readFile('input.txt', function (err, data) {
+     if (err) {
+         return console.error(err);
+     }
+     console.log("异步读取: " + data.toString());
+  });
+
+  // 同步读取
+  var data = fs.readFileSync('input.txt');
+  console.log("同步读取: " + data.toString());
+
+  console.log("程序执行完毕。");
+
+
+
+※ path 路径操作模块 https://www.runoob.com/nodejs/nodejs-path-module.html
+  const path=require('path')
+  console.log(path.join("a","b"))//用于拼接路径 a/b
+  console.log(__dirname); //返回文件夹路径
+  console.log(__filename); //返回文件路径，包含文件名
+  console.log(path.resolve(__dirname,"test"); //返回一个绝对路径 https://blog.csdn.net/kikyou_csdn/article/details/83150538
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Node.js 本地模块
+----------------------------------------------------------------------------------------------------------------------------------------‘
+
+※ 本地模块的使用
+  1.exports 暴露属性或方法
+    var func1 = function() {
+     console.log("func1");
+    };
+
+    var func2 = function() {
+       console.log("func2");
+    };
+
+    exports.function1 = func1;
+    exports.function2 = func2;
+
+    //其他模块使用
+    var functions = require("./functions");
+    functions.function1();
+    functions.function2();
+
+
+  2.module.exports 暴露对象
+    //hello.js
+    function Hello() {
+        var name;
+        this.setName = function(thyName) {
+            name = thyName;
+        };
+        this.sayHello = function() {
+            console.log('Hello ' + name);
+        };
+    };
+    module.exports = Hello;
+
+    //其他模块使用 main.js
+    var Hello = require('./hello');
+    hello = new Hello();
+    hello.setName('BYVoid');
+    hello.sayHello();
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+NPM
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ NPM
+  NPM是随同NodeJS一起安装的包(模块)管理工具，类似于GitHub,用户可以上传自己写的库或从NPM服务器里下载别人写好的库
+  如果是NodeJS系统通过的模块，则可以导入后直接使用 比如：var fs = require('fs')
+  如果是第三方提供的模块，则需要先安装后，再导入使用 比如：安装：npm install express  导入：var express = require('express')
+
+
+※ 环境
+  安装好nodejs就相当于已经安装好了npm，可以通过npm -v来测试是否成功安装
+
+
+
+※ 全局安装与本地安装
+  全局安装：指在电脑里安装此模块，安装后，可以用命令行执行
+  npm install express -g            # 全局安装最新版本 (安装包会放在 /usr/local)
+  npm install -g @tarojs/cli@3.1.4  # 全局安装指定版本 (安装包会放在 /usr/local)
+
+  本地(项目里)安装：指在某个项目里安装某些模块
+  npm install express        # 本地安装 (指在项目里安装，模块被放在了工程目录下的 node_modules 目录中,并会添加到package.json配置文件中的dependencies中)
+  npm install xxx –save      # 同上
+  npm install express@3.1.4  # 同上 安装指定版本
+  npm install xxx –save -dev # 本地安装 下载插件后，模块会加入package.json文件的devDpendencies对象中
+  npm uninstall express      # 删除模块，但不删除模块留在package.json中的对应信息
+
+
+※ 使用 package.json
+  通常项目中，如果要查看项目中已经安装的第三方模块会很麻烦，而在package.json文件中，就可以看到项目中的所有第三方模块，
+  也可以通过npm install命令，安装package.json中的第三方模块
+  package.json文件 属性说明
+    name - 包名。
+    version - 包的版本号。
+    description - 包的描述。
+    homepage - 包的官网 url 。
+    author - 包的作者姓名。
+    contributors - 包的其他贡献者姓名。
+    repository - 包代码存放的地方的类型，可以是 git 或 svn，git 可在 Github 上。
+    main - main 字段指定了程序的主入口文件，require('moduleName') 就会加载这个文件。这个字段的默认值是模块根目录下面的 index.js。
+    keywords - 关键字
+
+    scripts -  npm run xxx 就会执行这里的命令 比如npm run dev   npm run serve
+    dependencies - 正式环境的依赖包 npm install xxx –save 下载的插件放在package.json文件的dpendencies对象里面
+    devDependencies - 本地环境\测试环境的依赖包，测试环境的依赖包一般用于创建本地服务器提供测试， npm install xxx –save -dev 下载的插件放在package.json文件的devDpendencies对象里面
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Node.js 全局对象 不需要导包，直接使用
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 例子：
+  //打印日志
+  console.log(...)
+  //__filename 表示当前脚本的绝对路径，且和命令行参数所指定的文件名不一定相同。 如果在模块中，返回的值是模块文件的路径。
+  console.log( __filename );  /web/com/runoob/nodejs/main.js
+  //__dirname 表示当前执行脚本所在的目录
+  console.log( __dirname );   /web/com/runoob/nodejs
+
+
+※ 定时器
+  1.setTimeout(cb, ms) 全局函数在指定的毫秒(ms)数后执行指定函数(cb)。只执行一次指定函数。
+    例子：
+    function printHello(){
+      console.log( "Hello, World!");
+    }
+    // 两秒后执行以上函数
+    var t = setTimeout(printHello, 2000);
+    // 清除定时器
+    clearTimeout(t);
+
+  2.setInterval() 方法会不停地调用函数，直到 clearInterval() 被调用或窗口被关闭。
+    function printHello(){
+       console.log( "Hello, World!");
+    }
+    // 两秒后执行以上函数
+    setInterval(printHello, 2000);
+    以上程序每隔两秒就会输出一次"Hello, World!"，且会永久执行下去，直到你按下 ctrl + c 按钮。
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+其他模块
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ url 路径解析模块
+  http://localhost:8888/start?foo=bar&hello=world
+  url.parse(string).pathname               -> /start
+  url.parse(string).query                  -> foo=bar&hello=world
+  url.parse(queryString).query["foo"]      -> bar
+  querystring.parse(queryString)["hello"]  -> world
+
+
+  例：
+  var http = require("http");
+  var url = require("url");
+
+  function start() {
+    function onRequest(request, response) {
+      var pathname = url.parse(request.url).pathname;
+      console.log("Request for " + pathname + " received.");
+
+      response.writeHead(200, {"Content-Type": "text/plain"});
+      response.write("Hello World");
+      response.end();
+    }
+
+    http.createServer(onRequest).listen(8888);
+    console.log("Server has started.");
+  }
+
+  exports.start = start;
+
+
+※ Express HTTP响应相关模块
+
+  Express 框架核心特性：
+  1.可以设置中间件来响应 HTTP 请求。
+  2.定义了路由表用于执行不同的 HTTP 请求动作。
+  3.可以通过向模板传递参数来动态渲染 HTML 页面。
+  var fs = require("fs");
+
+  例：
+  var express = require('express');
+  var app = express();
+
+  // 如果是http://0.0.0.0:8081 GET请求, 则浏览器最终会显示Hello World GET
+  app.get('/', function (req, res) {
+     res.send('Hello World GET');
+  })
+
+  // 如果是http://0.0.0.0:8081 POST请求, 则浏览器最终会显示Hello World POST
+  app.post('/', function (req, res) {
+     res.send('Hello World POST');
+  })
+
+  // 如果是http://0.0.0.0:8081/del_user 请求，则浏览器最终会显示 删除页面
+  app.get('/del_user', function (req, res) {
+     console.log("/del_user 响应 DELETE 请求");
+     res.send('删除页面');
+  })
+
+  // 如果是http://0.0.0.0:8081/list_user 请求，则浏览器最终会显示 用户列表页面
+  app.get('/list_user', function (req, res) {
+     console.log("/list_user GET 请求");
+     res.send('用户列表页面');
+  })
+
+  // 如果是http://0.0.0.0:8081/abcd, abxcd, ab123cd等请求, 则浏览器最终会显示 正则匹配
+  app.get('/ab*cd', function(req, res) {
+     console.log("/ab*cd GET 请求");
+     res.send('正则匹配');
+  })
+
+  //如果是http://0.0.0.0:8081/abcdeg 则没有匹配上，浏览器页面会显示 Cannot GET /abcdefg
+
+  var server = app.listen(8081, function () {
+
+    var host = server.address().address
+    var port = server.address().port
+
+    console.log("应用实例，访问地址为 http://%s:%s", host, port)
+
+  })
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+一些在项目中使用的第三方模块
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ ip模块
+  介绍：可以获取电脑的IP地址
+  项目中的使用：获取IP地址并写入到某一文件里面
+
+  安装：npm install ip –save -dev
+  代码：
+  // ./build/init.js文件
+  var fs = require('fs')
+  var path = require('path')
+  var ip = require('ip').address()
+  //把IP地址写入到config.js文件里面 最终ip会写到./config.js文件里面
+  fs.writeFileSync(path.resolve('config.js'), 'var CURRENT_IP = \'' + ip + '\'')
+
+
+※ serve模块
+  介绍：可以把电脑当成一个服务器，同一局域网下可以根据ip地址访问
+  项目中的使用：把项目当成某一服务器，Android/IOS直接加载weex文件就可以加载某一界面
+
+  安装：npm install serve –save -dev
+  使用：
+  serve          //1.安装环境，2.运行serve命令，此文件夹就成为了服务器，
+  serve -p 8080  //指定端口号
+
+  应用：把电脑当成一个服务器，其他电脑访问本电脑的/Users/appleMac/Desktop/aaa/test.html文件
+  1.npm install serve –g               //全局安装serve
+  2.cd /Users/appleMac/Desktop/aaa/    //cd到需要共享的文件目录下
+  3.serve                             //运行serve命令，会出现http://xxxx:5000
+  其他电脑访问：http://xxxx:5000/test.html地址  就可以看到test.html文件了
+  其他电脑访问：http://xxxx:5000地址  浏览器会展示此目录下的文件列表
+
+
+※ ip模块和serve模块在项目中的应用
+  //package.json
+  ...
+  "scripts": {
+    "build": "webpack",
+    "dev": "webpack --watch",
+    "serve": "node build/init.js && serve -p 8080", //把本地ip写入某一文件夹 && 把项目地址当成服务器并指定IP地址
+    ...
+  },
+  ...
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Node 命令
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ npm相关命令
+  npm init  # 安装项目中的所有模块，会安装项目中package.json配置文件的dependenciess对象和devDpendencies对象的所有模块，模块会下载到工程node_modules目录中
+
+  npm install express -g            # 全局安装最新版本 (安装包会放在 /usr/local)
+  npm install -g @tarojs/cli@3.1.4  # 全局安装指定版本 (安装包会放在 /usr/local)
+
+  npm install express        # 本地安装 (指在项目里安装，模块会下载到工程node_modules目录中, 同时express模块会加入package.json配置文件的dependenciess对象中)
+  npm install xxx –save      # 本地安装 同上
+  npm install xxx –save -dev # 本地安装 下载插件后，模块会加入package.json文件的devDpendencies对象中
+  npm install express@3.1.4  # 本地安装 指定版本
+  npm uninstall express      # 删除模块，但不删除模块留在package.json中的对应信息
+
+  npm run build              # 执行package.json文件的scripts中的dev指令 如果 "build": "node build/build.js"  则npm run build相当于执行了node build/build.js命令
+
+
+
+※ node相关命令
+  node build/build.js                  # 执行build目录下的build.js文件
+  node build/init.js && serve -p 8080  # 两个命令一起执行 1.执行build目录下的build.js文件 2.把本项目当成一个服务器，供局域网访问，并指定端口8080, serve命令需要先安装serve模块
+
+
+
+※ webpack相关命令
+  webpack                   # 执行打包命令，打包对应的配置文件为项目中的webpack.config.js
+  webpack --config xxx.js   # 执行打包命令&指定打包配置文件   此时配置文件为webpack.config.dev.js
+  webpack --watch           # 执行打包命令&监听更新，如果打包的文件有修改，则自动重新打包
+  webpack --progress        # 执行打包命令&显示进度条
+  webpack --color           # 添加颜
+  webpack-dev-server        # webpack官方提供的一个小型Express服务器。使用它可以为webpack打包生成的资源文件提供web服务。
+  webpack --watch --config xxx.js  # 同时执行多个命令
+
+
+
+※ 项目package.json例子
+  ...
+  "scripts": {
+    "build": "webpack",
+    "dev": "npm run serve && webpack --watch",
+    "serve": "node build/init.js && serve -p 8080",
+    "debug": "weex-devtool",
+    "buildDev": "webpack --config webpack.config.dev.js",
+    "buildPreProd": "webpack --config webpack.config.preprod.js",
+    "buildProd": "webpack --config webpack.config.prod.js",
+    "upload": "node pkg"
+  },
+  ...
+
+
+※ 注意
+   1.不能同时执行多个不同模块的命令  比如想要同时执行webpack命令和node命令是不行的，需要两个分开执行
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+复习
+----------------------------------------------------------------------------------------------------------------------------------------
+
+1.nodejs介绍，他能干什么？
+2.nodejs环境搭建
+3.第一个nodejs例子
+4.nodejs模块介绍及如何使用 3’
+5.系统模块介绍
+   1.http模块  本地文件作为一个服务器,可以供局域网访问
+   2.fs文件模块 同步读取和异步读取、区别
+   3.path模块 作用2’
+6.本地模块 2’
+7.第三方模块及npm介绍
+   1.npm介绍
+   2.npm的安装 4‘
+   3.package.json介绍
+8.全局对象 3’+2’+2’
+9.其他模块介绍 3‘
+   url模块
+   express模块
+   mysql模块
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+

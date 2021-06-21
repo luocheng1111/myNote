@@ -1,0 +1,160 @@
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ Weex介绍
+  Weex可以让我们使用vue或rax前端框架进行界面开发，最终weex会反编译成对应的Android代码或IOS代码运行在Android、IOS上面
+
+
+※ Weex环境搭建
+  1.先安装node环境和npm环境,在官网下载安装即可 node.js安装后自带npm环境 官网：https://nodejs.org/en/download/
+    npm -v 检测npm是否安装成功
+  2.npm install weex-toolkit -g   安装weex-toolkit
+    weex  -v  查询是否安装成功
+  3.npm install webpack -g    安装webpack
+  4.安装java环境、安装Android Studio、配置安卓环境
+
+
+※ 创建第一个Weex项目，并运行到Android项目中
+  1.cd 创建项目的目录下
+  2.weex create weexDemo
+      ? Use vue-router to manage your view router? (not recommended) n
+      ? Use ESLint to lint your code?  n
+      ? Set up unit tests (Y/n) n
+  2.cd weexDemo
+  3.npm install
+    npm run serve 成功后，会有一个浏览器地址，如果打开成功，则项目启动成功
+  4.weex platform add android 成功后，会创建一个platforms>>android两个文件夹及platforms.json文件
+  5.用AndroidStudio打开android文件夹项目，如果可以运行到手机上，则项目搭建成功
+  学习：https://gitee.com/yong_xing_yuan/WeexDemo
+
+
+
+※ 项目文件结构
+  dist：用来存储生成的JSBundle文件；
+  node_modules：第三方node的包，npm install的时候会重新安装。 给文件夹在Git中需要添加忽略
+  platforms：用来存放生成的ios和Android项目(通过weex platform add android/ios来添加),生成的项目是一次性的，即之后修改JS代码，这个文件夹生成的文件是不动的，所以建议该目录忽略。
+  plugins：
+  src：存放项目的源码
+  test：测试文件，如果需要单元测试可能会用到。
+  web：存放浏览器端的一些配置。
+  .gitignore/.babelrc：上传时不想上传的特殊文件配置到该文件中，可避免提交
+  package.json：项目或模块包的描述，里面包含许多元信息。比如项目名称，项目版本，项目执行入口等等。npm install 命令会根据这个文件下载所有依赖模块。
+  package-lock.json：package的一个锁文件，确定安装的第三方模块的版本
+  README.md  项目说明文件
+  .android/ios/web.config.json： weex打包成android/ios/web的配置文件
+
+
+※ Weex与Web的不同点
+  1.最外层只能用div 不能用其他标签
+  2.组件只能使用weex提供的组件，不能使用html的组件
+  3.weex样式只支持单个类选择器(id选择器、元素选择器就都不能用了)
+  3.weex不支持简易写法  比如border:1px solid #ccc 这种写法
+  4.weex对于长度值目前只支持px和wx(不受屏幕宽度和viewPortWidth影响),不支持百分比，不支持相对单位(em、rem)
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Android中集成Weex环境
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ Android集成Weex环境
+  1.添加依赖
+    implementation 'com.android.support:recyclerview-v7:23.1.1'
+    implementation 'com.android.support:support-v4:23.1.1'
+    implementation 'com.android.support:appcompat-v7:23.1.1'
+
+    // Weex
+    implementation 'com.taobao.android:weex_sdk:0.20.3.0-beta'
+    implementation 'com.alibaba:fastjson:1.1.46.android'
+    implementation 'com.squareup.picasso:picasso:2.5.2'
+    // Weex调试
+    implementation 'com.taobao.android:weex_inspector:0.20.3.0-beta'
+
+  2.依赖架构：Weex只支持这两种cpu架构，如果添加了其他的架构（列如：armeabi-v7a），weex会初始化异常
+    ndk { abiFilters "armeabi", "x86" }
+
+
+  3.Application类里初始化Weex
+    InitConfig config=new InitConfig.Builder().setImgAdapter(new ImageAdapter()).build();
+    WXSDKEngine.initialize(App.this,config);
+
+    //ImageAdapter类
+    public class ImageAdapter implements IWXImgLoaderAdapter {
+
+      @Override
+      public void setImage(String url, ImageView view, WXImageQuality quality, WXImageStrategy strategy) {
+        //实现你自己的图片下载。
+        //本地图片统一规则：drawable://act_clothes_icon
+        if (!TextUtils.isEmpty(url)) {
+            if (url.startsWith("drawable://")) {
+                getImageBydrawableName(view, url);//获取drawable图片
+                return;
+            }
+        }
+        Picasso.with(view.getContext()).load(url).into(view);//获取网络图片
+      }
+
+      /**
+       * 通过反射获取drawable图片
+       * @param view
+       * @param url
+       */
+      private void getImageBydrawableName(View view, String url) {
+        String urls[] = url.split("//");
+        String drawableName = "";
+        if(urls != null && urls.length >1) {
+            drawableName = urls[1];
+        }
+        try {
+            Field f = R.drawable.class.getField(drawableName);
+            view.setBackgroundResource(f.getInt(f));
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+      }
+    }
+
+
+  4.Activity中加载js/wx文件(比较老的版本文件是.wx文件,新版本用.js文件)
+    1.Activity类implements IWXRenderListener
+
+    2.初始化并加载
+    WXSDKInstance mWXSDKInstance = new WXSDKInstance(this);
+    mWXSDKInstance.registerRenderListener(this);
+    /**
+     * WXSample 可以替换成自定义的字符串，针对埋点有效。
+     * template 1.可为网络地址，比如下例  2.可以为js文件的地址，可以实时更新  3，可以为Assets文件下的js文件，例：WXFileUtils.loadAsset("index.js", this)
+     * option 可以为空，或者通过option传入 js需要的参数。例如bundle js的地址等。
+     * jsonInitData 可以为空。
+     * width 为-1 默认全屏，可以自己定制。
+     * height 为-1 默认全屏，可以自己定制。
+     */
+    String bundleUrl = "http://dotwe.org/raw/dist/38e202c16bdfefbdb88a8754f975454c.bundle.wx";
+    mWXSDKInstance.render("WXSample", bundleUrl, null, null, -1, -1, WXRenderStrategy.APPEND_ASYNC);
+
+    3.其他补充
+      见例子
+
+
+
+※ 修改weex文件，可更新原生的页面
+  1.新建一个Weex项目或已经建立好的项目
+  2.执行命令，npm run dev和npm run serve，
+    会得到一个IP地址，比如http://10.47.53.102:8081.打开这个网址可以在网站上预览你编写的效果
+  3.Android代码中加载这个网址
+    mWXSDKInstance.render("WXSample", ”http://10.47.53.102:8081/dist/index.js“, null, null, -1, -1, WXRenderStrategy.APPEND_ASYNC);
+  4.试着改变index.js中的代码，Android中重新加载这个界面就可以实时更新了
+
+
+
+※ 学习
+  https://www.cnblogs.com/fwling/p/6726066.html
+  https://blog.csdn.net/qq_33874397/article/details/88313886
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+

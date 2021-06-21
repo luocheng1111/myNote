@@ -1,0 +1,590 @@
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ JavaScript介绍
+  JavaScript是一种脚本编程语言，有了JavaScript，网页展现的不再是简单的静态信息，而是可以动态的改变内容。
+  可以实时的进行内容更新，交互式的地图，2D/3D 动画，滚动播放的视频等等
+  JavaScript可以改变HTML的内容
+  通过 HTML DOM,  JavaScript 能够访问和改变 HTML 文档的所有元素。
+
+
+※ HTML DOM介绍
+  JavaScript 改变内容是通过HTML DOM来实现的，
+  当网页被加载时，浏览器会创建页面的文档对象模型(Document Object Model)
+  HTML DOM模型被结构化为对象树
+  通过这个对象模型，JavaScript可以对HTML的所有元素进行操作，包括改变元素内容、元素属性、元素CSS样式、元素事件、删除新建HTML元素和属性等等
+
+
+※ 用法
+  <!DOCTYPE html>
+  <html>
+
+  <body>
+    <button type="button" onclick='document.getElementById("demo").innerHTML = "Hello JavaScript!"'>点击这里来显示一段文字</h1>
+    <p id="demo"></p>
+  </body>
+  </html>
+
+
+※ JavaScript 查找HTML元素
+  document.getElementById(id)         //通过元素 id 来查找元素 一般使用这种
+  document.getElementsByTagName(id)   //通过标签名来查找元素 例：document.getElementsByTagName("p"); //查找所有 <p> 元素：
+  document.getElementsByClassName(id) //通过类名来查找元素
+
+
+※ JavaScript 改变元素的显示
+  onclick='document.getElementById("demo").innerHTML="Hello JavaScrpt"' //改变元素显示的内容
+  onclick="document.getElementById('myImage').src='/i/eg_bulbon.gif'"   //改变元素属性的值
+  onclick="document.getElementById('demo').style.color = "blue";        //改变元素的CSS样式
+  onclick="document.getElementById('demo').style.display='none'"        //JS隐藏或显示HTML 元素显示*.style.display='block'
+
+
+※ JavaScript 给元素添加事件
+  1.第一种方式
+  document.getElementById("myBtn").addEventListener("click", displayDate);
+  function displayDate() {
+      document.getElementById("demo").innerHTML = Date();
+  }
+
+  2.第二种方式
+  document.getElementById("myBtn").onclick = function displayDate() {
+      document.getElementById("demo").innerHTML = Date();
+  };
+
+
+※ 不同地方添加JavaScript
+  1.<head>中的JavaScrpt
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <script>
+          function myFunction(){
+            document.getElementById("demo").innerHTML="段落已被更改。"
+          }
+        </script>
+      </head>
+    <body>
+      <button type="button" onclick="myFunction()">点击这里来显示一段文字</h1>
+      <p id="demo"></p>
+    </body>
+  </html>
+
+  2.<body>中的JavaScrpt
+    <body>
+      <button type="button" onclick="myFunction()">点击这里来显示一段文字</h1>
+      <p id="demo"></p>
+      <script>
+        function myFunction(){
+          document.getElementById("demo").innerHTML="段落已被更改。"
+        }
+      </script>
+    </body>
+
+  3.外部url中的JavaScrpt
+    <script src="https://www.w3school.com.cn/demo/myScript.js">
+
+  4.外部文件中的JavaScrpt  //myFunction 存储在名为 "myScript.js" 的外部文件中
+    <script src="/demo/myScript.js">
+
+  注：JavaScript(脚本)可被放置与 HTML 页面的 <body> 或 <head> 部分中，脚本的表现是一样的。但建议把脚本置于<body>的底部，可改善显示速度，因为脚本编译会拖慢显示。
+
+
+
+※ JavaScript的输出
+  1.直接输出HTML
+  <body>
+    <h2>我的第一张网页</h2>
+    <p>我的第一个段落。</p>
+    <script>
+      document.write(5 + 6);
+    </script>
+  </body>
+
+  2.改变某元素的内容
+  <body>
+    <h2>我的第一张网页</h2>
+    <p id="demo"></p>
+    <script>
+      document.getElementById("demo").innerHTML = 5 + 6;
+    </script>
+  </body>
+
+  3.弹窗提示
+  <script>
+      window.alert(5 + 6);
+  </script>
+
+  4.在控制台显示
+  <script>
+      console.log(5 + 6);
+  </script>
+
+
+※ 学习
+  官网 https://www.w3school.com.cn/js/index.asp
+  菜鸟教程 https://www.runoob.com/js/js-tutorial.html
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+JavaScript 数据类型
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ Es5和Es6的区别
+  Es：全称为ECMAScript，是JavaScript语言的核心，它规定了js的组成部分：语法、类型、语句、关键字、保留字、操作符、对象
+  Es5是Es的第5个版本（第四版因为过于复杂废弃了），他增加了一些特性，
+  1.strict模式
+  严格模式，限制一些用法，'use strict';
+
+  2.Array增加方法
+  增加了every、some 、forEach、filter 、indexOf、lastIndexOf、isArray、map、reduce、reduceRight方法
+
+  3. Object方法
+  Object.getPrototypeOf
+  Object.create
+  Object.getOwnPropertyNames
+  Object.defineProperty
+  Object.getOwnPropertyDescriptor
+  Object.defineProperties
+  Object.keys
+  Object.preventExtensions / Object.isExtensible
+  Object.seal / Object.isSealed
+  Object.freeze / Object.isFrozen
+
+  Es6是在保证向下兼容的前提下，提供大量新特性，
+  1.块级作用域 关键字let, 常量const
+  2.对象字面量的属性赋值简写（property value shorthand）
+  3.赋值解构
+  4.函数参数 - 默认值、参数打包、 数组展开（Default 、Rest 、Spread）
+  5.箭头函数 Arrow function
+  6.字符串模板 Template strings
+  7.Iterators（迭代器）+ for..of
+  8.生成器 （Generators）
+  9.Class
+  10.Modules
+  11.Map + Set + WeakMap + WeakSet
+  12.Math + Number + String + Array + Object APIs
+  13.Proxies
+  14.Symbols
+  15.Promises
+
+  学习：https://blog.csdn.net/xinghuowuzhao/article/details/79174822
+       https://www.cnblogs.com/sunshinezjb/p/9248533.html
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ JavaScript 数据类型
+  JavaScript 中的数据类型：
+  常规类型
+   字符串（string）
+   数字（number）
+   布尔（boolean）
+
+  其他类型
+   对象（object）
+   方法（function）
+   日期（Date）
+   数组（Array）
+   JSON
+
+  特殊类型
+   undefined
+   null
+   NaN
+   Infinity
+
+
+
+※ 字符串 - string
+  var carname = "";
+  var carname = "Porsche 911";
+  var carname = 'Porsche 911';  //字符串的定义可以双引号或者单引号
+
+
+※ 数字 - number
+  var x = 0;
+  var x = 5;
+  var x = 34.00        // 整数、小数都是number类型
+
+
+※ 布尔 - boolean
+  boolean只有两个值 true或false
+  除了零，其他数值都为true，但有一些特殊不具有“真实”值的即为false，比如""、undefined、null、NaN
+  var b = Boolean(10 > 9)            // true
+  var b1 = Boolean(100);             // true
+  var b2 = Boolean(3.14);            // true
+  var b3 = Boolean(-15);             // true
+  var b4 = Boolean("Hello");         // true
+  var b5 = Boolean('false');         // true
+  var b6 = Boolean(1 + 7 + 3.14);    // true
+  var b7 = Boolean("  ");            // true
+  var b8 = Boolean("");              // false
+  var b9 = Boolean(0);               // false
+  Var b10;
+  var b11 = Boolean(b10);            // false
+  var b12 = Boolean(null);           // false
+  var b13 = Boolean(false);          // false
+  var b14 = Boolean(10 / "H");       // false
+
+
+
+※ 对象 - object
+  var person = {
+      firstName : "Bill",
+      lastName  : "Gates",
+      age       : 62,
+      eyeColor  : "blue”,
+      //对象方法-函数
+      fullName  : function() {
+          return this.firstName + " " + this.lastName;
+      }
+  };
+  //对象的使用
+  document.getElementById("demo").innerHTML = person.firstName + " is " + person.age + " years old";
+  document.getElementById("demo").innerHTML = person.fullName();
+
+  使用构造器创建 JavaScript 对象
+  function Person(first, last, age, eye) {
+     this.firstName = first;
+     this.lastName = last;
+     this.age = age;
+     this.eyeColor = eye;
+  }
+
+  // 创建 Person 对象
+  var myFriend = new Person("Bill", "Gates", 62, "blue");
+  // 显示年龄
+  document.getElementById("demo").innerHTML = "My friend is " + myFriend.age + ".";
+
+
+
+※ JavaScript 方法
+    //带参数，且有返回值的写法，注意和对象里的方法写法不一样
+    function myFunction(a,b){
+       return a*b;
+    }
+    document.getElementById("demo").innerHTML=myFunction(4,3);
+
+
+
+※ JSON
+    JavaScript对象表示法(JavaScript Object Notation)
+    JSON比XML更小、更快、更易解析
+
+    var myObj = '{"name":"Bill Gates", "age":62, "city":"Seattle"}'
+    //把对象转为JSON
+    var myJSON =  JSON.stringify(myObj);
+    window.location = "demo_json.php?x=" + myJSON;
+
+    //把JSON转为对象
+    var jsonObj =  JSON. parse(myObj);
+    document.getElementById("demo").innerHTML = obj.name + ", " + obj.age;
+
+
+
+※ JavaScript 数组
+  var cars = ["Saab", "Volvo", "BMW"];           //方式1 声明数组
+  var cars2 = new Array("Saab", "Volvo", "BMW"); //方式2 声明数组
+  var cars3 = new Array();                       //方式3 声明数组
+  cars3[0]="Saab";
+  cars3[1]="Volvo";
+  cars3[2]="BMW";
+
+  向数组添加元素，即使超界，也会添加成功
+  var fruits = ["Banana", "Orange"];
+  fruits[2] = "Apple";
+  document.getElementById("demo").innerHTML = fruits; //Banana,Orange,Apple
+
+  var fruits = ["Banana", "Orange"];
+  fruits[4] = "Apple";
+  document.getElementById("demo").innerHTML = fruits; //Banana,Orange,undefined,undefined,Apple
+
+
+  如何判断某个变量是数组
+  var fruits = ["Banana", "Orange", "Apple", "Mango"];
+  typeof fruits;    //会返回object
+  document.getElementById("demo").innerHTML = Array.isArray(fruits) //true 或者 fruits instanceof Array
+
+  数组的循环
+  for (var i = 0; i < arr.length; i++) {
+    console.log(arr[i])
+  }
+
+
+
+※ 特殊类型
+    undefined
+    代表这个变量不含有值，如果声名了变量，而未赋值，则值实际上是 undefined 比如：var carname;
+    typeof carname   // 返回 "undefined"
+
+    null
+    当我们想清空变量的值，就可以把变量设置为null
+    var person;  //undefined
+    var car="Volvo";  //Volvo
+    var car=null; //null
+    typeof null   // 返回 "object"
+
+
+    NaN 关键字
+    NaN（Not a Number）属于JavaScript保留词，指示某个数不是合法数
+    用非数字字符串进行除法会得到 NaN
+    var x = 100 / "Apple";  // x 将是 NaN
+    typeof NaN;             // 返回"number", NaN属于数
+    isNaN(x);               // 返回true，isNaN可以判断某个值是否是数 true
+
+
+    Infinity 关键字
+    Infinity （或 -Infinity）是 Javascript 在计算数时超出最大可能数范围时返回的值：
+    Infinity 也是数字   typeof Infinity; // 返回 "number"
+    例1：
+    除以 0（零）也会生成 Infinity
+    var x = 2/0;   // x 将是 Infinity
+    var y = -2/0;  // y 将是 -Infinity
+
+    例2：
+    var myNumber = 2;
+    var txt = "";
+    while (myNumber != Infinity) {
+       myNumber = myNumber * myNumber;
+       txt = txt + myNumber + "<br>";
+    }
+    document.getElementById("demo").innerHTML = txt;
+    //结果为
+    4
+    ...
+    1.157920892373162e+77
+    1.3407807929942597e+154
+    Infinity
+
+
+
+
+※ typeof 判断变量的数据类型
+    typeof 返回值有六种可能： "number," "string," "boolean," "object," "function," 和 "undefined."以及'symbol'
+    typeof "Bill"                 // 返回 "string"
+    typeof ""                     // 返回 "string"
+    typeof 3.14                   // 返回 "number"
+    typeof 0                      // 返回 "number"
+    typeof NaN                    // 返回 "number"
+    typeof false                  // 返回 "boolean"
+    typeof [1,2,3,4]              // 返回 "object"
+    typeof []                     // 返回 "object"
+    typeof {name:'Bill', age:62}  // 返回 "object"
+    typeof new Date()             // 返回 "object"
+    typeof {}                     // 返回 "object"
+    typeof function () {}         // 返回 "function"
+    var a;
+    typeof a                      // 返回 "undefined"
+    typeof myCar                  // 返回 "undefined"
+    typeof null                   // 返回 "object"
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+※ JavaScript 数字运算
+  1.数字之间的运算
+    原因：如果两种类型不同的数据进行运算，JavaScript会试图将字符串转为数字，然后进行运算 加法除外
+    "100" / "10"   // 返回 10
+    "100" * "10"   // 返回 1000
+    "100" - "10"   // 返回 10
+    "100" + "10"   // 返回 10010 而不是110
+    10 + "20"      // 返回 1020
+    "10" + 20      // 返回 1020
+    5 + null       // 返回 5         因为 null 被转换为 0
+    "5" + null     // 返回 "5null"   因为 null 被转换为  "null"
+    "5" + 2        // 返回 52        因为 2 被转换为 "2"
+    "5" - 2        // 返回 3         因为 "5" 被转换为 5
+    "5" * "2"      // 返回 10        因为 "5" 和 "2" 被转换为 5 和 2
+    100 / "Apple"  // 返回 NaN
+
+    JavaScript类型转换表：https://www.w3school.com.cn/js/js_type_conversion.asp
+
+  2.浮点的加减不总是 100% 精确, 可以通过乘除解决
+    var x = 0.2 + 0.1;
+    document.getElementById("demo").innerHTML = "0.2 + 0.1 = " + x;   //0.2 + 0.1 = 0.30000000000000004
+    var y = (0.2*10 + 0.1*10) / 10;
+    document.getElementById("demo2").innerHTML = "0.2 + 0.1 = " + y; //0.2 + 0.1 = 0.3
+
+
+
+※ JavaScript 比较运算符
+    ==和===
+    ==：两边值类型不同的时候，会先进行类型转换，再比较。
+    ===：不做类型转换，类型不同的一定不等。
+    x = 5
+    if(x==8) //false
+    if(x==5) //true
+    if(x==“5”) //true
+
+    if(x===5) //true
+    if(x===“5”) //false
+    如果将字符串与数字进行比较，那么在做比较时 JavaScript 会把字符串转换为数值。空字符串将被转换为 0。非数字字符串将被转换为始终为false或NaN
+
+
+
+※ Number() 转换数值
+    Number可以把字符串转换为数字，数字字符串正常转换，非数字字符串转换为NaN，空字符传转换为0
+    Number("3.14")    // 返回 3.14
+    Number(" ")       // 返回 0
+    Number("")        // 返回 0
+    Number("啦啦啦")   // 返回 NaN
+    Number(false)     // 返回 0
+    Number(true)      // 返回 1
+
+
+※ Math.random() 随机数
+    Math.random() 会返回介于0(包括)与1(不包括)之间的随机数
+    例子1：
+    Math.random(); //0.3325001337194129
+    Math.floor(Math.random() * 10);      //返回 0 至 9 之间的数
+    Math.floor(Math.random() * 10) + 1;  //返回 0 至 10 之间的数
+
+    例子2：介于 x（包括）与 y（不包括）之间的随机整数
+    function getRndInteger(min, max) {
+        return Math.floor(Math.random() * (max - min) ) + min;
+    }
+    例子3：如何返回介于 x 与 y 之间（都包括）的随机整数
+    function getRndInteger(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) ) + min;
+    }
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+  ※ JavaScript 作用域
+    局部变量：在JavaScript 函数中声明的变量，会成为函数的局部变量。
+    全局变量：在函数之外声明的变量，会自动成为全局变量，全局变量的作用域是全局的：网页的所有脚本和函数都能够访问它。
+            自动成为全局变量后，可以使用window属性访问，
+
+    例子：
+    <script>
+      var carName = "porsche";
+      document.getElementById("demo").innerHTML = "我可以显示 " + window.carName;
+    </script>
+
+    注意点：
+    除非有意为之，否则请勿创建全局变量。
+    您的全局变量（或函数）能够覆盖 window 变量（或函数）。
+    任何函数，包括 window 对象，能够覆盖您的全局变量和函数。
+
+
+
+  ※ this关键字
+    this关键字指的是它所属的对象，在不同的使用位置，this就拥有不同的值，
+    1.单独情况下，this指的是全局对象 [object Window]   https://www.w3school.com.cn/tiy/t.asp?f=js_this
+    2.在函数中，this指的是全局对象 [object Window]     https://www.w3school.com.cn/tiy/t.asp?f=js_this_strict
+    3.在方法中，this指的是此方法的拥有者                https://www.w3school.com.cn/tiy/t.asp?f=js_this_method
+    4.在事件中，this指的是接受此事件的HTML元素          https://www.w3school.com.cn/tiy/t.asp?f=js_this_event
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ let、var、const 关键字
+----------------------------------------------------------------------------------------------------------------------------------------
+
+  ※ 介绍
+    let：声明的是块作用域的变量，在块{}内声明的变量无法从块外访问
+    var：声明的是没有块作用域，在块{}内声明的变量可以从块之外访问
+    const：定义的变量与let变量类似，但不能重新赋值
+
+    例子1：
+    let x = 10;  // 此处 x 为 10
+    var y = 10;  // 此处 y 为 10
+    {
+       let x = 6;  // 此处 x 为 6
+       var y = 6;  // 此处 y 为 6
+    }
+    // 此处 x 为 10
+    // 此处 y 为 6
+
+
+    例子2：
+    const PI = 3.141592653589793;
+    PI = 3.14;      // 会出错
+    const PI;
+    PI = 3.14159265359; // 会出错
+
+    //但常量对象的属性可以更改，比如对象的属性，数组的属性
+    const car = {type:"porsche", model:"911", color:"Black"};
+    car.color = "White"; //可以改变
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Ajax 网络请求
+----------------------------------------------------------------------------------------------------------------------------------------
+
+  ※ 介绍
+    Ajax(Asynchronous JavaScript And XML)， 异步JavaScript和XML
+    Ajax虽然名字里写的XML，但将数据作为纯文本或 JSON 文本传输也同样常见
+
+    Ajax可以做的事：
+    1.不刷新页面更新网页
+    2.在页面加载后从服务器请求数据
+    3.在页面加载后从服务器接收数据
+    4.在后台向服务器发送数据
+
+    例子：Get请求
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "/example/js/ajax_info.txt", true);
+    xhttp.send();
+    xhttp.onreadystatechange = function() {
+       if (this.readyState == 4 && this.status == 200) {
+          document.getElementById("demo").innerHTML =
+          this.responseText;
+       }
+
+    Post请求：
+    xhttp.open("POST", "ajax_test.asp", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("fname=Bill&lname=Gates");
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+复习
+----------------------------------------------------------------------------------------------------------------------------------------
+
+1.介绍下JavaScript、介绍下HTML DOM
+2.JavaScript的基本形式/写法 3’
+3.JavaScript如何查找HTML元素3’，如何改变元素的显示3’
+4.JavaScript的数据类型
+  1.JavaScript有哪些数据类型
+  2.介绍下js的特殊类型：undefined、null、NaN、Infinity，什么情况下是这种情况，且type类型
+  3.介绍下字符串、数字、布尔类型
+  4.介绍下对象、方法、JSON
+  5.介绍下数组 3'+2'+1'+1'
+  6.typeof 6'
+5.运算时需要注意的点 2’
+6.==和===的区别
+7.JavaScript 局部变量与全局变量
+8.this关键字介绍 3’
+9.let、var、const 关键字的区别
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+

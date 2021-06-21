@@ -1,0 +1,53 @@
+
+
+Weex布局与定位
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ weex的布局有两种
+  相对布局：position:absolute|static|fixed|relative
+  流线布局：display:flex(默认，方向:column)
+
+
+※ weex的布局的注意点(带总结)
+  https://blog.csdn.net/weixin_30335575/article/details/97643153
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Weex Flex布局的使用(待总结补充)
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+※ 例1 宽match、高88，里面就一个text，要求text垂直居中靠左边显示
+  .body1-title-window{
+    height: 88px;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+
+※ 例2 求显示5个颜色快，一行最多显示4个，第5个下一行排列，每个的宽度相等，
+  .body1-content-window{
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .body1-content-item{
+    min-width: 175px;
+    max-width: 175px;
+    height: 200px;
+    flex:1;
+    background-color: #afddff;
+    justify-content:center;
+    align-items:center;
+  }
+
+
+※ 学习
+  Css Flex的使用   https://blog.csdn.net/weitao_666/article/details/94742390
+  Weex Flex布局的使用 https://weex.apache.org/zh/docs/styles/common-styles.html#flexbox
+
+----------------------------------------------------------------------------------------------------------------------------------------
+

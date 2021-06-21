@@ -1,0 +1,60 @@
+
+
+
+Weex与Native(原生)的通信
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ Nativie 传递信息到 Weex
+  1.原生加载Weex文件
+  2.Native端 发送消息
+    Map<String, Object>  p = new HashMap<>();
+    p.put("key", "native主动发起广播至weex");
+    weexInstance.fireGlobalEvent("NativeToWeex", params: testDic)
+
+  3.Weex端 监听事件，接受消息
+    const globalEvent = weex.requireModule('globalEvent')
+
+    globalEvent.addEventListener("NativeToWeex", function (e) {
+      modal.toast({message: 'This is a toast1'})
+    })
+
+
+
+※ Weex 传递信息到 Nativie
+  1.原生加载Weex文件
+  2.Native端
+    1.新建一个类继承WXModule,并写一个回调的方法
+      public class WeexToNative extends WXModule {
+
+        @WXModuleAnno
+        public void toNative1(String msg) {
+           Toast.makeText(mWXSDKInstance.getContext(), msg, Toast.LENGTH_SHORT).show();
+        }
+      }
+
+    2.调用 WXSDKEngine 中的 registerModule:withClass方法来注册自己的Module，以便Weex能够识别并使用Native定义的Module
+      try {
+          WXSDKEngine.registerModule("weexToNative", WeexToNative.class);
+      } catch (WXException e) {
+          Log.e("Test",e.getMessage());
+      }
+
+
+  3.Weex端 发送消息到原生
+    weex.requireModule("weexToNative").callNative({
+        native: "i am weex"
+    });
+
+
+
+※ Weex 跳转 Weex
+  使用weex内置的navigator模块，weex之间传递数据需要用内置模块storage
+
+
+※ 学习
+  https://www.jianshu.com/p/5a694afba2c8
+  https://blog.csdn.net/dfskhgalshgkajghljgh/article/details/54732559
+  https://www.jianshu.com/p/2a0cded0c11b
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

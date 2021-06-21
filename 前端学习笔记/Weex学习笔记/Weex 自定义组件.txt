@@ -1,0 +1,51 @@
+
+
+
+Weex 自定义组件
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  自定义组件及使用写法和Vue的类似
+
+
+※ 例子
+  <template>
+    <div class="wrapper">
+        <text class="message">{{title}}</text>
+    </div>
+  </template>
+
+  export default {
+    props:{
+      title:{
+        type:String,
+        default:''
+      }
+    }
+  }
+
+  //使用
+  <HelloWorld title="标题"></HelloWorld>
+
+  <script>
+    import HelloWorld from '@/components/HelloWorld'
+      export default {
+      name: 'App',
+      components: {
+         HelloWorld
+      },
+      data() {
+        return {
+           logo: 'https://gw.alicdn.com/tfs/TB1yopEdgoQMeJjy1XaXXcSsFXa-640-302.png'
+        }
+      }
+    }
+  </script>
+
+
+※ 学习
+  https://blog.csdn.net/lucky9322/article/details/82144342
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+

@@ -1,0 +1,759 @@
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ Vue介绍
+   Vue是一套前端的渐进式框架, Vue的核心库只关注视图层，非常容易与其他库或已有项目结合，Vue.js是一个轻巧、高性能、可组件化的MVVM库，同时拥有非常容易上手的API。
+   MVVM即model，view，viewmodel，它是数据驱动模式，即所有的一切通过操作数据来进行，而尽量避免操作dom树。
+   换句话说，我们不关注dom的结构，而是考虑数据该如何储存，用户的操作在view通过viewmodel进行数据处理，分情况是否通过ajax与model层进行交互，再返回到view层，
+   在这个过程中view和viewmodel的数据双向绑定使得我们完全的摆脱了对dom的繁琐操作，而是专心于对用户的操作进行处理，避免了MVC中control层过厚的问题。
+
+   渐进式框架：
+   就是你需要什么就用什么，不需要什么就可以不用，强制你遵守的规则很少,自底向上增量开发（就是根据系统和硬件编写出基层的基本需求代码，再慢慢增加模块），
+   由于他要求遵守的规则较少，你可以引不同自己需要的东西，就需要配合webpack打包工具把引入的不同模块的东西打包
+
+
+※ Vue 环境搭建
+  1.通过官网下载vue.js文件,然后用<script>标签映入
+    1. 可选择开发版本和生产版本，两者选1个即可
+        开发版本：下载地址：https://cn.vuejs.org/js/vue.js   包含完整的警告和调试模式
+        生产版本：下载地址：https://cn.vuejs.org/js/vue.min.js   删除了警告，33.30KB min+gzip
+    2.下载好后，可以得到一个vue.js文件，把html和下载好的vue.js放在一个文件夹，引入，则环境就搭建成功了
+       <head>
+           <script src="vue.js" ></script>
+       </head>
+
+  2.通过在线地址直接引用
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    注：但对于生产环境，推荐使用一个明确的版本号和构建文件，以避免新版本造成的不可预期的破坏：
+       比如：<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+
+  3.通过NPM安装
+    1.需要先安装npm
+    2.命令行输入：npm install vue
+
+  4.通过命令行工具 (CLI)
+    Vue 提供了一个官方的 CLI，为单页面应用 (SPA) 快速搭建繁杂的脚手架。它为现代前端工作流提供了 batteries-included 的构建设置。
+    只需要几分钟的时间就可以运行起来并带有热重载、保存时 lint 校验，以及生产环境可用的构建版本。更多详情可查阅 Vue CLI 的文档。
+    注：CLI 工具需要对 Node.js 和相关构建工具有一定程度的了解，如果是新手，不建议使用CLI
+
+  注：这4种方式选择任意一种即可，建议前2种方式
+
+
+※ 第一个Vue例子
+  <!DOCTYPE html>
+  <html>
+    <head>
+       <meta charset="utf-8">
+       <title>Vue 测试实例</title>
+       <script src="https://cdn.staticfile.org/vue/2.4.2/vue.min.js"></script>
+    </head>
+
+    <body>
+       <div id="app">
+          <h1>{{message}}</h1>
+       </div>
+
+       <script type="text/javascript">
+         var vm = new Vue({
+           el: '#app',  //element元素，对应上面的div
+           data: {
+              message: 'Hello Vue!'
+           }
+         })
+         vm.message = 'a'; //改变属性的值时，界面会跟着改变
+       </script>
+    </body>
+  </html>
+
+
+※ Vue中data的3种写法
+  1.定义为属性
+    new Vue({
+       el : '#app',
+       data : {
+         message : 'Hello, Vue~'
+       }
+    })
+
+  2.定义为函数
+    new Vue({
+       el : '#app',
+       data: function(){
+         return {
+            message: 'Hello, Vue~'
+         }
+       }
+    })
+
+  3.定义为函数，满足ES6（ECMAScript 6.0）规范
+    new Vue({
+       el : '#app',
+       data(){
+         return {
+            message: 'Hello, Vue~'
+         }
+       }
+    })
+
+  在new Vue里面，三种写法都可以，效果一样
+  但自定义Component时，data的写法只支持后面两种
+
+
+※ Vue的指令 - 指令是带有v-前缀的特殊属性
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+实例的生命周期
+----------------------------------------------------------------------------------------------------------------------------------------
+
+https://cn.vuejs.org/v2/api/#选项-生命周期钩子
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Vue条件判断与循环
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ Vue if条件判断循环指令
+  v-if指令 如果满足条件,则<p>显示  例子：https://www.runoob.com/try/try.php?filename=vue2-v-if
+  <div id="app">
+    <p v-if="seen">现在你看到我了</p>
+  </div>
+
+  v-else和v-else-if
+  <div id="app">
+    <div v-if="type === 'A'">
+      A
+    </div>
+    <div v-else-if="type === 'B'">
+      B
+    </div>
+    <div v-else-if="type === 'C'">
+      C
+    </div>
+    <div v-else>
+      Not A/B/C
+    </div>
+  </div>
+
+
+
+※ v-show显示指令
+   <h1 v-show="ok">Hello!</h1> //ok为true则显示 false则不显示  和v-if效果类似，但v-show区别是他的代码写在html内，只是隐藏了未显示而已
+
+
+
+※ Vue v-for迭代指令
+  1.迭代整数
+    <div id="app">
+      <ul>
+        <li v-for="n in 10">
+        {{ n }}
+        </li>
+      </ul>
+    </div>
+
+    <script>
+      new Vue({
+         el: '#app'
+      })
+    </script>
+
+
+  2.迭代普通数组
+    <div id="app">
+      <ul>
+        <li v-for="(item, i) in list">
+          {{ item }} - {{ i }}
+        </li>
+      </ul>
+    </div>
+
+    <script>
+      new Vue({
+         el: '#app'
+         data:{
+            list:[1, 2, 3, 4, 5, 6]
+         }
+      })
+    </script>
+
+
+ 3.迭代对象数组
+    <div id="app">
+      <ul>
+        <li v-for="(user, i) in listObj">
+          {{ i }} - {{ user.id }} - {{ user.name }}
+        </li>
+      </ul>
+    </div>
+
+    <script>
+      new Vue({
+         el: '#app'
+         data:{
+           listObj:{[
+                 { id: 1, name: 'Runoob' },
+                 { id: 2, name: 'Google' },
+                 { id: 3, name: 'Taobao' }
+            ]}
+         }
+      })
+    </script>
+
+
+  4.迭代对象
+    <div id="app">
+      <ul>
+        <li v-for="(value,key) in user">
+          {{ key }} - {{ value }}
+        </li>
+      </ul>
+    </div>
+
+    <script>
+      new Vue({
+         el: '#app'
+         data:{
+           user: {
+             name: '菜鸟教程',
+             url: 'http://www.runoob.com',
+             slogan: '学的不仅是技术，更是梦想！'
+           }
+         }
+      })
+    </script>
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+v-bind 指令 可动态修改元素的属性
+----------------------------------------------------------------------------------------------------------------------------------------
+
+1.v-bind绑定已有属性，动态改变某个属性的值
+  <div id="app">
+     <a v-bind:href="url">....</a>
+  </div>
+
+  new Vue({
+     el:"#app"
+     data: {
+        url:"www.baidu.com"
+    }
+  })
+
+
+2.v-bind绑定对象，Class
+  </head>
+  <style>
+    .classA {
+       width: 300px;
+       height: 300px;
+       background: green;
+    }
+    .classB {
+       width: 200px;
+       height: 200px;
+       background: red;
+    }
+  </style>
+</head>
+
+<body>
+<div id="app">
+  <div class="static"
+     v-bind:class="{ classA: isActive, classB: isShow }">
+  </div>
+</div>
+
+<script>
+new Vue({
+  el: '#app',
+  data: {
+    isActive: true,
+    isShow: true
+  }
+})
+</script>
+</body>
+
+//以上代码，classA和classB表示要添加的类名，isActive和isShow对应vue中的数据，表示什么情况下添加该类名，对应isActive为真才添加active类
+  如果两个的值都为真，则取后面一个
+
+
+3.绑定Style
+  1.同时绑定多个样式
+   v-bind:style="{color:theColor, backgroundColor:bgColor, fontSize:fntSize+'px'}"
+
+   data:{
+     theColor:"red",
+     bgColor:"black",
+     fntSize:36
+   }
+
+  2.通过对象绑定
+   <div v-bind:style="styleObject"></div>
+
+   data: {
+     styleObject: {
+       color: 'red',
+       fontSize: '13px'
+   }
+
+
+注：由于使用频繁，通常将v-bind:属性名=" "的格式简写成:属性名=" "
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+v-on 事件绑定与事件修饰符
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ v-on 事件绑定
+ 1.通过事件修改某个值
+  <div id="app">
+     <p>这个按钮被点击了 {{ counter }} 次。</p>
+     <button v-on:click="counter++”>增加 1</button>
+  </div>
+
+  <script>
+     new Vue({
+        el: '#app',
+        data: {
+           counter: 0
+        }
+     })
+  </script>
+
+
+ 2.绑定click事件
+  <div id="app">
+     <p>{{ message }}</p>
+     <a v-on:click="doSomething">
+     <button v-on:click="say('hi')">Say hi</button>
+     <button v-on:click="say('what')">Say what</button>
+  </div>
+
+  new Vue({
+     el:"#app"
+     data: {
+       message: 'Runoob!'
+     },
+     methods: {
+       doSomething: function () {
+          this.message = "abc"
+       }
+       say: function (message) {
+           alert(message)
+       }
+     }
+  })
+
+
+※ v-on 事件修饰符
+  例，有三层，A最外层、B中间层、C最底层
+     正常情况下，点击C层，事件传递顺序：C-B-A 从内向上冒泡传递
+               点击B层，事件传递顺序：B-A
+               点击A层，事件传递顺序：A
+
+  .stop修饰符：事件不再向上传递，本层执行完停止
+   例：<a v-on:click.stop = "doThis">www.baidu.com</a>
+
+  .prevent 阻止默认事件的发生 比如点击超链接的时候会进行页面的跳转，点击表单提交按钮时会重新加载页面等，使用".prevent"修饰符可以阻止这些事件的发生。
+   例：<a herf="www.baidu.com" @click.prevent>百度</a>  //此时点击超链接不会进行页面的跳转
+
+  .capture 捕获冒泡，即有冒泡发生时，有该修饰符的dom元素会先执行，如果有多个capture，从外到内依次执行，然后再按自然顺序执行触发的事件。
+   如果在最外层A层设置@click.capture="outClick", 此时点击内层时，则事件传递顺序为A-C-B
+   如果在中间层B层设置@click.capture="outClick", 此时点击内层时，则事件传递顺序为B-C-A
+   如果在A层和B层都设置@click.capture="outClick", 此时点击内层时，则事件传递顺序为A-B-C
+
+  .self ：将事件绑定到自身，只有自身才能触发，通常用于避免冒泡事件的影响
+
+  .once ：设置事件只能触发一次，比如按钮的点击等。
+
+  .passive 该修饰符大概意思用于对DOM的默认事件进行性能优化，根据官网的例子比如超出最大范围的滚动条滚动的。
+   滚动事件的默认行为 (即滚动行为) 将会立即触发,而不会等待 `onScroll` 完成,这其中包含 `event.preventDefault()` 的情况
+
+   学习：https://www.cnblogs.com/xiaoyaoxingchen/p/10405207.html
+
+
+
+※ 缩写
+  v-bind
+  <!-- 完整语法 -->
+  <a v-bind:href="url"></a>
+  <!-- 缩写 -->
+  <a :href="url"></a>
+
+  v-on
+  <!-- 完整语法 -->
+  <a v-on:click="doSomething"></a>
+  <!-- 缩写 -->
+  <a @click="doSomething"></a>
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+v-model 表单的绑定和修饰符
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+ v-model指令用来在input、select、textarea、checkbox、radio等表单控件元素上创建双向数据绑定,
+ 根据表单上的值，自动更新绑定的元素的值
+
+
+※ 输入框例子 https://www.runoob.com/try/try.php?filename=vue2-form1
+  <div id="app">
+    <p>{{ message }}</p>
+    <input v-model="message">
+  </div>
+
+  <script>
+     new Vue({
+        el: '#app',
+        data: {
+           message: 'Runoob!'
+        }
+     })
+  </script>
+
+  效果：用户框默认显示Runoob！，输入框输入的值会同时显示在输入框内和<p>标签内
+
+
+※ 单选框radio例子 https://www.runoob.com/try/try.php?filename=vue2-form3
+  效果：选择的是哪个，就取哪个的value值
+
+
+※ 单选框、复选框checkbox例子
+  <div id="app">
+     <p>单个复选框：</p>
+     <input type="checkbox" id="checkbox" value="Runoob1" v-model="checkedNames1">
+     <label for="checkbox">{{ checkedNames1 }}</label>
+
+     <p>多个复选框：</p>
+     <input type="checkbox" id="runoob" value="Runoob" v-model="checkedNames">
+     <input type="checkbox" id="google" value="Google" v-model="checkedNames">
+     <label for="google">Google</label>
+     <input type="checkbox" id="taobao" value="Taobao" v-model="checkedNames">
+     <label for="taobao">taobao</label>
+     <br>
+     <span>选择的值为: {{ checkedNames }}</span>
+  </div>
+
+  <script>
+     new Vue({
+       el: '#app',
+       data: {
+         checkedNames1 : "aa”,
+         checkedNames: []
+       }
+     })
+  </script>
+
+  效果：1.如果复选框的默认值不是数组类型，则他最终只有true和false
+       2.如果复选框的默认值是数组类型，则他最终值选中那个，数组就增加那个
+
+
+※ 选择列表select例子 https://www.runoob.com/try/try.php?filename=vue2-form4
+  效果：选择的是那个，就取那个的value值
+
+
+※ 表单的修饰符
+  .trim 如果要自动过滤用户输入的首尾空格，可以添加 trim 修饰符到 v-model 上过滤输入：
+   <input v-model.trim="msg">
+
+  .number 如果想自动将用户的输入值转为 Number 类型（如果原值的转换结果为 NaN 则返回原值）
+   <input v-model.number="age" type="number">
+
+  .lazy 一般情况下， input事件中会同步输入框的值与数据，如果添加了修饰符lazy，则效果变成change 事件中同步-当input的焦点变化或者失去时，才会同步数据
+   <input v-model.lazy="age" type="number">
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Vue 自定义组件
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  Vue支持自定义组件，我们可创造和复用一些重用的代码
+
+
+※ 定义一个新组件(全局)
+  <div id="app">
+    <runoob></runoob>
+  </div>
+
+  <script>
+    //自定义组件的注册及内容
+    Vue.component(
+      'runoob', {
+        template:'<h1>自定义组件!</h1>'
+      }
+    )
+
+    new Vue{
+       el:'#app'
+    }
+  </script>
+
+
+※ 定义一个新组件(局部)
+  <script>
+    new Vue{
+       el:'#app'
+       component{
+         'runoob':{
+            template:'<h1>自定义组件!</h1>'
+         }
+       }
+    }
+  </script>
+
+
+※ 定义新组件的属性 props
+  <div id="app">
+    <child message="hello!"></child>
+  </div>
+
+  <script>
+    Vue.component(
+      'child': {
+        props:['message']
+        //同样也可以在 vm 实例中像 "this.message" 这样使用
+        template:'<span>{{ message }}</span>'
+    })
+
+    new Vue{
+       el:'#app'
+    }
+  </script>
+
+
+※ 自定义属性的值与其他属性的值进行绑定 通过v-bind:自定义属性=“其他的data名”
+  <div id="app">
+    <p>{{message}}</p>
+    <input v-model="message" >
+    <child v-bind:abc="message" ></child>
+  </div>
+
+  <script>
+    Vue.component('child', {
+       props:['abc'],
+       template:'<span>{{ abc }}</span>'
+    })
+    new Vue({
+       el: '#app',
+       data: {
+          message: 'Runoob!'
+       }
+    })
+  </script>
+
+
+※ 自定义事件  https://www.runoob.com/try/try.php?filename=vue2-component6
+  <div id="app">
+     <div id="counter-event-example">
+       <p>{{ total }}</p>
+       <button-counter v-on:increment="incrementTotal"></button-counter>
+       <button-counter v-on:increment="incrementTotal"></button-counter>
+     </div>
+  </div>
+
+  <script>
+     Vue.component('button-counter', {
+       template: '<button v-on:click="incrementHandler">{{ counter }}</button>',
+       data: function () {
+         return {
+            counter: 0
+         }
+       },
+       methods: {
+         incrementHandler: function () {
+            this.counter += 1
+            this.$emit('increment')
+         }
+       },
+     })
+
+     new Vue({
+       el: '#counter-event-example',
+       data: {
+         total: 0
+       },
+       methods: {
+            incrementTotal: function () {
+               this.total += 1
+            }
+       }
+     })
+  </script>
+
+  过程：
+   1.自定义事件，是由通过template中的元素原有事件触发，见上面template,触发的事件会进入methods中
+   2.method中触发的事件通过this.$emit('increment')绑定自定义事件v-on:increment
+   3.自定义事件v-on:increment="incrementTotal" 最终会触发Vue中的methods-incrementTotal()事件
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Vue-cli 单文件组件项目 .vue文件
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  Vue-cli是vue官方出品的快速构建单页应用的脚手架
+  我们使用Vue.compont来定义新组件的方式在小规模项目中运行的很好，但在复杂的项目中，就会很不方便，例如
+  1.全局定义：这样就会让我们每个新定义的组件命名不能重复
+  2.缺乏语法高亮：Html语法写在temple里，如果复杂或者多行，那编写起来会很痛苦，而且有很多地方需要用到转义字符
+  3.不支持CSS
+  4.没有构建步骤，限制只能使用 HTML 和 ES5 JavaScript，而不能使用预处理器，如 Pug (formerly Jade) 和 Babel
+  而单文件组件为以上问题提供了解决方法，这些文件扩展名是.vue, 并且还可以使用webpack或Browserify等构建工具
+
+
+※ 搭建环境
+  1.安装npm
+   npm介绍：全称node package manager,是一个基于node.js的包管理器
+           也是整个node.js最流行，支持模块最多的的包管理器，通过安装node.js我们就可以完成npm的安装
+
+   1.进入node.js官网下载页面，选择安装包下载
+      https://nodejs.org/zh-cn/download/
+   2.下载后，打开，然后按照引导完成即可
+   3.检查是否安装成功
+      打开命令行,输入npm -v，如果能获取到npm的版本号，则证明Npm安装成功
+
+  2. 切换到国内镜像
+     由于国内的网络环境，直接通过npm安装，会下载很慢，所以建议切换到国内的镜像环境
+     npm config set registry https://registry.npm.taobao.org
+
+  3.安装vue-cli
+     npm i -g @vue/cli
+     如果权限被拒绝，则使用此命令：sudo npm i -g @vue/cli
+
+  4.安装webpack
+     npm install --global webpack
+
+  5.检查是否安装成功
+     vue --version
+
+
+※ 创建第一个vue项目
+  有三种方式
+  一.使用webpack创建vue项目
+    1.打开webpack里的Termial
+    2.cd 打开切换到要创建项目的文件夹下
+    3.vue init webpack my-project
+    4.使用webpack打开项目，
+    5.执行命令 npm install 、 npm run serve
+    6.编译成功后会有一个网址，网址打开显示项目则表示创建成功
+
+  二.使用命令行创建项目
+    1.切换到要创建项目的文件夹下
+    2.命令行输入 vue ui   启动成功后会打开一个网页
+     1.创建一个项目,输入项目文件夹名，包管理器选择npm  预设选择默认设置
+     2.在命令行中可以观察文件的创建过程
+     3.恭喜你创建成功，可以把项目拖到HBuildX中
+
+  三.使用WebStrom编译器 创建项目
+     文件->New Project->选择Vue.js，->在location里输入路径，最后部分是项目名->点击create就可以创建成功了
+
+
+※ 把vue项目运行到服务器上
+  1.在终端里切换到项目路径下
+    执行命令 npm install
+            npm run serve/dev
+  2.执行后如果显示IP地址，则执行成功，把地址在浏览器打开就可以看到项目效果了
+  注：当输入npm run serve命令后，vue-cli会自动进行项目发布打包。会执行package.json文件的scripts字段中的serve，最后把Vue网页放在服务器上
+
+
+※ 项目结构介绍
+  node_modules文件夹：项目依赖的第三方node的包，即npm install命令下载下来的文件
+  src文件夹：开发的目录，存放项目的源码
+    App.vue：项目的入口文件，完成了对组件的的引入工作
+    router文件夹 ：项目所有路由存放处
+    main.js  :  相当于Java中的main方法，是整个项目的入口js
+    assets 文件夹:  项目用到的图片类的资源
+    components文件夹：项目中的组件目录
+  .gitignore     上传时不想上传的特殊文件配置到该文件中，可避免提交
+  package.json   第三方模块依赖
+  package-lock.json  package的一个锁文件，确定安装的第三方模块的版本
+  README.md  项目说明文件
+
+  项目运行顺序： main.js是整个项目的入口文件,通过代码引进了App.vue的组件和的模板, router/index.js 是项目的路由文件
+  Vue项目启动代码执行流程分析：https://www.cnblogs.com/issupperme/p/11555320.html
+
+
+※ vue单文件实例
+  <template>
+     <div class="example">{{ msg }}</div>
+  </template>
+
+  <script>
+     export default {
+       data () {
+         return {
+            msg: 'Hello world!'
+         }
+       }
+     }
+  </script>
+
+  <style>
+     .example {
+       color: red;
+     }
+  </style>
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+开发经验
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+※ 如果碰到奇怪的问题，看是否有以下几点
+  1.使用属性的时候是否要忘记加 this
+  2.子控件不能和父控件用同一个class类名
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+复习
+----------------------------------------------------------------------------------------------------------------------------------------
+
+1.Vue的环境搭建
+2.Vue的写法
+3.data的3种写法及区别
+4.Vue条件判断 2’
+5.Vue的循环迭代  4’
+6.v-bind指令 3’
+7.v-on事件绑定与事件修饰符 2’+4’
+8.缩写方法 2’
+9.v-model例子 1’
+10.Vue 自定义组件
+    1.Vue 自定义组件写法 2’
+    2.Vue 自定义组件属性 2’
+    3.Vue 自定义组件事件
+11.Vue单文件组件
+     1.介绍
+     2.vue单文件示例
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+

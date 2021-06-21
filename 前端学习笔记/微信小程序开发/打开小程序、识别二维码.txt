@@ -1,0 +1,122 @@
+
+
+
+通过H5页面中转打开小程序某一界面
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 获取中转URL-操作步骤
+  1.进入公众公众平台登录进入小程序管理后台
+  2.通过「工具」-「生成URL Scheme」入口打开生成URL界面
+  3.填写小程序页面路径及启动query参数，最后选择生成URL(小程序页面路径须为已发布的小程序的现有页面)
+  4.H5页面中添加location.href = 'weixin://dl/business/?t= *TICKET*'  (改方法可以在用户打开H5时立即调用，也可以在用户触发事件后调用)
+
+
+※ 获取中转URL-操作步骤
+  1.进入公众公众平台登录进入小程序管理后台
+  2.通过「工具」-「生成URL Scheme」入口打开生成URL界面
+  3.填写小程序页面路径及启动query参数，最后选择生成URL(小程序页面路径须为已发布的小程序的现有页面)
+  4.H5页面中添加location.href = 'weixin://dl/business/?t= *TICKET*'  (改方法可以在用户打开H5时立即调用，也可以在用户触发事件后调用)
+
+※ 小程序获取参数
+  一个参数： 页面路径：subpackage/openArticle2/index 启动query参数：productId=4&bbb=abc
+  获取值：
+    let params = this.$taro.getCurrentInstance().router.params
+    //获取值：通过路径跳转到小程序
+    let productId = params.productId
+    let bbb = params.bbb
+    //获取值：通过小程序码跳转到小程序
+    let scene = decodeURIComponent(params.scene)
+    let temp = scene.split('&')
+    for(var i=0; i<temp.length; i++){
+      let str = temp[i].split('=');
+      if(str[0] === 'productId'){
+        this.productId = str[1]
+      }else if(str[0] === 'bbb'){
+        this.bbb = str[1]
+      }
+    }
+
+
+  注：如果通过wx.getLaunchOptionsSync().query.productId则获取不到值，不知道原因
+  通过wx.getLaunchOptionsSync()获取的值
+  {
+    "path":"subpackage/openArticle2/index",
+    "query":{
+      "productId":"4"
+    },
+    "scene":1065,
+    "referrerInfo":{
+      "appId":"wxbxxxxx6d"
+    }.
+    "mode":"default"
+  }
+
+
+
+※ 学习
+  https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/url-scheme.html
+  https://www.it610.com/article/1282657496464375808.htm
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+通过小程序码打开小程序某一界面
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 生成
+  方式一：可通过「工具」-「生成小程序码」生成，但不能传参
+  方式二：可通过 服务器调微信接口生成 有3种接口，可已传参
+         页面文档https://developers.weixin.qq.com/miniprogram/dev/api-backend/open-api/qr-code/wxacode.createQRCode.html
+
+
+※ 获取参数值
+  页面路径page参数：subpackage/openArticle2/index scene参数：productId=4
+
+  获取值：
+    let params = this.$taro.getCurrentInstance().router.params
+    let scene = decodeURIComponent(params.scene)
+    let temp = scene.split('&')
+    for(var i=0; i<temp.length; i++){
+      let str = temp[i].split('=');
+      if(str[0] === 'productId'){
+        this.productId = str[1]
+      }
+    }
+    注：如果通过this.$taro.getCurrentInstance().router.params则获取不到值
+
+    通过wx.getLaunchOptionsSync()获取的值
+    {
+      "scene":"productId=4"
+    }
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+微信小程序实现长按识别二维码功能
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 小程序里长按图片识别公众号二维码
+  1.需要在公众号里发一篇公众号文章
+  2.小程序里webview加载这篇公众号文章连接，此时长按就可以识别公众号
+  注：
+  1.必须要把你的小程序关联到公众号，才能显示出这篇文章
+
+
+※ 小程序里长按图片识别小程序码
+  只需要在<image show-menu-by-longpress="true" src="xxx"> 即可实现
+  注：src为小程序码图片或地址，他不能识别公众号码，如果要识别公众号吗，则见上方
+
+
+※ 学习
+  https://mp.weixin.qq.com/s/NHvntMN07ehuQl0jeJ5Tqg
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+

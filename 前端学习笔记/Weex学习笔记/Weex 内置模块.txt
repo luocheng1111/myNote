@@ -1,0 +1,236 @@
+
+
+Weex内置模块
+----------------------------------------------------------------------------------------------------------------------------------------
+
+  Weex系统为我们提供了一些列的功能，比如消息提示框、存储、事件监听等
+  使用方法也很简单,只需要在scrpt中引入weex.requireModule('xxx')，然后直接使用里面的方法即可
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+modal模块
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  modal 模块提供了以下展示消息框的API：toast、alert、confirm 和 prompt。
+
+
+※ 例子
+  var modal = weex.requireModule('modal')
+  modal.toast({
+      message: 'This is a toast',
+      duration: 0.3
+  })
+
+  modal.alert({
+      message: 'This is a alert',
+      okTitle: '确认'
+  }, function () {
+      console.log('alert callback')
+  })
+
+  见：http://dotwe.org/vue/467c44e9d4a6da126783ea5be7fe3772
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+storage模块
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  可以对本地数据进行存储、修改、删除，并且该数据是永久保存的，除非手动清除或者代码清除。
+
+
+※ 例子
+  var storage = weex.requireModule('storage')
+
+  setItem () {
+    storage.setItem('name', 'Hanks', event => {
+        this.state = 'set success'
+        console.log('set success')
+    })
+  },
+  getItem () {
+    storage.getItem('name', event => {
+        console.log('get value:', event.data)
+        this.state = 'value: ' + event.data
+    })
+  }
+
+  见：http://dotwe.org/vue/712b1436b9285180fee13ab8acb30e81
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+stream模块 - 网络请求
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  stream模块提供了基本的网络请求能力，例如 GET 请求、POST 请求等，用于在组件的生命周期内与服务端进行交互。
+
+
+※ 例子 Get请求
+  <script>
+    const stream = weex.requireModule('stream');
+    stream.fetch({
+        method: 'GET',
+        url: 'http://httpbin.org/get',
+        type:'json'
+      }, function(ret) {
+        if(!ret.ok){
+          me.getJsonpResult = "request failed";
+        }else{
+          console.log('get:'+ret);
+          me.getJsonpResult =  JSON.stringify(ret.data);
+        }
+      },function(response){
+        console.log('get jsonp in progress:'+response.length);
+        me.getJsonpResult = "bytes received:"+response.length;
+    });
+
+
+※ API
+  fetch(options, callback, progressCallback)
+  options有5个可选配置项：
+    method, string, HTTP 请求方法，值为 GET/POST/PUT/DELETE/PATCH/HEAD
+    url, string, 请求的 URL | string
+    headers, object, HTTP 请求头
+    type, string, 响应类型：json，text 或是 jsonp(在 native 原生实现中其实与 json 相同)
+    body, string, HTTP 请求体
+  callback, 响应结果回调，回调函数将收到如下的 response 对象：
+    status, number, 返回的状态码
+    ok, boolean, 如果状态码在 200-299 之间就为 true
+    statusText, string, 状态描述文本
+    data, string, 返回的数据，如果请求类型是 json 和 jsonp，则它就是一个 object ，否则是一个 string。
+    headers, object, HTTP 响应头
+  progressCallback, 函数，一个进度回调。此回调将在请求完成之前调用
+    readyState, number, 当前状态，1: 请求连接中；2: 返回响应头中；3: 正在加载返回数据
+    status, number, 返回的状态码
+    length number, 已经接受到的数据长度. 你可以从响应头中获取总长度
+    statusText, string, 状态描述文本
+    headers. object, HTTP 响应头
+
+
+※ 学习
+  https://weex.apache.org/zh/docs/modules/stream.html#fetch
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+navigator模块
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  提供了界面间的前进、回退功能，并且还允许我们指定在切换页面的时候是否应用动画效果
+
+
+※ 例子
+  var navigator = weex.requireModule('navigator')
+  navigator.push({
+     url: 'http://dotwe.org/raw/dist/519962541fcf6acd911986357ad9c2ed.js',
+     animated: "true"
+  }, event => {
+     console.log('callback: ', event)
+  })
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+globalEvent模块
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  globalEvent 用于监听持久性事件，例如定位信息，陀螺仪等的变化。全局事件是需要额外 APIs 处理的次要 API。
+  可以实现原生与weex的交互，或者一些系统的事件
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+dom模块
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  dom 模块用于对 weex 页面里的组件节点进行一部分特定操作。
+  比如：
+  1.scrollToElement 将 list 的某个子节点滚动到当前视口
+  2.getComponentRect 获取某个组件的 bounding rect 布局信息
+  3.addRule 添加 font-face rule
+  4.getLayoutDirection0.20.0+ 获取某个组件的布局方向（rtl、lrt、inh
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+animation模块
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  animation 模块可以用来在组件上执行动画。JS-Animation可以对组件执行一系列简单的变换 (位置、大小、旋转角度、背景颜色和不透明度)。
+
+
+※ 例子
+  var animation = weex.requireModule('animation')
+
+  var testEl = this.$refs.test;
+  animation.transition(testEl, {
+    styles: {
+        backgroundColor: '#FF0000',
+        transform: 'translate(250px, 100px)',
+    },
+    duration: 800, //ms
+    timingFunction: 'ease',
+    needLayout:false,
+    delay: 0 //ms
+    }, function () {
+        modal.toast({ message: 'animation finished.' })
+  })
+
+
+  见：http://dotwe.org/vue/c891ef082329a160212d61dac4a32d74
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+deviceInfo模块
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  deviceInfo模块可用来获取设备的基本信息并进行设置，如fullScreenHeight（全面屏高度）。适配全面屏时建议使用该模块。
+  适配全面屏时，默认获取的屏幕高度可能不包含status bar的高度，此时建议使用enableFullScreenHeight开启全屏效
+
+
+※ 例子
+  var deviceInfo = weex.requireModule('deviceInfo')
+  var modal = weex.requireModule('modal')
+  deviceInfo.enableFullScreenHeight(
+    function (e) {
+      modal.toast({
+        message:"full screen height:" + e.fullScreenHeight,
+        duration:1,
+      });
+
+  },{});
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

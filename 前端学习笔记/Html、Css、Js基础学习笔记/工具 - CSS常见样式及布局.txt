@@ -1,0 +1,104 @@
+
+
+CSS 常见样式属性
+----------------------------------------------------------------------------------------------------------------------------------------
+ 通用：
+   设置背景颜色 background-color: gray;
+   设置背景图片 background-image: url(/i/eg_bg_04.gif)
+   设置宽、高   width、height   可用auto(默认),原本多大就多大，像素(30px)、百分比(比如50%，宽度为屏幕的50%大小)
+   设置边距     margin 外边距  padding   内边距
+   设置元素生成的框的类型   display
+       none, 此元素不会被显示。
+       block，可以让行内元素（比如 <a> 元素）表现的像块元素一样，此元素将显示为块级元素，此元素前后会带有换行符。
+       inline 默认。此元素会被显示为内联元素，元素前后没有换行符。 其他设置https://www.w3school.com.cn/css/pr_class_display.asp
+       inline-block 行内块属性，我们有个时候既希望元素具有宽度高度特性，又具有同行特性，这个时候我们可以使用inline-block。一块一块的行内，这种情况下可以设置padding和高度
+   设置是否显示 visibility  visible元素可见，hidden元素不可见
+   设置透明度 (一般情况下2个一起用)
+      opacity:0.4;  //IE9, Firefox, Chrome, Opera 和 Safari 使用属性 从 0.0 到 1.0。值越小，越透明。
+      filter:alpha(opacity=40); /* 针对 IE8 以及更早的版本 * x 能够取的值从 0 到 100。值越小，越透明。
+
+ 字体系列
+   设置字体大小  font-size:14px
+   设置文本颜色  color:red {color:red} {color:#00ff00} {color:rgb(0,0,255)}
+   设置字体样式  font-family:"Times New Roman"
+   设置字体粗细  font-weight:400   取值100 ~ 900 值越大越粗  400 等价于 normal，而 700 等价于 bold
+   设置文本对齐  text-align 可以设置center、left、right
+
+ 边框系列
+    border-width: 边宽
+    border-color:边框颜色
+    border-style: 边框样式 CSS定义了10个不同的边框样式，具体见https://www.w3school.com.cn/cssref/pr_border-style.asp
+
+
+ 背景系列属性：https://www.w3school.com.cn/css/css_background.asp
+ 文本系列属性：https://www.w3school.com.cn/css/css_text.asp
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+布局
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ flex属性
+  display: flex;
+  flex-direction
+  flex-wrap
+  flex-flow
+  justify-content
+  align-items
+  align-content
+
+  flex-direction: row(默认) | row-reverse | column | column-reverse;
+  决定主轴的方向，如果设置row，则主轴为横轴，纵轴为交叉轴，如果设置column，则主轴为纵轴，交叉轴为横轴
+
+  flex-wrap: nowrap(默认) | wrap | wrap-reverse;
+  如果一条轴线上放不下，是否换行
+
+  flex-flow: <flex-direction> <flex-wrap>;
+  flex-flow属性是flex-direction属性和flex-wrap属性的简写形式，默认值为row nowrap。
+
+  justify-content: flex-start | flex-end | center | space-between | space-around;
+  定义了项目在主轴上的对齐方式
+
+  align-items: flex-start | flex-end | center | baseline | stretch;
+  align-items属性定义项目在交叉轴上如何对齐
+
+  align-content: flex-start | flex-end | center | space-between | space-around | stretch;
+  定义了多根轴线的对齐方式。如果项目只有一根轴线，该属性不起作用。- 只对多行的排列起作用
+
+
+定位：通过posttion属性设置位置
+  static  默认值。没有定位，元素出现在正常的流中（忽略 top, bottom, left, right 或者 z-index 声明）
+  absolute  绝对定位的元素的位置相对于最近的已定位的“父元素”，如果元素没有已定位的父元素，那么它的位置相对于<html>: 元素的位置通过 "left", "top", "right" 以及 "bottom" 属性进行规定。
+  fixed  相对于浏览器窗口进行定位 元素的位置通过 "left", "top", "right" 以及 "bottom" 属性进行规定。 Fixed定位使元素的位置与文档流无关，因此不占据空间。Fixed定位的元素和其他元素重叠。
+  relative 相对本身正常位置进行偏移和定位，原本所占的空间不会改变  因此，"left:20" 会向元素的 LEFT 位置添加 20 像素。
+
+
+布局 通过float布局
+ float浮动  https://www.runoob.com/try/try.php?filename=trycss_float2
+  可以让元素的实现水平方向浮动，意味着元素只能左右移动而不能上下移动。有 left、right、none等值
+  一个浮动元素会尽量向左或向右移动，直到它的外边缘碰到包含框或另一个浮动框的边框为止。
+  浮动元素之后的元素将围绕它。
+  浮动元素之前的元素将不会受到影响。
+  如果图像是右浮动，下面的文本流将环绕在它左边：
+  浮动一般都要设置一个宽度width
+
+ clear清除浮动 https://www.w3school.com.cn/tiy/t.asp?f=hdom_style_clear
+  left  在左侧不允许浮动元素
+  right 在右侧不允许浮动元素
+  both  在左右两侧均不允许浮动元素
+  none  默认。允许浮动元素出现在两侧。
+
+
+
+display 设置元素的显示格式
+       none, 此元素不会被显示。不显示时不占据空间
+       block，可以让行内元素（比如 <a> 元素）表现的像块元素一样，此元素将显示为块级元素，此元素前后会带有换行符。
+       inline 默认。此元素会被显示为内联元素，元素前后没有换行符。 其他设置https://www.w3school.com.cn/css/pr_class_display.asp
+       inline-block 行内块属性，我们有个时候既希望元素具有宽度高度特性，又具有同行特性，这个时候我们可以使用inline-block。一块一块的行内，这种情况下可以设置padding和高度
+设置是否显示 visibility  visible元素可见，hidden元素不可见 不显示时会占据空间
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
