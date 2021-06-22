@@ -1,0 +1,88 @@
+
+
+
+CardView
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    Android5.0引入的控件, CardView继承自FrameLayout, 相对于FrameLayout, 它额外提供了圆角 阴影和边距效果，看上去有立体的感觉。
+    因为继承自FrameLayout,所以如果CardView里有多个控件的话,需要在CardView里的第一层加LinearLayout或者RelativeLayout
+    一般配合RecyclerView/ListView来使用
+
+
+ ※ 具体使用:
+    1.添加依赖
+      compile 'com.android.support:appcompat-v7:25.2.0'(如果有,则不用添加v7包)
+      compile 'com.android.support:cardview-v7:25.2.0' (版本需要和v7的版本一致,否则会报错)
+
+
+    2.代码使用
+     <android.support.v7.widget.CardView
+        xmlns:app="http://schemas.android.com/apk/res-auto" //这一行可在顶上面加
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+	app:cardBackgroundColor="@color/blue"
+        app:cardCornerRadius="16dp"
+	android:foreground="?attr/selectableItemBackground"
+        app:cardElevation="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp">
+
+            <ImageView
+                android:layout_width="150dp"
+                android:layout_height="match_parent"
+                android:layout_margin="5dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/sng" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="棒冰行动"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+     </android.support.v7.widget.CardView>
+
+
+ ※ 属性介绍
+    app:cardBackgroundColor  设置背景颜色
+    app:cardCornerRadius     设置圆角大小
+    app:contentPadding       设置内容的padding
+    app:cardElevation        设置z轴的阴影大小
+    app:cardMaxElevation     设置z轴的最大高度值
+
+    app:cardUseCompatPadding 设置内边距
+    app:cardPreventConrerOverlap 设置辅助内边距，在V20-版本中使用，防止内容和边角的重叠
+
+    android:foreground="?attr/selectableItemBackground" 设置点击效果，L版本以上，点击有Ripple 效果，在旧版本则是一个变深/变亮的效果。
+
+
+ ※ 注意点
+    1.CardView的边距(Margin)的兼容
+      问题：在L版本之后需手动设置 Margin 边距来预留空间，
+            在SDK21以下，设置cardElevation会自动留出空间供阴影显示，
+      解决方案： 创建dimen.xml文件在/res/value 和 /res/value-v21下，/res/value值0dp
+                 设置/res/value值0dp  设置/res/value-v21值与CardElevation阴影大小相同
+                 在CardView中设置 android:layout_margin="@dimen/xxx_card_margin"
+
+    2.点击水波纹效果
+      android:foreground="?attr/selectableItemBackground"
+      在L版本以上，点击有Ripple 效果，在旧版本则是一个变深/变亮的效果。
+
+    3.setElevation 设置阴影 的兼容
+      L版本以上，填入Float就可以了
+      但在低版本，只可以填入一个整数
+
+
+ ※ 参考
+    关于使用 CardView 开发过程中要注意的细节 http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/1025/3621.html
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+

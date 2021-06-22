@@ -1,0 +1,279 @@
+
+
+
+Android 中常见的设计模式
+-------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 单例模式
+     确保某一个类只有一个实例，并且自行实例化并向整个系统提送这个实例。
+
+     优点：
+     1.对于那些比较耗内存的类，只实例化一次可以大大提升性能，尤其是在移动开发中
+     2.保持程序运行的时候该类始终只有一个实例存在内存中
+
+
+ ※ 代码
+   public class Singleton {
+      private static volatile Singleton instance = null;
+
+      private Singleton(){}
+
+      public static Singleton getInstance() {
+        if (instance == null) {
+            synchronized (Singleton.class) {
+                if (instance == null) {
+                    instance = new Singleton();
+                }
+            }
+        }
+        return instance;
+      }
+   }
+
+   1.必须防止外部可以调用构造函数进行实例化，因为构造函数必须私有化
+   2.必须定义一个静态函数获得该单例
+   3.单例使用volatile修饰
+   4.使用synchronized 进行同步处理，并且双重判断是否为null，我们看到synchronized (Singleton.class)里面又进行了是否为null的判断，这是因为一个线程进入了该代码，如果另一个线程在等待，这时候前一个线程创建了一个实例出来完毕后，另一个线程获得锁进入该同步代码，实例已经存在，没必要再次创建，因此这个判断是否是null还是必须的。
+
+  初始化Android-Universal-Image-Loader，EventBus,Rxbus,ActivityManager 中
+
+
+
+
+
+  ※ 构建(Build)模式
+     将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示
+
+     优点：
+     可以想象一个User对象有name、age、height、weight属性，如果想实例化时每种情况都包含，则需要4个实例方法，且有多种组合，就有N种实例方法
+     这样构建，可读性不好，编写麻烦。而使用构建模式，则可读性清晰，构建方便
+
+
+ ※ 代码
+   public class Person {
+    private String name;
+    private int age;
+    private double height;
+    private double weight;
+
+    privatePerson(Builder builder) {
+        this.name=builder.name;
+        this.age=builder.age;
+        this.height=builder.height;
+        this.weight=builder.weight;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    ...
+
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
+
+    static class Builder{
+        private String name;
+        private int age;
+        private double height;
+        private double weight;
+
+        public Builder setName(String name){
+            this.name=name;
+            return this;
+        }
+        public Builder setAge(int age){
+            this.age=age;
+            return this;
+        }
+        public Builder setHeight(double height){
+            this.height=height;
+            return this;
+        }
+
+        public Builder setWeight(double weight){
+            this.weight=weight;
+            return this;
+        }
+
+        public Person build(){
+            return new Person(this);
+        }
+    }
+   }
+
+   Person.Builder builder=new Person.Builder();
+   Person person=builder
+		.setName("张三")
+		.setAge(18)
+		.setHeight(178.5)
+		.setWeight(67.4)
+		.build();
+
+
+   Dialog，Retrofit，OkHttp中OkHttpClient
+
+
+
+ ※ 观察者模式
+     定义对象间的一种一对多的依赖关系，当一个对象的状态发送改变时，所有依赖于它的对象都能得到通知并被自动更新
+
+
+ ※ 代码
+   Button baiduclickButton = (Button)findViewById(R.id.button1);
+	  //注册观察者
+	  baiduclickButton.setOnClickListener(new OnClickListener(){
+　　		//观察者实现
+    	@Override
+    	public void onClick(View arg0){
+        	Log.d("Mythou_Log", "Click the button ");
+        }
+   });
+
+
+  安卓中按钮的点击监听无疑是最常见的观察者模式。EventBus、RxJava
+
+
+
+
+ ※ 策略模式
+     策略模式定义了一些列的算法，并将每一个算法封装起来，而且使它们还可以相互替换。策略模式让算法独立于使用它的客户而独立变换。
+
+
+ ※ 代码
+   public class TravelStrategy {
+	enum Strategy{
+		WALK,PLANE,SUBWAY
+	}
+	private Strategy strategy;
+	public TravelStrategy(Strategy strategy){
+		this.strategy=strategy;
+	}
+
+	public void travel(){
+		if(strategy==Strategy.WALK){
+			print("walk");
+		}else if(strategy==Strategy.PLANE){
+			print("plane");
+		}else if(strategy==Strategy.SUBWAY){
+			print("subway");
+		}
+	}
+
+	public void print(String str){
+		System.out.println("出行旅游的方式为："+str);
+	}
+
+	public static void main(String[] args) {
+		TravelStrategy walk=new TravelStrategy(Strategy.WALK);
+		walk.travel();
+
+		TravelStrategy plane=new TravelStrategy(Strategy.PLANE);
+		plane.travel();
+
+		TravelStrategy subway=new TravelStrategy(Strategy.SUBWAY);
+		subway.travel();
+	}
+  }
+
+  这样做有一个致命的缺点，一旦出行的方式要增加，我们就不得不增加新的else if语句，而这违反了面向对象的原则之一，对修改封闭。而这时候，策略模式则可以完美的解决这一切。
+  首先，需要定义一个策略接口。
+  public interface Strategy {
+	void travel();
+  }
+
+  public class WalkStrategy implements Strategy{
+
+	@Override
+	public void travel() {
+		System.out.println("walk");
+	}
+  }
+
+ public class PlaneStrategy implements Strategy{
+
+	@Override
+	public void travel() {
+		System.out.println("plane");
+	}
+ }
+
+public class SubwayStrategy implements Strategy{
+
+	@Override
+	public void travel() {
+		System.out.println("subway");
+	}
+}
+
+可以看到，应用了策略模式后，如果我们想增加新的出行方式，完全不必要修改现有的类，我们只需要实现策略接口即可，这就是面向对象中的对扩展开放准则。假设现在我们增加了一种自行车出行的方式。只需新增一个类即可。
+属性动画中,有一个东西叫做插值器
+
+
+※ 学习
+  https://www.cnblogs.com/android-blogs/p/5530239.html
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+synchronized 与 volatile
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ synchronized
+    synchronized 是java语言关键字，当它用来修饰一个方法或者一个代码块的时候，能够保证在同一时刻最多只有一个线程执行该段代码。
+    synchronized 关键字，它包括两种用法：synchronized 方法和 synchronized 块。
+
+ ※ 例子
+    public class Thread01 implements Runnable {
+
+		@Override
+		public void run() {
+			synchronized (this) {
+				for(int i=0;i<3;i++){
+					System.out.println(Thread.currentThread().getName()+" synchronized loop "+i);
+				}
+			}
+		}
+	}
+
+    public static void main(String[] args) {
+		Thread01 t01 = new Thread01();
+
+		Thread ta = new Thread(t01,"A");
+		Thread tb = new Thread(t01,"B");
+
+		ta.start();
+		tb.start();
+	}
+
+    运行结果：
+	B synchronized loop 0
+	B synchronized loop 1
+	B synchronized loop 2
+	A synchronized loop 0
+	A synchronized loop 1
+	A synchronized loop 2
+
+	如果没加synchronized关键字，则运行结果可能会是
+	A synchronized loop 0
+	A synchronized loop 1
+	B synchronized loop 0
+	A synchronized loop 2
+	B synchronized loop 1
+	B synchronized loop 2
+
+
+ ※ volatile
+   用在多线程同步变量时， 线程为了提高效率，将某成员变量(如A)拷贝了一份（如B），线程中对A的访问其实访问的是B。只在某些动作时才进行A和B的同步。因此存在A和B不一致的情况。volatile就是用来避免这种情况的。volatile告诉jvm， 它所修饰的变量不保留拷贝，直接访问主内存中的（也就是上面说的A)
+
+
+※ 学习
+  synchronized https://blog.csdn.net/cjjky/article/details/7353390
+  volatile https://www.cnblogs.com/Android9527/p/5403788.html
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

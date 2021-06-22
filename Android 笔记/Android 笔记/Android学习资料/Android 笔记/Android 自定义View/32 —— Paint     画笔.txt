@@ -1,0 +1,380 @@
+
+
+
+Paint 画笔 基本方法介绍
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ Paint 类的几个最常用的方法。具体是：
+    setColor(Color.LTGRAY)        设置画笔颜色
+    setStrokeWidth(10)            设置描边粗细，单位 像素px  当值为0时，宽并不是0而是占一个像素
+    setStyle(Paint.Style.STROKE)  设置绘制样式 Paint.Style.STROKE(描边) FILL_AND_STROKE(描边并填充)  FILL(填充)
+    setAntiAlias(true)            设置抗锯齿(在绘制菱角分明的图片，如矩形，位图，就不需打开) 还可以这样写new Paint(Paint.ANTI_ALIAS_FLAG)
+
+
+ ◆ 学习自
+    http://blog.csdn.net/aigestudio/article/details/41212583
+    https://hencoder.com/ui-1-2/
+    https://blog.csdn.net/sunnyjerry/article/details/81218003
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Paint 设置颜色过滤
+----------------------------------------------------------------------------------------------------------------------------------
+ ※ setColorFilter(ColorFilter filter)
+     设置颜色过滤 就像拿个筛子把颜色“滤”一遍获取我们想要的色彩结果
+     有3个子类， ColorMatrixColorFilter、LightingColorFilter、PorterDuffColorFilter
+
+    ① ColorMatrixColorFilter
+       色彩矩阵颜色过滤器
+
+       使用方式：
+        ColorMatrix colorMatrix = new ColorMatrix(new float[]{
+         1, 0, 0, 0, 0,   //R  范围0.0F~2.0F
+         0, 1, 0, 0, 0,   //G  1为保持原图RGB值
+         0, 0, 1, 0, 0,   //B  每行第5个代表偏移值
+         0, 0, 0, 1, 0,   //A(透明度) 其具体计算方式见爱哥博客1/6
+        });
+        mPaint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
+       其他：
+        ColorMatrix类也提供了一些实在的方法setSaturation(float sat)设置饱和度,
+
+
+    ② LightingColorFilter(int mul, int add)
+       光照颜色过滤
+        mul: colorMultiply 色彩增倍 16进制的值0xAARRGGBB
+        add: 色彩添加  16进制的值0xAARRGGBB
+
+       使用方式：
+        mPaint.setColorFilter(new LightingColorFilter(0xFFFF00FF, 0x00000000)); //去掉绿色，但实际效果是偏绿的部分成了红色，原因....
+        mPaint.setColorFilter(new LightingColorFilter(0xFFFFFFFF, 0x00XX0000)); //增加红色值，XX取值为00至FF
+       实例应用：
+        if (isClick) {  // 如果已经被点击了则点击时设置颜色过滤为空还原本色
+           mPaint.setColorFilter(null);
+           isClick = false;
+        } else {  // 如果未被点击则点击时设置颜色过滤后为黄色
+           mPaint.setColorFilter(new LightingColorFilter(0xFFFFFFFF, 0X00FFFF00));
+           isClick = true;
+        }
+
+
+    ③ PorterDuffColorFilter
+       色彩混合模式
+        color：16进制颜色值
+        mode ：混合模式，混合必定有两种东西混才行，第一种设置的color值，第二种就是画布上的元素
+
+       使用方式：
+        mPaint.setColorFilter(new PorterDuffColorFilter(Color.RED, PorterDuff.Mode.DARKEN));
+        //颜色为红色，模式为变暗(相当于PS中，1个图片和一个红布结合，然后DARKEN模式)
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Paint 设置图形混合模式
+----------------------------------------------------------------------------------------------------------------------------------
+ ※ setXfermode(Xfermode xfermode)
+     设置图像混合模式
+     有3个子类， AvoidXfermode、PixelXorXfermode、PorterDuffXfermode
+
+    ① AvoidXfermode
+       此方法不支持硬件加速在API16已过时，若要使用这个方法，则需关闭硬件加速
+       可在AndroidManifest.xml中application节点下的android:hardwareAccelerated属性为false
+       只含有一个构造方法AvoidXfermode(int opColor, int tolerance, AvoidXfermode.Mode mode);
+
+       参数介绍：
+        opColor: 16进制的可以带透明通道的颜色值 例如0x12345678
+        tolerance: 代表容差值
+        mode：模式，有两个值 AvoidXfermode.Mode.AVOID/AvoidXfermode.Mode.TARGET
+	 AvoidXfermode.Mode.TARGET：
+	  该模式下Android会判断画布上的颜色是否会跟opColor不一样的颜色，比如opColor是红色，
+	  那么在TARGET模式下就会判断我们画布上是否存在红色的地方，如果有，把该区域染上一层画笔定义的颜色
+	  否则不染色，而tolerance容差值表示，有多少容差就会去染
+	 AvoidXfermode.Mode.AVOID：
+	  显示效果通TARGET相反
+
+       使用实例：
+        只想在白色的区域画点东西或者想把白色区域的地方替换为梁歪一张图片的时候可以采用这种方法
+
+    ② PixelXorXfermode
+        与AvoidXfermode一样也在API16过时了，
+	只有一个含参的构造方法PixelXorXfermode(int opColor).
+	计算公式是: op^src^dst, 像素色值的按位异或运算
+
+    ③ PorterDuffXfermode
+        没有过时，沿用至今的子类
+	只有一个构造方法 PorterDuffXfermode(PoterDuff.Mode mode) 图形混合模式
+	麻雀虽小五脏俱全，可以实现很多酷毙的图像效果！！
+
+	使用方式：
+	// 先绘制dis目标图
+	canvas.drawBitmap(porterDuffBO.initDisBitmap(), rectX, rectY, mPaint);
+	// 设置混合模式
+	mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.ADD));
+	// 再绘制src源图
+	canvas.drawBitmap(porterDuffBO.initSrcBitmap(), rectX, rectY, mPaint);
+	mPaint.setXfermode(null);
+
+        mode:
+	 PorterDuff.Mode.ADD      饱和相加
+	 PorterDuff.Mode.CLEAR    清除
+	 PorterDuff.Mode.DARKEN   变暗 两个图像混合，较深的颜色总是会覆盖较浅的颜色
+	 PorterDuff.Mode.LIGHTEN  变亮 与上面效果相反
+	 PorterDuff.Mode.DST      只绘制目标图像
+	 PorterDuff.Mode.SRC      只绘制源图
+	 PorterDuff.Mode.DST_ATOP 在源图像和目标图像相交的地方绘制目标图像而在不相交的地方绘制源图像
+	 PorterDuff.Mode.DST_IN   只在源图像和目标图像相交的地方绘制目标图像
+	 PorterDuff.Mode.DST_OUT  只在源图像和目标图像不相交的地方绘制目标图像
+	 PorterDuff.Mode.DST_OVER 在源图像的上方绘制目标图像
+	 PorterDuff.Mode.MULTIPLY 正片叠底
+	 PorterDuff.Mode.OVERLAY  叠加
+	 PorterDuff.Mode.SCREEN   滤色
+         PorterDuff.Mode.SRC_ATOP 在源图像和目标图像相交的地方绘制源图，在不相交的地方绘制目标图像
+	 PorterDuff.Mode.SRC_IN   只在源图像和目标图像相交的地方绘制源图像
+	 PorterDuff.Mode.SRC_OUT  只在源图像和目标图像不相交的地方绘制源图像
+	 PorterDuff.Mode.SRC_OVER 在目标图像的顶部绘制源图像
+	 PorterDuff.Mode.XOR      在源图像和目标图像重叠之外的任何地方绘制他们，而在不重叠的地方不绘制任何内容
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Shader类 着色器
+----------------------------------------------------------------------------------------------------------------------------------
+  paint.setShader(Shader shader)
+  介绍：Shader有五个子类，Shader被称之为着色器，作用就是给图像着色
+        五个类中最异类的是BitmapShader，因为只有它允许我们载入一张图片类给图像着色
+        五个类中，BitmapShader齐特点之外，还有变形金刚ComposeShaer外，其余三个都是渐变效果不不同而已
+
+  BitmapShader
+   仅一构造方法：BitmapShader(Bitmap bitmap, Shader.TileMode tileX, Shader.TileMode tileY),其他有两个
+   Shader.TileMode有三种模式，CLAMP(边缘拉伸)、MIRROR(上下左右的镜像效果)和REPETA(重复效果,先应用Y轴，在应用X轴)
+
+  LinearGradient 线性渐变
+   构造方法一：LinearGradient(float x0, float y0, float x1, float y1, int color0, int color1, Shader.TileMode tile);
+   参数介绍：  前4个分别代表起点终点坐标，color0，color1表示起点、终点颜色
+
+   构造方法二：LinearGradient(float x0, float y0, float x1, float y1, int[] colors, float[] positions,, Shader.TileMode tile);
+   参数介绍：  此方法为多颜色渐变，前4个分别代表起点终点坐标，color0，color1表示起点、终点颜色
+   eg: mPaint.setShader(new LinearGradient(left, top, right, bottom, new int[] { Color.RED, Color.YELLOW, Color.GREEN, Color.CYAN, Color.BLUE }, null, Shader.TileMode.MIRROR));
+
+  SweepGradient 梯度渐变  效果有点类似雷达的扫描
+   构造方法： SweepGradient(float cx, float cy, int color0, int color1);
+              SweepGradient(float cx, float cy, int[] colors, float[] positions)
+
+  RadialGradient 径向渐变, 从圆形中心向四周渐变的效果
+   构造方法： RadialGradient(float centerX, float centerY, float radius, int centerColor, int edgeColor, Shader.TileMode tileMode)
+
+  ComposeShader 组合Shader，将两个Shader组合在一起作为一个新Shader
+   构造方法： ComposeShader(Shader shaderA, Shader shaderB, Xfermode mode);
+              ComposeShader(Shader shaderA, Shader shaderB, PorterDuff.Mode mode);
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Matrix 矩阵
+----------------------------------------------------------------------------------------------------------------------------------
+  可以称之为矩阵变换或者图像变换
+  Shader类中setter和getter来变换矩阵：setLocalMatrix(Matrix localM)和getLocalMatrix(Matrix localM)，可以通过这个变换矩阵
+            A B C
+  Matrix：( D E F )   注：G、H、I 表示透视参数，一般情况我们不会去处理，大多时候GH都为0，I为1
+            G H I
+
+  若一个点P0(x0, y0)经过上面的矩阵变换后会去到P(x, y)的位置
+        x       A B C       x0       x = A*x0 + B*y0 + C
+  P = ( y ) = ( D E F ) * ( y0 ) = ( y = D*x0 + E*y0 + C )
+        1       G H I       1        1 = G*x0 + H*y0 + 1
+
+  有一点需要注意，矩阵的乘法运算是不符合交换律的，因此B*A和A*B是两个截然不同的结果，
+  B*A：表示A右乘B，是列变换
+  A*B：表示A左乘B，是行变换
+
+  Matrix类中有三大类方法：
+   setXXX、preXXX和postXXX
+   preXXX和postXXX分别表示矩阵的左右乘，也就是前后乘
+
+  Matrix 缩放变换：
+     x       a 0 0       x0
+   ( y ) = ( 0 b 0 ) * ( y0 )
+     1       0 0 1       1
+   这么一个矩阵变换实质就是 x=x0*a、y=y0*b, X/Y轴分别放大a\b倍
+
+  Matrix 平移变换：
+     x       1 0 a       x0
+   ( y ) = ( 0 1 b ) * ( y0 )
+     1       0 0 1       1
+   这么一个矩阵变换实质就是 x=x0+a、y=y0+b,  X/Y轴分别平移!
+
+  Matrix 旋转变换：分两种： 一种是默认中点[0,0]旋转, 另一种是指定中点,也就是将中点[0,0]平移后旋转
+   直接绕[0,0]顺时针转:
+     x       cosθ -sinθ 0       x0
+   ( y ) = ( sinθ cosθ  b ) * ( y0 )
+     1       0    0     1       1
+   这么一个矩阵变换实质就是
+    x=x0*cosθ - y0*sinθ
+    y=y0*cosθ + X0*sinθ
+
+    绕p(a,b)顺时针转:
+     略...具体见爱哥博客
+
+   其实我们不需要写的这么复杂，Android已经封装了”档位”，直接调用就可以了
+   平移：Matrix matrix = new Matrix();
+         matrix.setTranslate(500, 500);
+	 bitmapShader.setLocalMatrix(matrix);
+	 mPaint.setShader(bitmapShader);
+
+   旋转：matrix.setRotate(5);
+
+   如果同时写：matrix.setTranslate(500, 500);  matrix.setRotate(5);  最终结果是旋转5度，不会平移，原因是后面会覆盖前面的数据
+
+   preXXX和postXXX方法： 前乘和后乘
+    eg1：
+     matrix.setTranslate(500, 500);  matrix.preRotate(5);
+     matrix.setTranslate(500, 500);  matrix.postRotate(5);
+     结果一样
+
+    eg2：
+     matrix.preScale(0.5f, 1);
+     matrix.setScale(1, 0.6f);
+     matrix.postScale(0.7f, 1);
+     matrix.preTranslate(15, 0);
+     Matrix的计算过程为：
+      1.第二个覆盖第一个, 目前 scale (1, 0.6f)
+      2.因为post是后乘，会移动到最后面，而本来就是后面，所以不变 scale(1, 0.6f) -> scale (0.7f, 1)
+      3.因为是pre前乘，所以会移动到最前面，translate (15, 0) -> scale (1, 0.6f) -> scale (0.7f, 1)
+     结果：
+      translate (15, 0) -> scale (1, 0.6f) -> scale (0.7f, 1),但是set会重置数据，所以只执行了第一步
+
+    eg3；
+     matrix.preScale(0.5f, 1);
+     matrix.preTranslate(10, 0);
+     matrix.postScale(0.7f, 1);
+     matrix.postTranslate(15, 0);
+     Matrix的计算过程为：
+      1.因为是pre前乘，所以会移动到最前面, 目前 translate(10, 0) -> translate(0.5f, 1)
+      2.因为post是后乘，会移动到最后面，而本来就是后面，所以不变 目前 translate(10, 0) -> translate(0.5f, 1) -> scale(0.7f, 1)
+      3.因为post是后乘，会移动到最后面，translate(10, 0) -> translate(0.5f, 1) -> scale(0.7f, 1) -> translate(15, 0)
+     结果：
+      translate(10, 0) -> translate(0.5f, 1) -> scale(0.7f, 1) -> translate(15, 0)
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Paint 与字体相关的类
+----------------------------------------------------------------------------------------------------------------------------------
+ ※ FontMetrics
+     字体测量
+
+    介绍：
+     FontMetrics mFontMetrics = mPaint.getFontMetrics();
+     有5个属性：top,ascent,descent,bottom,leading
+     ascent(上坡度)：Baseline往上至字符最高处的距离称之为ascent
+     descent(下坡度)：Baseline往上至字符最低处的距离称之为descent, ascent不一定与descent相等
+     top：字符一般会在文本在外层留出一些内边距，方便一些特殊读音符号的显示，这就是top一般比ascent值大的原因
+     bottom：同上，反之文本
+     leading(行间距)：上一行字符的descent到该行字符的ascent之间的距离
+
+    注意点：
+     1.Baseline上方的值为负，下方发值为正,如果只有一行，leading恒为0
+     2.Baseline并非文本的分割线，而是文本的左上点
+     3.FontMetrice与文本内容无关，只与Paint的size和typefac有关，可在未绘制前就可以得到FontMetrice的一些属性值
+
+    重点提要：
+     获得字体的宽度： mPaint.measureText("爱老虎油123");
+     一般用于这个地方：canvas.drawText(text, 0, 0, paint); //第二个参数代表字符起始点，第三个参数代表基准线高度
+
+  ※ 与绘制文本相关一些重要方法
+     http://blog.csdn.net/qin9r3y/article/details/8607014
+     1.粗略计算文字款第
+       paint.measureText(str);
+     2.计算文字所在矩形，可得到宽高
+       Rect rect = new Rect();
+       paint.getTextBounds(str, 0, str.length(), rect);
+       int w = rect.width();
+       int h = rect.height();
+     3.精确计算文字宽度
+        略
+
+
+  ※ 与绘制文本相关一些重要方法
+    setTypeface(Typeface typeface)
+     设置字体样式类型，
+     Andeoid有四种样式：Bold(加粗),Bold_italic(加粗并倾斜), ITALIC(倾斜), NORMAL(正常)
+     有五种字体类型：DEFAULT, DEFAULT_BOLD, MONOSPACE, SANS_SERIF和SERIF
+     用法:textPaint.setTypeface(Typeface.create("SERIF", Typeface.NORMAL));
+          textPaint.setTypeface(Typeface.create(Typeface.SERIF, Typeface.NORMAL));   //效果一样
+     使用我们自己的字体：
+       有三种方式：createFromAsset(AssetManager mgr, String path)、createFromFile(String path)和createFromFile(File path)
+       Typeface typeface = Typeface.createFromAsset(context.getAssets(), "kt.ttf");
+       textPaint.setTypeface(typeface); //TextView也可以这样设置
+
+    setTextAlign (Paint.Align align)
+     设置对齐方式，
+     如果为Center，则从文本的中点开始向两端绘制
+     如果为Left，表示起始点在字的左边，从左端向右绘制
+     如果为Right，表示起始点在字的右边，从右端往左绘制
+
+    measureText (String text),
+    measureText (CharSequence text, int start, int end),
+    measureText (String text, int start, int end),
+    measureText (char[] text, int index, int count)
+     测量文本宽度
+
+    setMaskFilter(MaskFilter maskfilter)
+     有两个子类，BlurMaskFilter和EmbossMaskFilter 模糊遮罩滤镜和浮雕遮罩滤镜
+      BlurMaskFilter 不支持硬件加速
+      mPaint.setMaskFilter(new BlurMaskFilter(20, BlurMaskFilter.Blur.SOLID));
+      SOLID：图像的Alpha边界外产生一层Paint颜色一致的阴影效果而不影响图像本身
+      NORMAL：整个图像变模糊
+      OUTER：在Alpha外界产生一层阴影且会将原本的图像变透明
+      INNER：图像内部产生模糊
+
+    setPathEffect(PathEffect effect)
+      设置路径效果
+
+    setStrokeCap(Paint.Cap cap)
+      设置笔触风格，有三种类型ROUND/SQUARE/BUTT
+
+    setShadowLayer(float radius, float dx, float dy, int shadowColor)
+      为图形添加一层阴影效果，同样不支持硬件加速，
+      MaskFilter可以做到同样的小姑，但这个用起来更简便，但是BlurMaskFilter能做的setShadowLayer却不一定能做到哦
+
+
+
+ ※ 与绘制文本相关一些基本方法
+    ascent()
+     返回上坡度的值，
+
+    breakText (CharSequence text, int start, int end, boolean measureForwards, float maxWidth, float[] measuredWidth)
+     我们设置一个最大宽度在不超过这个宽度的范围内返回实际测量值否则停止测量
+
+    getFontMetrics (Paint.FontMetrics metrics)
+     和getFontMetrics()相比多了个参数，
+     getFontMetrics()返回的是FontMetrics对象
+     getFontMetrics (Paint.FontMetrics metrics)返回的是文本的行间距，如果metrics的值不为空则返回FontMetrics对象的值。
+
+    getFontSpacing()
+     返回字符行间距
+
+    setUnderlineText(boolean)
+     设置下划线
+
+    setTextSkewX(float skewX)
+     设置文本在水平方向上的倾斜
+     textPaint.setTextSkewX(-0.25F); //官方推崇-0.25可以得到比较好的倾斜文本效果，值为负右倾、正左倾
+
+    setTextSizeX(float scaleX)
+     将文本沿X轴水平缩放，默认值为1，大于1会沿X轴水平放大文本，小于1缩放文本
+     不仅放大了文本宽度同时还拉伸了字符
+
+    setStrikeThruText(boolean)
+     文本删除线
+
+    setFakeBoldText(boolean fakeBoldText)
+     设置文本仿粗体
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+

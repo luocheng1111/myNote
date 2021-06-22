@@ -1,0 +1,444 @@
+
+Android 数据存储方式
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ 本地:
+  Shardpreferences
+  SQLite
+  文件
+
+ 非本地:
+  ContentProvider
+  网络
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+SharedPreferences
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+     SharedPreferences是Android数据存储的一种，以键值对(key-value)的方式把数据保存在一个xml文件之中，
+     一些简单信息用数据库存储的话会不太方便，就可以用到SharedPreferences
+     文件保存到/data/data/<package name>/shared_prefs下
+
+
+ ※ SP的使用
+    SharedPreferences sp = Context.getSharedPreferences(String name, int mode);
+    //读数据
+    String name = sharedPreferences.getString("name", ""); //如果该key不存在，返回默认值defaultVlaue。
+    int age = sharedPreferences.getInt("age", 0);
+
+    //写数据
+    SharedPreferences.Editor editor = sharedPreferences.edit();
+    editor.putString("name", name);
+    editor.putInt("age", age);
+    // 一定要提交
+    editor.commit();
+
+
+ ※ 参数说明
+    name: 文件名称，不用加后缀.xml,系统会自动为我们加上
+    mode: 文件读写方式，其值有三种，分别为：
+          Context.MODE_PRIVATE：数据只能被本应用程序读、写 默认值， 可以用0表示
+          Context.MODE_WORLD_READABLE： 数据能被其他应用程序读，但不能写
+          Context.MODE_WORLD_WRITEABLE：数据能被其他应用程序读写。
+
+    重要补充：
+    在Android4.2版本中，MODE_MULTI_PROCESS已取代MODE_WORLD_READABLE和MODE_WORLD_WRITEABLE两种模式
+    所以4.2以后只有2种mode Context.MODE_PRIVATE 和 Context.MODE_MULTI_PROCESS
+
+
+
+ ※ SP的其他用法
+    //读数据
+    boolean b = sp.contains(key);     //判断SP是否包含key的数据
+    Map<Sting, ?> map = sp.getAll();  //获取SP里的全部key-value值
+
+    //数据操作
+    edit.remove(key);  删除SharedPreferences里指定key对应的数据项
+    edit.clear();  清空SharedPreferences里所有的数据
+
+
+
+ ※ 参考
+    http://blog.csdn.net/worker90/article/details/6971662
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+SQLite
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    SQLite是一款轻型的数据库，它拥有资源占用低,速度快的特点, Android重每个应用程序都有一个独立的SQLite，用于操作自己的应用数据.
+    其文件目录为 /data/data/<package name>/databases/xxx.db
+
+
+ ※ SQLite使用方式一：直接在Activity中创建使用SQLite
+    //打开或创建test.db数据库
+    SQLiteDatabase db = openOrCreateDatabase("test.db", Context.MODE_PRIVATE, null);
+
+    //创建表,executeSQL也可执行增/删/改数据
+    db.executeSQL("CREATE TABLE IF NOT EXISTS pseron(_id integer INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR, age INTEGER, info TEXT)");
+    //插入数据
+    db.execSQL("INSERT INTO person(name, age) VALUES (?, ?)", new Object[]{person.name, person.age});
+    //删除数据
+    db.execSQL("DELETE FROM person WHERE _id=?", new Object[]{id});
+    //更改数据
+    db.execSQL("UPDATE person SET name =? where _id=?", new Object[]{person.name, id});
+
+    //查询数据
+    Cursor c = db.rawQuery("SELECT * FROM person WHERE age >= ?", new String[]{"33"});
+    while (c.moveToNext()) {
+      int _id = c.getInt(c.getColumnIndex("_id"));
+      String name = c.getString(c.getColumnIndex("name"));
+      ...
+    }
+    c.close();
+
+    注:
+    除了以上SQL语句的形式之外，他们还有各自的操作方法：是给那些不用SQL语句的人提供的方法,而且这些方法Android四大组件之一ContentProvider会用到
+    相对于封装过的ContentProvider而言，使用原始SQL语句执行效率更高
+    db.insert(String table, String nullColumnHack, ContentValues values);
+    db.update(String table, Contentvalues values, String whereClause, String whereArgs);
+    db.delete(String table, String whereClause, String whereArgs);
+    db.query(String table, String[] columns, String selection, String[] selectionArgs, String groupBy, String having, String orderBy);
+
+
+
+ ※  SQLite使用方式二：使用SQLiteOpenHelper管理操作数据库
+    上面就是SQLite的基本应用，但在实际开发中，为了能够更好的管理和维护数据库，我们会封装一个继承自SQLiteOpenHelper类的数据库操作类，然后以这个类为基础，再封装我们的业务逻辑方法
+
+   SQLiteOpenHelper类
+    Android针对数据库提供了一个维护和管理数据库的基类，SQLiteOpenHelper类，
+    有了这个基类，就不用担心数据库的创建和版本的升级了。只需做数据库的增删改查就行。
+
+    public class DBHelper extends SQLiteOpenHelper {
+
+	private static final String DB_NAME = "test.db";
+	private static final int DB_VERSION = 1;
+	public  static final String TABLE_NAME = "User";
+
+	public DBHelper(Context context) {
+            //CursorFactory设置为null,使用默认值
+            super(context, DB_NAME, null, DB_VERSION);
+	}
+
+	//数据库第一次被创建时onCreate会被调用
+	@Override
+	public void onCreate(SQLiteDatabase db) {
+	    String sql = "CREATE TABLE IF NOT EXISTS pseron(_id integer INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR, age INTEGER, info TEXT)";
+            db.execSQL(sql);
+	}
+
+	//如果DATABASE_VERSION值被改为2,系统发现现有数据库版本不同,即会调用onUpgrade
+	@Override
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+	   String sql = "DROP TABLE IF EXISTS " + TABLE_NAME;
+           db.execSQL(sql);
+	   onCreate(db);
+	}
+    }
+
+
+  SQL类的封装写法
+    public class DBManager {
+	private DBHelper helper;
+	private SQLiteDatabase db;
+
+	public DBManager(Context context) {
+           helper = new DBHelper(context);
+           //因为getWritableDatabase内部调用了mContext.openOrCreateDatabase(mName, 0, mFactory);
+           //所以要确保context已初始化,我们可以把实例化DBManager的步骤放在Activity的onCreate里
+           db = helper.getWritableDatabase();
+	}
+
+        public void add(List<Person> persons) {
+           db.beginTransaction();  //开始事务
+           try {
+             for (Person person : persons) {
+                db.execSQL("INSERT INTO person VALUES(null, ?, ?, ?)", new Object[]{person.name, person.age, person.info});
+             }
+             db.setTransactionSuccessful();  //设置事务成功完成
+           } finally {
+             db.endTransaction();    //结束事务
+           }
+        }
+     ....
+
+
+   Activity中的写法
+      Person person = new Person();
+      person.name = "Jane";
+      person.age = 30;
+      mgr.updateAge(person);
+
+
+
+ ※ 参考
+     http://blog.csdn.net/liuhe688/article/details/6715983
+
+
+ ※ Android开发，如何优雅地从SQLITE里加载数据？
+    如果需要从sqlite数据库中异步加载数据。
+    比较简单的方法是SqliteOpenHelper+thread（Runable）+Handler
+    但是也有看过使用ContentProvider+LoaderManager的,那种比较好?
+
+    ContentProvider+LoaderManager:
+     适用场景:适用于大量的数据查询，或者需要经常修改并及时展示的数据显示到UI上，同时可以避免查询数据的时候，造成UI主线程的卡顿。
+     缺点: 此方案虽好，但是使用起来稍微麻烦，对于一般的简单数据处理有点大才小用。
+
+    ORM框架:
+     使用OMR框架的目的是使代码看起来更优雅，可读性更好，使用起来更方便，每个框架各有优劣，但其实也没多大区别，自己用着顺手就好。
+     ORM适应于大部分场景，但是你应该知道它并没有那么神奇，其实底层还是通过拼接SQL来执行的，中间多了一层性能上当然没有直接执行SQL好了，
+     不过这点性能可以忽略，几乎对程序没什么影响。正常使用完全ok，但是复杂点的或者一旦出问题你不熟悉SQL会比较困难。
+     目前几个流行的ORM库:
+     GreenDAO
+     OrmLite
+     SugarORM
+     ActiveAndroid
+
+    SQL:
+     Android自带的一套框架来写SQL了，但是缺点显而易见，代码可读性差，出错概率更大，自己处理各种增产改查与升级。是一个比较重的解决方案.
+     但是我觉得这应该是一个Android开发必经的一个过程，你只有真正经历过坑，才能真正体会到为什么ORM比较好，从中也可以学习熟悉下基本的SQL操作。
+
+    参考:
+     https://www.zhihu.com/question/27977160
+
+
+ ※ 什么是ORM?
+    Object Relational Mapping 对象关系映射, 是一种程序技术，用于解决面向对象与关系数据库存在的互不匹配的现象的技术
+    从效果上说，它其实是创建了一个可在编程语言里使用的“虚拟对象数据库”。
+    面向对象是从软件工程基本原则(如耦合、聚合、封装)的基础上发展起来的，而关系数据库则是从数学理论发展而来的.
+    两者之间是不匹配的.而ORM作为项目中间件形式实现数据在不同场景下数据关系映射.
+
+    ORM的优点：
+     1.大大降低开发和维护的成本。ORM可以自动对Entity对象与数据库中的Table进行字段与属性的映射，所以我们实际可能已经不需要一个专用的、庞大的数据访问层。
+     2.ORM提供了对数据库的映射，不用sql直接编码，能够像操作对象一样从数据库获取数据。
+
+    ORM的缺点：
+     1.会牺牲程序的执行效率和会固定思维模式。系统结构上来看,采用ORM的系统一般都是多层系统，系统的层次多了，效率就会降低。
+       ORM是一种完全的面向对象的做法，而面向对象的做法也会对性能产生一定的影响。
+     2.ORM是一种工具，工具确实能解决一些重复，简单的劳动。这是不可否认的。但我们不能指望工具能一劳永逸的解决所有问题，有些问题还是需要特殊处理的，但需要特殊处理的部分对绝大多数的系统，应该是很少的。
+。
+
+
+ ※ ORM的选择?
+    http://blog.csdn.net/lxlmycsdnfree/article/details/54890734
+    https://www.jianshu.com/p/f56a9fb5fef0
+    https://mp.weixin.qq.com/s?__biz=MzA5OTMxMjQzMw==&mid=2648112527&idx=1&sn=b23c1b5f3e32e343ad96d705bd4d63ff&scene=1&srcid=0711SVtLTxYXurfDvMqW2LJi&uin=MjQwMDgwNDM1&key=77421cf58af4a6536ca031a71c4f7bb7f13f6ea3c8eb83bf829c172d7cd7f7f72a832c33e87a7c45d7273b914b351fdf&devicetype=iMac+MacBookPro12%2C1+OSX+OSX+10.11.5+build(15F34)&version=11020201&lang=zh_CN&pass_ticket=%2BTp9qbxmROPbRlT9zfp7uAY%2FVToJEmd09DOFY3Fc49Y%3D
+    结论:选择GreenDao或OrmLite
+
+    GreenDao
+    优点：1.效率很高，插入和更新的速度是sqlite的2倍，加载实体的速度是ormlite的4.5倍。
+          2.文件较小（<100K），占用更少的内存 ，但是需要create Dao，
+	  3.操作实体灵活：支持get，update，delete等操作
+
+    缺点: 学习成本较高,要根据他的规则,写一些类或者文件
+
+    Ormlite:
+    基于注解和反射的的方式,导致ormlite性能有着一定的损失(注解其实也是利用了反射的原理)
+    优点：文档较全面，社区活跃，有好的维护，使用简单，易上手。
+    缺点：基于反射，效率较低
+
+
+ ※ GreenDao的使用(未完成)
+    https://www.jianshu.com/p/6bc85d95e9c6
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+WCDB
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ◆ 介绍
+     WCDB是微信团队开源的数据库
+     WCDB是一个高效、完整、易用的移动数据库框架，基于SQLCipher，支持iOS, macOS和Android。
+     基本特性
+     1.易用，WCDB支持一句代码即可将数据取出并组合为object。
+     2.高效，WCDB通过框架层和sqlcipher源码优化，使其更高效的表现。
+     3.(主要)完整，WCDB覆盖了数据库相关各种场景的所需功能
+            1.加密：WCDB提供基于SQLCipher的数据库加密。
+            1.损坏修复：WCDB内建了Repair Kit用于修复损坏的数据库。
+            1.反注入：WCDB内建了对SQL注入的保护。
+
+
+ ※ 使用
+    1.添加依赖
+      //微信开源数据库框架 https://github.com/Tencent/wcdb
+      compile 'com.tencent.wcdb:wcdb-android:1.0.0'
+
+    2.支持架构 WCDB 包含 armeabi, armeabi-v7a, arm64-v8a, x86 四种架构的动态库 按需求取
+      android {
+       defaultConfig {
+        ndk {
+            // 只接入 armeabi-v7a 和 x86 架构
+            abiFilters 'armeabi-v7a', 'x86'
+        }
+       }
+      }
+
+    3.代码使用
+      大部分与SQLite写法一样
+      区别点：
+      1.SQLiteOpenHelper 的导入改成 import com.tencent.wcdb.database.SQLiteOpenHelper;
+      2.SQLiteDatabase   的导入改成 import com.tencent.wcdb.database.SQLiteDatabase;
+
+
+
+ ※ WCDB数据库加密及数据库迁移
+   eg：将不加密的 plain.db 迁移到加密的 encrypt.db
+   见：https://www.jianshu.com/p/bac7e59a7603
+
+
+ ※ 个人见解
+   虽然加密、迁移、反注入暂时用不到，
+   虽然其他框架的写法很简单，但毕竟是别人的，理解上有困难，不懂原理，就没完全操控权
+   而此框架的侵入性很弱，毕竟和原生的写法差不多，所以就用此框架
+
+
+  ※ 参考：
+    1.https://www.jianshu.com/p/bac7e59a7603
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+网络
+----------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     http://blog.csdn.net/wenwei19861106/article/details/8702643
+
+ ※ 接口介绍
+    Android 平台有3种网络接口可以使用：
+    java.net.*(标准Java接口)   org.apache(Apache接口)   android.net.*(Android网络接口)
+
+    1.标准Java接口
+      java.net.*(标准Java接口)提供与联网有关的类，包括流和数据包套接字、Internet协议、常见HTTP处理。
+      步骤:创建URL以及URLConnection/HttpURLConnection对象、设置连接参数、连接到服务器、向服务器写数据、
+      从服务器读取数据等通信。
+    2.Apache接口
+      随着访问网络资源的人越来越多，java.net提供的功能远远不够。
+      所以对java类进一步的封装和扩展，出现了Apache HttpClient
+    3.Android网络接口
+      android.net.*包实际上是通过对Apache中HttpClient的封装实现的一个Http编程接口。
+      一般使用socket的时候才用到
+
+ ※ HttpURLConnection与HttpClient的比较
+    原文地址 http://blog.csdn.net/guolin_blog/article/details/12452307
+
+    HttpClient介绍
+    DefaultHttpClient和AndroidHttpClient都是HttpClient具体的实现类，他们都拥有众多的API
+    而且也比较稳定，bug数量也很少。
+    但同时因为API数量过多，是的在很难不破坏兼容性的情况下对它进行升级和扩展，
+    所以目前Android团队在提升和优化HttpClient方面的工作态度并不积极。
+
+    HttpURLConnection
+    HttpURLConnection的API提供的比较简单，但是同时这也使得我们可以更加容易地去使用和扩展它，
+    不过在Android2.2之前，HttpURLConnection一直存在着一些令人厌烦的bug，比如inputStream.close()方法时，
+    就有可能导致连接池失效。但在2.3后，修复了bug以及加了很多优化。
+
+    哪一种才是最好的？
+    在Android 2.2版本之前，HttpClient拥有较少的bug，因此使用它是最好的选择。
+    而在Android 2.3版本及以后，HttpURLConnection则是最佳的选择。
+    它的API简单，体积较小，因而非常适用于Android项目。压缩和缓存机制可以有效地减少网络访问的流量，在提升速度和省电方面也起到了较大的作用。对于新的应用程序应该更加偏向于使用HttpURLConnection，因为在以后的工作当中我们也会将更多的时间放在优化HttpURLConnection上面。
+
+ ※ 网络请求的一些常见问题
+    1.Get请求时，参数有空格，比如：StartTime=2015-07-28 00:00:00
+      此时请求后会报错
+      解决方法：空格改成%20, StartTime=2015-07-28%2000:00:00
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+Android 文件存储 Demo见 FileStudyExample
+----------------------------------------------------------------------------------------------------------------------------------------
+ ※ 介绍
+     文件存储是Android中最基本的一种数据存储方式，它适合用于存储一些简单的文本数据或二进制数据.
+     文件保存到/data/data/<package name>/files/下
+
+ ※ 数据存入 文件
+    FileOutputStream out = Context.openFileOutput(String name, int mode);
+    参数解释：
+     name: 指文件名称，文件名不可以包含路径.文件存储在/data/data/<package name>/files/下
+     mode: 指文件操作模式，其值有2种，分别为
+      Context.MODE_PRIVATE：默认操作模式，表示当文件名相同时，写入的内容将会覆盖原文件中的内容
+      Context.MODE_APPEND：表示在文件已存在时追加内容，不存在就创建文件
+
+      其实文件还有2种操作模式，不过由于这两种模式过于危险，很容易引起应用的安全性漏洞，在Android4.2中被废弃
+      Context.MODE_WORLD_READABLE: 允许其他应用程序对我们程序文件进行读操作
+      Context.MODE_WORLE_WRITEABLE:允许其他应用程序对我们程序文件进行读操作
+
+    Eg：
+    public void save(String name, String data){
+	FileOutputStream out = null;
+	BufferedWriter writer = null;
+	try {
+		out = openFileOutput(name, Context.MODE_PRIVATE);
+		writer = new BufferedWriter(new OutputStreamWriter(out)) ;
+		writer.write(data);
+	} catch (Exception e) {
+		e.printStackTrace();
+	} finally{
+		try {
+			if(writer != null){
+				writer.close();
+			}
+			out.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	Toast.makeText(this, "存储成功", Toast.LENGTH_SHORT).show();
+    }
+
+
+ ※ 读取 文件数据
+    public String get(String fileName){
+	StringBuilder fileContent = new StringBuilder();
+	FileInputStream in = null;
+	BufferedReader reader = null;
+	try {
+		in = openFileInput(fileName);
+		reader = new BufferedReader(new InputStreamReader(in));
+		String line = "";
+		while((line = reader.readLine()) != null){
+			fileContent.append(line);
+		}
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}finally{
+		try {
+			if(reader != null){
+				reader.close();
+			}
+			in.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	return fileContent.toString();
+    }
+
+
+ ※ 写入数据到SDCard
+    if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+	File file = new File(Environment.getExternalStorageDirectory(),fileName);
+	FileOutputStream fos = new FileOutputStream(file);
+	fos.write(fileContent.getBytes());
+	fos.close();
+    }else{
+	System.out.println("SDCard不存在或者受保护!");
+    }
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+

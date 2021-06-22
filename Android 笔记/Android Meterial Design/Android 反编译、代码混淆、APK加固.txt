@@ -1,0 +1,108 @@
+
+
+Android 反编译
+----------------------------------------------------------------------------------------------------
+
+ ※ 在线反编译
+    这种方式很简单，我们只需要打开网址，把我们的 AKP 放进去就可以进行在线反编译了。不过过程会有点慢。
+    网址：http://www.javadecompilers.com/apk
+
+
+ ※ 利用工具，自己进行反编译
+    APK TOOL ：谷歌提供的 APK 编译工具，可以反编译和回编译。我们都知道，其实APK 就是一个压缩包，我们完全可以把 .apk 修改为 .zip。通过这种方式来获取资源文件，但是 xml 会乱码。
+               如果你使用 apk tool 来进行反编译 apk 就不会出现这种问题了。
+               使用：把apk 放到 apktool.jar 所在的目录，然后在命令行中定位到当前文件夹。然后输入命令： apktool d xxx.apk 这样就成功了。会在当前目录下生成一个以 apk 命名的目录，这个目录就是解压出来的目录。
+               下载地址：https://ibotpeaches.github.io/Apktool/install/ （需要科学网）
+
+    dex2jar：  将 dex 文件转换成 jar 包
+               使用：把 apk 解压后的 classes.dex 文件放到 dex2jar 所在的文件夹中。然后在当前目录下在命令行中输入： d2j-dex2jar classes.dex
+               就会生成一个 classes.jar 包。然后用 jd-gui 打开就可以了
+               下载地址：http://sourceforge.net/projects/dex2jar/files/
+
+    jd-gui：   用来查看 jar 包里面的代码的一种工具。
+               官网下载地址：http://jd.benow.ca/
+
+    如果你不方便科学上网的话，我已经打包了，可以在这里下载：
+    https://download.csdn.net/download/sydmobile/10846283
+
+
+ ※ 参考学习自
+   https://www.jianshu.com/p/cbdc494e5941
+   混淆语法学习：可去慕课网搜混淆 根据视频学习
+
+----------------------------------------------------------------------------------------------------
+
+
+
+Android 代码混淆
+----------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    由于Java代码是非常容易反编译的，为了很好的保护Java源代码，我们往往要对编译好的class文件进行混淆
+    ProGuard是一个混淆代码的开源项目，主要作用是混淆，当然它还能对字节码进行缩减体积、优化等
+    实际效果：
+     1.启用压缩功能和资源优化 金可移除未使用的代码和资源，减少包的大小
+     2.启动代码混淆可以起到通常将代码中的各种元素（变量、函数、类名等）改为无意义的名字，
+    目的：增加阅读难度，增大反编译者难度。
+
+
+ ※ 如何操作
+    1.在主Moudule的build.gradle中修改
+    android {
+      buildTypes {
+        release {
+          minifyEnabled true   //是否启动混淆 ture:打开 false:关闭 开启时打包会慢一些
+          zipAlignEnabled true //压缩优化
+          shrinkResources true //移出无用的resource资源
+          //加载混淆配置文件
+          proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+      }
+
+    2.在对应的proguard-rules.pro中加入混淆
+      eg:
+      # OKhttp3
+      -dontwarn okhttp3.**
+      -keep class okhttp3.**{*;}
+      -keep interface okhttp3.**{*;}
+
+      # Retrofit
+      -dontwarn retrofit2.**
+      -keep class retrofit2.** { *; }
+      -keepattributes Signature
+      -keepattributes Exceptions
+
+
+ ※ 多模块混淆、多module混淆、多library混淆的正确姿势
+    1.只要主Moudle开启了混淆 就无论子Moudle是否开启混淆，都会混淆
+    2.建议每个Moudle混淆自己的模块 这样删除增加就不会出现混淆冗余的情况
+
+
+ ※ 学习参考：
+    https://www.jianshu.com/p/f3455ecaa56e
+
+----------------------------------------------------------------------------------------------------
+
+
+
+Android APK加固
+----------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    代码混淆后虽然大大增加了代码阅读难度，但一些关键的信息(如一些key、scrente都还会看到)
+    于是就需要APK加固
+    加固：对源文件使用加壳技术实现Dex文件保护，即隐藏原本的Dex文件，然后生成一个Dex壳文件放到APK中
+    效果：apk加固后主dex文件已经是看不到原码，只能看壳的dex文件中的原码，这样就达到了加固的效果
+
+    效果：加固后，很多主要文件都会被删除。基本无法正常阅读
+    推荐：360加固(免费) http://jiagu.360.cn/#/global/index
+    注意点：加固后APK需要重新签名
+    (不知道什么原因，下载后的加固攻击在机器上没运行起来，所以还是没有实际跑一边(加固前的反编译代码与加固后的对比) )
+
+
+ ※ 注：混淆和加固二者不冲突，可以两个都做
+
+ ※ 学习参考：
+   https://www.jianshu.com/p/856bf5b437aa
+
+----------------------------------------------------------------------------------------------------

@@ -1,0 +1,528 @@
+
+
+
+项目开发前做的准备
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 参考
+     https://www.jianshu.com/p/d9e4ddd1c530
+     https://www.jianshu.com/p/45c1675bec69
+
+
+ ※ 目录结构
+      ->bean          (因为时常用到, 所有没包含在model下面)
+      ->dao.greendao  (可以在外面包一层model文件夹)
+      ->http  
+      ->mvp
+        ->activity
+	->adapter
+	->base
+	->fragment
+	->presenter
+	->view
+      ->utils
+      ->view 
+      App.java   (继承Application类 ,因为Application本身在一个应用中只会存在一个实例，所以它一般用来存储一些全局的变量和一些只需要处理一次的数据)
+      Constant.java/Config.java   (常量类,存储一些URL,KEY)
+      MainActivity.java
+    
+      如果分模块开发
+      ->mvp
+        ->launch
+	->main
+	->account
+	->news
+	->music
+
+
+ ※ 配置一些默认颜色和主题
+    1.在color.xml中写好需要的颜色：配色表, 应该是描述颜色而不是对字体颜色，背景颜色等的定义
+
+      <resources>
+         <color name="colorPrimary">#0590F5</color>
+         <color name="colorPrimaryTrans">#CC0590F5</color>
+         <color name="colorPrimaryDark">#303F9F</color>
+         <color name="colorAccent">#FF4081</color>
+
+	 <!-- basic colors -->
+	 <color name="white">#FFFFFF</color>
+	 <color name="black">#323232</color>
+	 <color name="gray">#939393</color>
+         <color name="green">#27D34D</color>
+         <color name="blue">#2A91BD</color>
+         <color name="orange">#FF9D2F</color>
+         <color name="red">#FB5553</color>
+	 <color name="trans">#00000000</color>
+
+	 <!-- grayscale -->
+         <color name="gray_light">#e5e5e5</color> <!-- 此颜色一般用于当线的颜色或与白色区别的浅灰色 -->
+         <color name="gray_dark" >#5F5F5F</color>
+         <color name="gray_half" >#f0f0f0</color> <!-- 此颜色一般用于当背景色,与浅灰色配合有很好的层次视觉效果 -->
+      </resources>
+
+
+    2.在styles.xml里定义主题：
+      <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+         <item name="colorPrimary">@color/colorPrimary</item>
+         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+         <item name="colorAccent">@color/colorAccent</item>
+      </style>
+
+      <style name="AppTheme" parent="AppTheme.Base"></style>
+
+    3.在res目录下，创建一个values-v21目录，再创建一个style.xml:
+      <style name="AppTheme" parent="AppTheme.Base">
+         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+         <item name="android:statusBarColor">?colorPrimaryDark</item>
+      </style>
+      然后在AndroidManifest.xml文件中修改application的theme属性为上面定义的AppTheme.即可实现沉浸式状态栏。
+    
+    4.在values目录下，添加一个文件 styles_base.xml文件
+    
+
+
+ ※ 添加一些写好的类
+    1.BaseAcitvity/BaseFragment类和Utils类
+      工具类:https://github.com/Blankj/AndroidUtilCode/blob/master/utilcode/README-CN.md
+
+
+
+ ※ 依赖一些常用SDK 和 第三方库 (此地方需要修改)
+     UI: 各种开源控件,可以在这里找 https://github.com/Trinea/android-open-project
+     依赖注入：Dagger + ButterKnife
+     图片加载：Picasso
+     网络请求: Retrofit + OkHttp + RxJava + Gson
+     数据库访问: Content Provider + Schematic, 或某款orm
+     消息事件队列：otto
+     
+     第三方开发者服务
+     即时通讯：融云
+     云存储：七牛
+     短信验证：Mob
+     做后台不求人：Bmob
+     分享：ShareSDK，专业做社交分享。
+     
+     统计分析：Talking Data, 可惜友盟现在启动就带上阿里全家桶。
+     Crash分析：国内: 腾讯Bugly, 号称全球唯一自带ANR收集，其实原理很简单，不知别家为何不做。
+     评论：畅言, 基本抄的Disqus, 免费，算是良心产品了。
+     广告变现：百度 or 广点通，两个效果差不多。
+     支付：支付宝, 微信
+     灰度测试：AppAdhoc，移动AB测试国内最专业的一家。
+     云测：百度云测试。
+     客服：微客服,  有免费额度，中小应用够用。	
+     可视化分析：growingio, 还在内测中，linkedin数据分析大牛回国创业，据说黑科技，可以直接在app上实时查看各种转化率数据。
+
+
+
+ ※ 配置Gradle (待研究)
+    某些SDK运行时需要检查签名是否正确。所以在debug模式时也必须用正式KEY签名。而把签名放进版本控制不是明智的做法。所以推荐下面的做法：
+    在app的gradle加入下面代码
+    Properties props = new Properties()
+    props.load(new FileInputStream(file("signing.properties")))
+    android {
+    signingConfigs {
+        release{
+            keyAlias props['KEY_ALIAS']
+            keyPassword props['KEY_PASSWORD']
+            storeFile file(props['KEYSTORE_FILE'])
+            storePassword props['KEYSTORE_PASSWORD']
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+        debug {
+            signingConfig signingConfigs.release
+        }
+    }
+   }
+
+   在app的gradle文件同级目录新建signing.properties文件，里面填入你的key的相应信息
+
+   KEYSTORE_FILE = C:\\Users\\Mr.Jude\\Documents\\Android\\HelloWorld.jks
+   KEYSTORE_PASSWORD = xxxxxx
+   KEY_ALIAS = xxxxxx
+   KEY_PASSWORD = xxxxxx
+   将signing.properties添加进忽略目录。
+   其他人pull下来代码后。自己新建signing.properties填入相应信息后即可编译成功。
+
+
+
+ ※ 命名规范/代码规范
+    参考下面章节
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Android 命名规范
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 命名规范
+    参考:
+    阿里巴巴Android开发手册 https://102.alibaba.com/downloadFile.do?file=1519806643286/Android1_0_0.pdf 
+    Android 开发规范（完结版）https://www.jianshu.com/p/45c1675bec69
+         
+
+    1.类名
+      Activity    Activity为后缀        欢迎页面类    WelcomeActivity
+      工具方法类  Utils或Manager为后缀	线程池管理类：ThreadPoolManager
+                                        日志工具类    LogUtils（Logger 也可）
+                                        打印工具类：  PrinterUtils
+      测试类      以测试的类的名称开始,以Test结束  例如：HashTest或HashIntegrationTest。
+      接口类      多以 able 或 ible 结尾    例如： interface Runnable、interface Accessible。
+      注：如果项目采用 MVP，所有 Model、View、Presenter 的接口都以I为前缀，不加后缀，其他的接口采用上述命名规则。
+
+
+
+    2.方法名
+      initXX()                 初始化相关方法  如:initView()
+      isXX(), checkXX()        方法返回值为boolean型时使用
+      handleXX(), processXX()  对数据进行处理的方法
+      displayXX(), showXX()    弹出提示框和提示信息，使用 display/show 为前缀标识
+      updateXX()	       更新数据
+      saveXX(), insertXX()     保存或插入数据
+      resetXX()	               重置数据
+      clearXX()	               清除数据
+      removeXX(), deleteXX()   移除数据或者视图等，如 removeView()
+
+
+    3.常量名
+      常量名命名模式为 CONSTANT_CASE，全部字母大写，用下划线分隔单词。那到底什么算是一个常量？
+      每个常量都是一个static final字段，但不是所有static final字段都是常量。主要看这个值是否打算永远不改变
+      // Constants
+      static final int NUMBER = 5;
+      static final ImmutableList NAMES = ImmutableList.of("Ed", "Ann");
+      enum SomeEnum { ENUM_CONSTANT }
+
+      // Not constants
+      static String nonFinal = "non-final";
+      final String nonStatic = "non-static";
+      static final SetmutableCollection = new HashSet();
+      static final String[] nonEmptyArray = {"these", "can", "change"};
+
+
+    4.属性命名
+      非公有，非静态字段命名以 m 开头。
+      静态字段命名以 s 开头。
+      其他字段以小写字母开头。
+      
+      public class MyClass {
+         public int publicField;
+         private static MyClass sSingleton;
+         int mPackagePrivate;
+         private int mPrivate;
+         protected int mProtected;
+      }
+
+
+    5.控件属性命名
+      Android 众多的 UI 控件，为避免控件和普通成员变量混淆以及更好地表达意思，所有用来表示控件的成员变量统一加上控件缩写作为前缀
+      例如：ivAvatar、rvBooks、flContainer。 具体缩写见文章底部:https://www.jianshu.com/p/45c1675bec69
+
+    
+    6.变量名
+      变量名中可能会出现量词，我们需要创建统一的量词，它们更容易理解，也更容易搜索。
+      例如：mFirstBook、mPreBook、curBook。
+      First	一组变量中的第一个
+      Last	一组变量中的最后一个
+      Next	一组变量中的下一个
+      Pre	一组变量中的上一个
+      Cur	一组变量中的当前变量
+
+
+    7.数据类型
+     集合添加如下后缀：List、Map、Set。
+     数组添加如下后缀：Arr。
+     例如：mIvAvatarList、userArr、firstNameSet。
+     注意：如果数据类型不确定的话，比如表示的是很多书，那么使用其复数形式来表示也可，例如 mBooks。
+
+
+    8.临时变量
+      临时变量通常被取名为 i、j、k、m 和 n，它们一般用于整型；c、d、e，它们一般用于字符型。 如：for (int i = 0; i < len; i++)。
+
+
+---Android 资源文件的命名  ---------------------------------------------------------------------------------------------
+
+    9.layout 文件的命名方式
+       命名规则：module_类型{_逻辑名称}  
+
+       Activity 的 layout 以 module_activity 开头
+       Fragment 的 layout 以 module_fragment 开头
+       Dialog   的 layout 以 module_dialog 开头
+       include  的 layout 以 module_include 开头
+       ListView 的行 layout 以 module_list_item 开头
+       RecyclerView 的 item layout 以 module_recycle_item 开头
+       GridView 的行 layout 以 module_grid_item 开头
+
+       如：
+       main_activity.xml
+       main_bottomtab_item.xml
+       search_fragment.xml
+       search_head_include.xml
+
+
+    10.drawable资源文件（drawable/ 和 mipmap/）
+       res/drawable/ 目录下放的是位图文件（.png、.9.png、.jpg、.gif）或编译为可绘制对象资源子类型的 XML 文件，
+       而res/mipmap/ 目录下放的是不同密度的启动图标，所以 res/mipmap/ 只用于存放启动图标，其余图片资源文件都应该放到 res/drawable/ 目录下。
+       
+       规则：模块名_业务功能描述_控件描述_控件状态限定词  (限定词:_sel _bg _mip)
+
+       如：module_login_btn_pressed, module_tabs_icon_home_normal
+
+       例如：
+       head_back_normal.png
+       head_back_press.png
+       head_back_sel.png
+       login_share_qq.png
+       login_share_sina.png
+       login_share_wx.png
+       mine_head_bg.png
+       mine_head_edit.png
+       mine_seed.png
+       mine_setting.png
+       logo_qmtv.png
+       right_arrow.png
+
+
+    11.anim资源文件（anim/ 和 animator/）
+      规则：模块名_逻辑名称_{方向|序号}
+
+      tween 动画资源 ： 尽可能以通用的动画名称命名，
+       如：module_fade_in ,module_fade_out , module_push_down_in (动画+方向)；
+
+      frame 动画资源：尽可能以模块+功能命名+序号。
+       如：module_loading_grey_001
+
+      方向名词:
+      fade_in/fade_out	          淡入/淡出
+      push_down_in/push_down_out  从下方推入/推出
+      push_left	        推向左方
+      slide_in_from_top	从头部滑动进入
+      zoom_enter	变形进入
+      slide_in	        滑动进入
+      shrink_to_middle	中间缩小
+
+
+    12.colors.xml
+       规则：颜色 或 模块名_逻辑名称_颜色
+             color 资源使用#AARRGGBB 格式，写入 module_colors.xml 文件中 (建议分模块文件进行开发)
+
+       如：
+       <color name="module_btn_bg_color">#33b5e5e5</color>
+
+       如：
+       <resources>
+          <color name="colorPrimary">#ffffff</color>
+          <color name="colorPrimaryDark">#FB5553</color>
+          <color name="colorAccent">#FB5553</color>
+
+          <!-- basic colors -->
+          <color name="white">#FFFFFF</color>
+          <color name="black">#323232</color>
+          <color name="gray">#939393</color>
+          <color name="green">#27D34D</color>
+          <color name="blue">#2A91BD</color>
+          <color name="orange">#FF9D2F</color>
+          <color name="red">#FB5553</color>
+          <color name="trans">#00000000</color>
+
+          <!-- grayscale -->
+          <color name="gray_light">#e5e5e5</color> <!-- 一般用于线的颜色 或 与白色区别的浅灰色 -->
+          <color name="gray_light_text">#999999</color> <!-- 一般用于文字 浅灰色 -->
+          <color name="gray_dark" >#5F5F5F</color> <!-- 一般用于文字 深灰色 -->
+
+          <color name="gray_half" >#f0f0f0</color> <!-- 此颜色一般用于当背景色,与浅灰色配合有很好的层次视觉效果 -->
+          <color name="red_light" >#FFEEF0</color>
+          <color name="black_trans">#7f000000</color>
+          <color name="trans_half">#1f000000</color>
+          <color name="red_half">#CCFB5553</color>
+       </resources>
+      
+
+
+    13.dimens.xml
+       规则：直接描述 或 模块名_描述信息
+             像对待 colors.xml 一样对待 dimens.xml 文件
+
+       如：
+       <resources>
+          <!-- dp -->
+          <dimen name="dp_2">2dp</dimen>
+          <dimen name="dp_3">3dp</dimen>
+          <dimen name="dp_5">5dp</dimen>
+          <dimen name="dp_8">8dp</dimen>
+          <dimen name="dp_10">10dp</dimen>
+          <dimen name="dp_12">12dp</dimen>
+          <dimen name="dp_16">16dp</dimen>
+          <dimen name="dp_20">20dp</dimen>
+          <dimen name="dp_50">50dp</dimen>
+
+          <!-- font sizes -->
+          <dimen name="font_8">8sp</dimen>
+          <dimen name="font_12">12sp</dimen>
+          <dimen name="font_16">16sp</dimen>
+          <dimen name="font_18">18sp</dimen>
+          <dimen name="font_22">22sp</dimen>
+
+          <!-- typical spacing between two views -->
+          <dimen name="spacing_40">40dp</dimen>
+          <dimen name="spacing_24">24dp</dimen>
+          <dimen name="spacing_14">14dp</dimen>
+          <dimen name="spacing_10">10dp</dimen>
+          <dimen name="spacing_4">4dp</dimen>
+
+          <!-- typical sizes of views -->
+          <dimen name="button_height_60">60dp</dimen>
+          <dimen name="button_height_40">40dp</dimen>
+          <dimen name="button_height_32">32dp</dimen>
+       </resources>
+
+
+    14.strings.xml
+       规则：直接描述 或 模块名_描述信息
+             像对待 colors.xml 一样对待 strings.xml 文件
+
+       如：moudule_login_tips,module_homepage_notice_desc
+
+
+    15.styles.xml
+       规则：父 style 名称.当前 style 名称
+
+       如：
+       <style name="ParentTheme.ThisActivityTheme">
+        …
+       </style>
+
+
+    16.id 命名
+       命名规则：view缩写{_模块名}_逻辑名，
+       例如： btn_main_search、btn_back。
+       如果在项目中有用黄油刀的话，使用 AS 的插件：ButterKnife Zelezny，可以非常方便帮助你生成注解；
+       没用黄油刀的话可以使用 Android Code Generator 插件。
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Android 代码规范
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 代码规范
+
+    1.使用标准大括号样式
+      可以接受：
+      if (condition) {
+         body();
+      }
+      或者 
+      if (condition) body();
+
+      不可以接受：：
+      if (condition)
+         body();  // bad!
+
+
+    2.函数参数的排序
+      在Android开发过程中，Context 在函数参数中是再常见不过的了，我们最好把 Context 作为其第一个参数。
+      正相反，我们把回调接口应该作为其最后一个参数。
+
+      例如：
+      // Context always goes first
+      public User loadUser(Context context, int userId);
+
+      // Callbacks always go last
+      public void loadUserAsync(Context context, int userId, UserCallback callback);
+
+
+    3.字符串常量的命名和值
+      Android SDK 中的很多类都用到了键值对函数，
+      比如SharedPreferences、Bundle、Intent，所以，即便是一个小应用，我们最终也不得不编写大量的字符串常量。
+      当时用到这些类的时候，我们 必须 将它们的键定义为 static final 字段，并遵循以下指示作为前缀。
+
+      SharedPreferences	PREF_
+      Bundle	BUNDLE_
+      Fragment Arguments	ARGUMENT_
+      Intent Extra	EXTRA_
+      Intent Action	ACTION_
+      说明：虽然 Fragment.getArguments() 得到的也是 Bundle ，但因为这是 Bundle 的常用用法，所以特意为此定义一个不同的前缀。
+
+
+
+    4.Activities 和 Fragments 的传参
+      当 Activity 或 Fragment 传递数据通过 Intent 或 Bundle 时，不同值的键须遵循上一条所提及到的。
+      当 Activity 或 Fragment 启动需要传递参数时，那么它需要提供一个 public static 的函数来帮助启动或创建它。
+
+      Acitivity启动的写法
+      public static void start(Context context, User user) {
+         Intent i = new Intent(context, MainActivity.class);
+         i.putParcelableExtra(EXTRA_USER, user);
+         context.startActivity(i);
+      }
+
+     Fragment 启动的写法
+      public static MainFragment newInstance(User user) {
+         Bundle args = new Bundle();
+         args.putParcelable(ARGUMENT_USER, user);
+         MainFragment fragment = new MainFragment();
+         fragment.setArguments(args);
+         return fragment;
+      }
+     注意：这些函数需要放在 onCreate() 之前的类的顶部；如果我们使用了这种方式，
+           那么 extras 和 arguments 的键应该是 private 的，因为它们不再需要暴露给其他类来使用。
+
+
+
+ ※ 版本统一规范
+    Android 开发存在着众多版本的不同，
+    比如 compileSdkVersion、minSdkVersion、targetSdkVersion 以及项目中依赖第三方库的版本，
+    不同的 module 及不同的开发人员都有不同的版本，所以需要一个统一版本规范的文件。
+    具体可以参考我写的这篇博文：Android 开发之版本统一规范。https://blankj.com/2016/09/21/android-keep-version-unity/
+    如果是开发多个系统级别的应用，当多个应用同时用到相同的 so 库时，一定要确保 so 库的版本一致，否则可能会引发应用崩溃。
+
+
+
+
+※ 其他的一些规范
+
+    1.合理布局，有效运用 <merge>、<ViewStub>、<include> 标签；
+
+    2.Activity 和 Fragment 里面有许多重复的操作以及操作步骤，
+      所以我们都需要提供一个 BaseActivity 和 BaseFragment，让所有的 Activity 和 Fragment 都继承这个基类。
+
+
+    3.数据提供统一的入口。无论是在 MVP、MVC 还是 MVVM 中，提供一个统一的数据入口，
+      都可以让代码变得更加易于维护。比如可使用一个 DataManager，
+      把 http、preference、eventpost、database 都放在 DataManager 里面进行操作，我们只需要与 DataManager打交道；
+
+
+    4.可引入 Dagger2 减少模块之间的耦合性。Dagger2 是一个依赖注入框架，使用代码自动生成创建依赖关系需要的代码。
+      减少很多模板化的代码，更易于测试，降低耦合，创建可复用可互换的模块
+    
+
+    5.项目引入 RxAndroid 响应式编程，可以极大的减少逻辑代码；
+    
+
+    6.通过引入事件总线，如：EventBus、AndroidEventBus、RxBus，它允许我们在 DataLayer 中发送事件，
+      以便 ViewLayer 中的多个组件都能够订阅到这些事件，减少回调；
+    
+    7.及时关闭流；
+
+
+    8.尽量在合适的场合使用单例；
+      使用单例可以减轻加载的负担、缩短加载的时间、提高加载的效率，但并不是所有地方都适用于单例，
+      简单来说，单例主要适用于以下三个方面：
+      1.控制资源的使用，通过线程同步来控制资源的并发访问。
+      2.控制实例的产生，以达到节约资源的目的。
+      3.控制数据的共享，在不建立直接关联的条件下，让多个不相关的进程或线程之间实现通信。
+
+ 
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

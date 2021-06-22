@@ -1,0 +1,448 @@
+
+RxJava
+----------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+   RxJava 响应式编程, 在 GitHub主页上的自我介绍是 "a library for composing asynchronous and event-based programs using observable sequences for the Java VM"
+   (一个在 Java VM 上使用可观测的序列来组成异步的、基于事件的程序的库)，说到根上，它就是一个实现异步操作的库，
+
+   RxJava 优势
+   一个词：简洁。
+   但它的简洁的与众不同之处在于，随着程序逻辑变得越来越复杂，它依然能够保持简洁。
+
+   Observable: 上游 被观察者 它决定什么时候触发事件以及触发怎样的事件
+   Observer: 下游 观察者
+   subscribe(): 它们之间的连接 订阅
+   ObservableEmitter: Emitter是发射器的意思，用来发出事件的，它可以发出三种类型的事件，通过调用emitter的onNext(T value)、onComplete()和onError(Throwable error)就可以分别发出next事件、complete事件和error事件。
+
+
+※ RxJava2的基本使用
+   1.添加依赖
+      compile 'io.reactivex.rxjava2:rxjava:2.0.1'
+      compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+
+   2.代码编写
+     //创建一个上游 Observable：
+        Observable<Integer> observable = Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+                emitter.onNext(1);
+                emitter.onNext(2);
+                emitter.onNext(3);
+                emitter.onComplete();
+            }
+        });
+
+        //创建一个下游 Observer
+        Observer<Integer> observer = new Observer<Integer>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                Log.d(TAG, "subscribe");
+            }
+
+            @Override
+            public void onNext(Integer value) {
+                Log.d(TAG, "" + value);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "error");
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "complete");
+            }
+        };
+        //建立连接
+        observable.subscribe(observer);
+
+        输出结果:
+	D/TAG: subscribe
+	D/TAG: 1
+	D/TAG: 2
+	D/TAG: 3
+	D/TAG: complete
+
+     2.如果用链式结构,则这样编写
+	Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+                emitter.onNext(1);
+                emitter.onNext(2);
+                emitter.onNext(3);
+                emitter.onComplete();
+            }
+        }).subscribe(new Observer<Integer>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+                Log.d(TAG, "subscribe");
+            }
+
+            @Override
+            public void onNext(Integer value) {
+                Log.d(TAG, "" + value);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "error");
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "complete");
+            }
+        });
+
+
+
+
+※ 属性详解
+   1.上游的ObservableEmitter
+     ObservableEmitter: Emitter 发射器的意思，它可以发出三种类型的事件，通过调用emitter的onNext(T value)、onComplete()和onError(Throwable error)就可以分别发出next事件、complete事件和error事件。
+     规则:
+     1.上游可以发送无限个onNext, 下游也可以接收无限个onNext.
+     2.上游可以不发送onComplete或onError.
+     3.当上游发送了一个onComplete/onError后, 上游onComplete/onError之后的事件将会继续发送, 而下游收到onComplete/onError事件之后将不再继续接收事件.
+     4.最为关键的是onComplete和onError必须唯一并且互斥, 即不能发多个onComplete, 也不能发多个onError, 也不能先发一个onComplete, 然后再发一个onError, 反之亦然
+
+     注:关于onComplete和onError唯一并且互斥这一点, 是需要自行在代码中进行控制, 如果你的代码逻辑中违背了这个规则, **并不一定会导致程序崩溃.
+        比如发送多个onComplete是可以正常运行的, 依然是收到第一个onComplete就不再接收了, 但若是发送多个onError, 则收到第二个onError事件会导致程序会崩溃.
+
+   2.下游的Disposable
+     Disposable. 一次性用品的意思. 对应于上面水管的例子, 当调用它的dispose()方法时, 它就会将两根管道的连接切断, 从而导致下游收不到事件.
+     但并不会导致上游不再继续发送事件, 上游会继续发送剩余的事件,只是下游接收不到事件而已
+
+   3.管道连接subscrib 的多个重载的方法:
+     public final Disposable subscribe() {}  //表示下游不关心任何事件,你上游尽管发你的数据去吧, 老子可不管你发什么.
+     public final void subscribe(Observer<? super T> observer) {} //已经用过
+     public final Disposable subscribe(Consumer<? super T> onNext) {}
+     public final Disposable subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError) {}
+     public final Disposable subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError, Action onComplete) {}
+     public final Disposable subscribe(Consumer<? super T> onNext, Consumer<? super Throwable> onError, Action onComplete, Consumer<? super Disposable> onSubscribe) {}
+
+     例子: 带有一个Consumer参数的方法表示下游只关心onNext事件, 其他的事件我假装没看见, 因此我们如果只需要onNext事件可以这么写:
+     Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+                emitter.onNext(1);
+                emitter.onNext(2);
+                emitter.onNext(3);
+                emitter.onComplete();
+                emitter.onNext(4);
+            }
+        }).subscribe(new Consumer<Integer>() {
+            @Override
+            public void accept(Integer integer) throws Exception {
+                Log.d(TAG, "onNext: " + integer);
+            }
+        });
+
+     输出结果:
+     12-02 03:37:17.819 4166-4166/zlc.season.rxjava2demo D/TAG: 2
+     12-02 03:37:17.819 4166-4166/zlc.season.rxjava2demo D/TAG: 3
+     12-02 03:37:17.819 4166-4166/zlc.season.rxjava2demo D/TAG: 4
+
+
+
+※ RxJava 强大的线程控制
+   默认情况下,上下游默认是在同一个线程工作.但如果想切换上下游线程,则只需如下调用即可
+   例如:
+   observable.subscribeOn(Schedulers.newThread())
+       .subscribeOn(Schedulers.io())   //指定上游发送事件的线程
+       .observeOn(AndroidSchedulers.mainThread())
+       .observeOn(Schedulers.io())     //指定下游接收事件的线程
+       .subscribe(consumer);
+
+   详解:
+   1.subscribeOn 指定上游发送事件的线程  observeOn 指定下游接收事件的线程
+   2.多次调用上游的线程 subscribeOn() 只有第一次的有效, 其余的会被忽略.
+     多次指定下游的线程是可以的, 也就是说每调用一次observeOn() , 下游的线程就会切换一次.
+   3.在RxJava中, 已经内置了很多线程选项供我们选择, 例如有
+      Schedulers.io()          代表io操作的线程, 通常用于网络,读写文件等io密集型的操作
+      Schedulers.computation() 代表CPU计算密集型的操作, 例如需要大量计算的操作
+      Schedulers.newThread()   代表一个常规的新线程
+      AndroidSchedulers.mainThread() 代表Android的主线程
+
+
+
+※ RxJava 操作符
+   1.Map
+     Map算是 RxJava 中一个最简单的操作符了, 它的作用对上游发送数据按照指定的函数去变化. 最后下游得到的是变化后的函数
+     通过Map, 可以将上游发来的事件转换为任意的类型, 可以是一个Object, 也可以是一个集合
+
+     Observable.just(1, 20, 65, -5, 7, 19)
+        .map(new Function<Integer, String>() {
+            public String apply(Integer integer) throws Exception {
+                return "This is result " + integer;
+            }
+     }).subscribe(new Consumer<String>() {
+           public void accept(String s) throws Exception {
+               Log.d(TAG, s);
+     }
+
+     输出结果:
+     D/TAG: This is result 1
+     D/TAG: This is result 2
+     D/TAG: This is result 3
+
+
+   2.FlatMap
+     FlatMap上游的一个事件变换为多个事件，然后将这些分散的事件装进一个*单一*的发射器发送给下游.
+     但FlatMap并不保证事件的顺序, 如果想按照顺序,用ConcatMap替换FlatMap即可
+     实际运用:调用一个接口后再需要调用另外一个接口,比如注册后再登录,用于实现多个网络请求依次依赖
+
+     //省略Observable.create代码
+     public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+         Log.d(TAG, "emit 1");
+         emitter.onNext(1);
+         .... //onNext了2和3,格式和上面一样
+
+     }).flatMap(new Function<Integer, ObservableSource<String>>() {
+         public ObservableSource<String> apply(Integer integer) throws Exception {
+            for (int i = 0; i < 3; i++) {
+              list.add("I am value " + integer);
+            }
+            return Observable.fromIterable(list).delay(10, TimeUnit.MILLISECONDS);
+     }).subscribe(new Consumer<String>() {
+            public void accept(String s) throws Exception {
+                Log.e(TAG, s);
+            }
+
+     输出结果:
+     D/TAG: emit 1
+     D/TAG: emit 2
+     D/TAG: emit 3
+     D/TAG: I am value 1
+     D/TAG: I am value 2
+     D/TAG: I am value 2
+     D/TAG: I am value 3
+     D/TAG: I am value 3
+     D/TAG: I am value 3
+     D/TAG: I am value 1
+     D/TAG: I am value 1
+     D/TAG: I am value 2
+
+
+   3.Zip
+     Zip 专用于合并事件，按照顺序两两配对，也就意味着，最终配对出的事件数目只和和上游少的那个数目相同。
+     实际运用:当一个界面需要请求多个接口,最终合并显示时,可以用到  用于实现多个接口数据共同更新 UI
+
+     //上游1 Observable1
+     public void subscribe(ObservableEmitter<Integer> emitter) throws Exception {
+	Log.d(TAG, "emit 1");
+	emitter.onNext(1);
+	... //onNext了2/3/4和complete1,格式和上面一样
+     }
+
+     //上游2 Observable2
+     public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+        Log.d(TAG, "emit A");
+        emitter.onNext("A");
+        ... //onNext了B/C和complete2,格式和上面一样
+     }
+
+     //Zip代码
+     Observable.zip(observable1, observable2, new BiFunction<Integer, String, String>() {
+        @Override
+	public String apply(Integer integer, String s) throws Exception {
+             return integer + s;
+	}
+     }).subscribe(new Observer<String>() {
+        @Override
+	public void onSubscribe(Disposable d) {
+             Log.d(TAG, "onSubscribe");
+	}
+
+        ...省略onNext/onError/onError方法
+
+     });
+
+     输出结果:
+     D/TAG: onSubscribe
+     D/TAG: emit 1
+     D/TAG: emit 2
+     D/TAG: emit 3
+     D/TAG: emit complete1
+     D/TAG: emit A
+     D/TAG: onNext: 1A
+     D/TAG: emit B
+     D/TAG: onNext: 2B
+     D/TAG: emit complete2
+     D/TAG: onComplete
+
+
+    当执行在不同线程时,都在IO线程时
+    //Zip代码
+    Observable.zip(observable1.subscribeOn(Schedulers.io(), observable2.subscribeOn(Schedulers.io(), new BiFunction<Integer, String, String>() {
+        @Override
+	public String apply(Integer integer, String s) throws Exception {
+              return integer + s;
+	}
+    }).subscribe(new Observer<String>() {
+        ....
+    });
+
+    输出结果:
+    D/TAG: onSubscribe
+    D/TAG: emit A
+    D/TAG: emit 1
+    D/TAG: onNext: 1A
+    D/TAG: emit B
+    D/TAG: emit 2
+    D/TAG: onNext: 2B
+    D/TAG: emit 3
+    D/TAG: emit complete2
+    D/TAG: onComplete
+
+
+  4.还有很多操作符
+   just: 获取输入数据, 直接分发, 更加简洁, 省略其他回调.
+   from: 获取输入数组, 转变单个元素分发.
+   map: 映射, 对输入数据进行转换, 如大写.
+   reduce: 简化, 正好相反, 把多个数组的值, 组合成一个数据.
+
+
+※ RxJava 背压
+   背压是指在异步场景中，被观察者发送事件速度远快于观察者的处理速度的情况下，一种告诉上游的被观察者降低发送速度的策略。
+   其中上游变成了Flowable,下游变成了Subscriber,水管连接没有变
+   Observable -> Flowable  上游
+   Observer -> Subscriber 下游
+   subscribe() -> 水管连接
+
+   Flowable<Integer> upstream = Flowable.create(new FlowableOnSubscribe<Integer>() {
+        @Override
+        public void subscribe(FlowableEmitter<Integer> emitter) throws Exception {
+            Log.d(TAG, "emit 1");
+            emitter.onNext(1);
+	    ... //onNext了2/3和complete2,格式和上面一样
+        }
+
+   }, BackpressureStrategy.ERROR); //**增加了一个参数**
+
+        Subscriber<Integer> downstream = new Subscriber<Integer>() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                Log.d(TAG, "onSubscribe");
+                s.request(Long.MAX_VALUE); //**注意这句代码**
+            }
+
+            //...onNext,onError,onComplent
+        };
+
+   upstream.subscribe(downstream);
+
+    输出结果:
+    D/TAG: onSubscribe
+    D/TAG: emit 1
+    D/TAG: onNext: 1
+    D/TAG: emit 2
+    D/TAG: onNext: 2
+    D/TAG: emit 3
+    D/TAG: onNext: 3
+    D/TAG: emit complete
+    D/TAG: onComplete
+
+
+  属性解释:
+  1.s.request(Long.MAX_VALUE)
+    从结果来看,和平时一样,没写s.request(Long.MAX_VALUE); 这句代码 就会报MissingBackpressureException异常
+    原因:
+    在背压中,request当做是一种能力,当成下游处理事件的能力,下游能处理几个就告诉上游我要几个, 这样只要上游根据下游的处理能力来决定发送多少事件,
+    就不会造成一窝蜂的发出一堆事件来, 从而导致OOM.
+
+    注:
+    1.如果上游和下游在同一线程,如果没写s.request(Long.MAX_VALUE); 这句代码 就会报MissingBackpressureException异常
+    2.如果是异步,没有写s.request(Long.MAX_VALUE); 这句代码 不会报错, 上游正常执行,但下游收不到任何信息
+
+  2.上游参数
+    上游增加了一个参数,分别有四个值
+    BackpressureStrategy.ERROR  当上下游不均衡时抛出异常 默认大小128个
+    BackpressureStrategy.BUFFER 上游的大小可以无限大,但慎重使用,要注意OOM的问题
+    BackpressureStrategy.DROP Drop就是直接把存不下的事件丢弃 当超过128时,会抛弃前面127个,然后重新开始
+    BackpressureStrategy.LATEST Latest就是只保留最新的事件,
+
+    Flowable.create(new FlowableOnSubscribe<Integer>() {
+        @Override
+        public void subscribe(final FlowableEmitter<Integer> emitter) throws Exception {
+            Log.d(TAG, "before emit, requested = " + emitter.requested());
+
+            Log.d(TAG, "emit 1");
+            emitter.onNext(1);
+            Log.d(TAG, "after emit 1, requested = " + emitter.requested());
+
+            ... //onNext了2/3和complete,格式和上面一样
+
+            Log.d(TAG, "after emit complete, requested = " + emitter.requested());
+        }}, BackpressureStrategy.ERROR)
+            .subscribe(new Subscriber<Integer>() {
+            @Override
+            public void onSubscribe(Subscription s) {
+                Log.d(TAG, "onSubscribe");
+                mSubscription = s;
+                s.request(10);  //request 10
+            }
+
+                //...onNext,onError,onComplent
+    });
+
+    输出结果:
+    D/TAG: onSubscribe
+    D/TAG: before emit, requested = 10
+    D/TAG: emit 1
+    D/TAG: onNext: 1
+    D/TAG: after emit 1, requested = 9
+    D/TAG: emit 2
+    D/TAG: onNext: 2
+    D/TAG: after emit 2, requested = 8
+    D/TAG: emit 3
+    D/TAG: onNext: 3
+    D/TAG: after emit 3, requested = 7
+    D/TAG: emit complete
+    D/TAG: onComplete
+    D/TAG: after emit complete, requested = 7
+
+    响应式拉
+    同步:
+    下游调用request(n) 告诉上游它的处理能力，上游每发送一个next事件之后，requested就减一，注意是next事件，complete和error事件不会消耗requested，当减到0时，则代表下游没有处理能力了，这个时候你如果继续发送事件，会发生什么后果呢？当然是MissingBackpressureException啦
+    异步:
+    当上下游工作在不同的线程里时，每一个线程里都有一个requested，而我们调用request（1000）时，实际上改变的是下游主线程中的requested，而上游中的requested的值是由RxJava内部调用request(n)去设置的，这个调用会在合适的时候自动触发。
+    当下游消费掉第96个事件之后，上游又开始发事件了，而且可以看到当前上游的requested的值是96(打印出来的95是已经发送了一个事件减一之后的值)，最终发出了第223个事件之后又进入了等待区，而223-127 正好等于 96。
+
+    1.上游的默认能力是128, buffersize的大小定义, 对应的就是最大存储事件的能力,当超过127时,会报MissingBackpressureException异常
+    2.当下游消费一个事件时,上游的事件数就减一,
+    3.上面是我们自己创建的事件,如果我们想自己创建是RxJava给我们提供了其他的方法:
+      onBackpressureBuffer()
+      onBackpressureDrop()
+      onBackpressureLatest()
+
+      Flowable.interval(1, TimeUnit.MICROSECONDS)
+                .onBackpressureDrop()  //加上背压策略
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Long>() {
+                    @Override
+                    public void onSubscribe(Subscription s) {
+                        Log.d(TAG, "onSubscribe");
+
+
+※ RxJava 生命周期
+   为什么会发生内存泄漏?
+   使用RxJava发布一个订阅后，当页面被finish，此时订阅逻辑还未完成，如果没有及时取消订阅，就会导致Activity/Fragment无法被回收，从而引发内存泄漏。
+   https://www.jianshu.com/p/cc086b60f4ef
+   http://blog.csdn.net/kong_gu_you_lan/article/details/74469041
+
+
+
+
+※ 参考
+   RxJava2写的最好的一篇博客 浅显易懂 深入浅出 https://www.jianshu.com/p/464fa025229e
+   可以作为第一篇博客的补充,对操作符的效果进行了很多演示 https://www.jianshu.com/p/a93c79e9f689
+   元老级RxJava文章,虽然文中用的是RxJava1,但起了很好的引导作用 http://gank.io/post/560e15be2dca930e00da1083#toc_32
+
+
+
+※ Demo: /Demo/RxJava2Examples-master.zip
+
+----------------------------------------------------------------------------------------------------------------------------------

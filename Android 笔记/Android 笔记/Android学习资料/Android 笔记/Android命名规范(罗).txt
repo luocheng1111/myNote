@@ -1,0 +1,59 @@
+
+命名规范(罗)
+----------------------------------------------------------------------------------------------------------------------------------------
+ ※ 牛人笔记
+    http://blog.csdn.net/vipzjyno1/article/details/23542617
+    http://keeganlee.me/post/android/20150709
+
+※ 出发点：
+    以使用目的命名
+    一目了然
+    
+ ※ 包命名
+    com.公司名.应用名.功能.
+
+ ※ 类命名
+    activity类，命名以Activity为后缀，如：LoginActivity
+    fragment类，命名以Fragment为后缀，如：ShareDialogFragment
+    service类，命名以Service为后缀，如：DownloadService
+    adapter类，命名以Adapter为后缀，如：CouponListAdapter
+    工具类，命名以Util为后缀，如：EncryptUtil
+    模型类，命名以BO为后缀，如：CouponBO
+    接口实现类，命名以Impl为后缀，如：ApiImpl
+
+ ※ Layout 文件命名
+    Activity : activity_描述.xml eg: activity_main.xml
+    PopupWindow : ppw_描述.xml   eg:ppw_info.xml
+    ListView : adapter_描述.xml
+    include : include_描述.xml 为了统一前缀，否则会乱
+
+
+ ※ id 命名
+    TextView : tv_
+    EditText : et_
+    ImageView : iv_
+    Button : btn_
+    ImageButton : ibtn_
+    CheckBox : chk_
+
+    LinearLayout : llayout_
+
+ ※ 图片 命名
+    bg_功能_说明
+    ic_功能_说明
+    btn_功能_说明
+    sl_功能_说明
+
+    bg_main.png、ic_mainsearch.png
+    sl_headtextbg.xml
+    ic_head_s.png
+
+
+ ※ 字符串 命名
+    最好不要跟title、dialog、button等东西关系起来，直接用相同英文含义就可以了，如下：
+    <string name="ok">确定</string>
+    <string name="welcome_to_use">欢迎使用</string> 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+

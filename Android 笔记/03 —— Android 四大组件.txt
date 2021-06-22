@@ -1,0 +1,325 @@
+
+
+Activity
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    Activity，安卓四大组件之一，用于显示View，简单来说就是一个界面，用于和用户交互
+
+
+ ※ Activity的生命周期(http://blog.csdn.net/liuhe688/article/details/6733407)
+    1.启动Activity               onCreate() -> onStart() -> onResume() 此时进入运行状态
+    2.锁屏或被其他Activity覆盖时   -> onPause()  此时进入停止状态
+    3.回到Activity               -> onResume()
+    4.转到新的Activity界面按Home键 onPause() -> onStop()
+    5.回到Activity               onRestart() -> onStart() -> onResume()
+    6.回退键                      onPause() -> onStop() -> onDestory()
+    7.当Activity失去焦点时(第2.4步)  系统内存不足时，会杀死此Activity，在此运行此Activity后，会执行第1步
+
+    onWindowFocusChanged():  Activity窗口获得或失去焦点时被调用，在onResume()或onPause()之后调用
+
+   Activity异常情况下的生命周期(https://blog.csdn.net/geekerhw/article/details/48749935)
+    我们知道，当Activity被异常终止后被恢复时，系统会自动的榜我们回复数据和一些状态
+    onSaveInstanceState():   在程序被销毁时调用，用于保存一些临时数据或各组件的状态，调用顺序在onPause()之后
+    onRestorelnstanceState(): 当Activity在后台被杀死，之后恢复数据时会被调用，值会通过Bundle传递过来，，调用顺序在onStart()之后
+    2.在改变屏幕方向，重建时，会被调用。调用顺序在onStart之后
+
+
+ ※ 启动模式(LaunchMode)
+    代码设置
+     <activity android:name=".MainActivity" android:launchMode="standard"/>
+
+    standard          每次启动一个 Activity 都会重新创建一个新的实例，不管这个实例是否已经存在，此模式为Activity的默认启动模式
+    singleTop         如果新 Activity 已经位于任务栈的栈顶，那么此 Activity 不会被重新创建，同时会回调 onNewIntent方法，如果新 Activity 实例已经存在但不在栈顶，那么Activity 依然会被重新创建；(例：从通知栏进入),  
+                           则生命周期调用顺序为 onNewIntent()->onResume
+    singleTask        只要 Activity 在任务栈中存在，那么多次启动此 Activity 都不会重新创建实例，并且会移除他上面的Activity实例，并会调onNewIntent 方法
+    singleInstance   启动此模式的Activity实例时，会在一个单独的栈中创建该Activity实例，如果该实例存在，则会回调onNewIntent 方法。这种启动模式的好处是可以让多个应用共享这个Activity实例，
+                           任何应用激活该Activity时，都会重用这个实例，比如：系统电话拨号界面，第三方应用调用支付宝付款界面，微信授权登录界面等。  
+                           如果栈中存在，则生命周期调用顺序为 onNewIntent()->onRestart--->onStart--->onResume
+
+    onNewIntent与启动模式 https://blog.csdn.net/my_csdnboke/article/details/84787281
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent); //设置新的intent，此方法必须调用，不调用的话Intent获取的还是一开始的数据
+        int data = getIntent().getIntExtra("tanksu", 0);//此时的到的数据就是正确的了
+    }
+
+
+ ※ Activity横竖屏切换的生命周期
+    设定为横屏还是竖屏：
+    1.AndroidManifest.xml下指定：
+      在的Activity里 android:screenOrientation="portrait"  //portrait竖屏 landscape横屏
+
+    2.程序中指定：
+      在onCreate()中，setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); //竖屏 SCREEN_ORIENTATION_LANDSCAPE为横屏
+
+    生命周期：
+      当android:configChanges 不设置或设置值为orientation时， 横竖屏切换时都会销毁原有生命周期后再重调一次生命周期。
+      当android:configChanges="orientation|keyboardHidden"时，横竖屏切换时都会调用一次onConfigurationChanged()方法
+      如果设置了android:screenOrientation="xxx",则会使android:configChanges设置的失效
+
+
+ ※ 参考
+    http://blog.csdn.net/liuhe688/article/details/6733407
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Service 服务
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+     Android中的Service，意思为"服务"，在后台运行，没有界面，与Activity不同，他不能与用户交互，不能自己启动，
+     但要注意的一点是，虽然Service在后台运行，但他还是运行在主线程里的，所以在Service使用耗时操作时，也要开启线程
+     运行在后台的程序，如果我们退出应用时，Service进行没有结束，依然运行在后台，
+     比如我们常见的播放音乐，我们需要音乐在后台也可以运行，这时候我们就可以运使用Service
+
+ ※ Service启动方式 2种
+     startService()方式调用服务，应用和服务没有关联，适用于服务和访问者没有交互的情况，生命周期 不随 调用者生命周期的变化而变化。
+     bindService()的方式调用服务，应用程序和服务绑定在一起，适用于服务和访问者之间需要方法调用或者传递传递参数。生命周期 随 调用者变化而变化
+
+ ※ 生命周期
+    startService：
+    1.第一次调用startService：onCreate->onStartCommand（->onStart）
+    2.再次调用startService: onStartCommand（->onStart）
+    3.调用stopService: onDestroy
+
+    bindService:
+    1.第一次调用bindService：onCreate->onBind()
+    2.再次调用bindService：不会调用任何方法
+    3.unBindService：onUnbind
+    4.stopService：onDestroy
+
+    startService和bindService同时使用
+     注：Service的onCreate方法只会被调用一次
+     例1：startService->bindService
+     (1).startService：调用onCreate()->onStartCommand()
+     (2).bindService：调用onBind()
+     (3).stopService：没有调用onDestory()    Service仍然在运行！
+     (4).unbindService：调用onUnbind()->onDestory()    此时Service关闭！ 
+
+     例1：bindService->startService
+     (1).bindService： 调用onCreate()->onBind()
+     (2).startService：调用onStartCommand()
+     (3).unbindService：调用onUnbind()    Service仍然在运行！
+     (4).stopService：调用onDestory()    此时Service关闭
+
+
+※ onStartCommand和onStart方法有啥区别？
+    onStart方法是在Android2.0之前的平台使用的. 2.0后推荐重写onStartCommand
+    而为了向前兼容，在onStartCommand依然会调用onStart方法。
+
+
+ ※ Service和Thread的关系
+     Thread：
+       用于开启子线程，在里边执行耗时操作，不会阻塞主线程；
+     Service：
+       1>：Service 与 MainActivity一样，都是运行在主线程；
+       2>：Service 用于处理后台任务，由于 Service运行在主线程，如果执行耗时操作，会ANR，可以在 Service中 开启子线程，就可以处理后台的 耗时任务；
+       3>：后台指的是： 它的运行完全不依赖UI，即使 Activity被销毁、或者程序关闭，只要进程还在，Service就能运行。比如一些需求：需要与服务器之间一直保持心跳连接，就可以用 Service，直接在 Service中 开启子线程即可；
+ 
+※ 同样是开子线程，为什么要用 Service而不用 MainActivity
+       Activity销毁后，不能获取到之前创建的 Thread实例，而且 Activity中创建的 Thread实例，其他Activity不能对其操作；
+       但是 Service就不一样：
+       因为 所有 Activity都可以与 Service关联，即使 Activity销毁，只要 调用 bindService 重新 与 Activity 绑定，就可以 获取到 Service中的 Binder 实例，直接处理后台逻辑，Activity只管 finish，不用管后台执行的任务；
+
+ ※ IntentService
+     IntentService是一个特殊的Service类，与Service不同的是，它可以执行耗时的操作，同一时间只能执行一个操作，如果有多个耗时操作，他会依次进行，还一点一点不同的是，
+     它不用手动停止服务，耗时操作结束后，他会自己关闭服务，通常情况下，用来做工作线程处理UI无关任务的场景，他的原理是通过Service和HandlerThread结合来实现的
+
+
+ ※ AIDL:用于与远程服务实现进程通信
+    AIDL：它可以用于让某个Service与多个应用程序组件之间进行跨进程通信，从而可以实现多个应用程序共享同一个Service的功能。
+    aidl文件和接口类基本相似，但是没有类似public这样的东西
+
+
+ ※ 参考
+    https://blog.csdn.net/guolin_blog/article/details/11952435
+    https://wenku.baidu.com/view/af75b3154431b90d6c85c776?fr=step_zhidao
+    https://blog.csdn.net/codezjx/article/details/45314925
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+BroadcastReceiver 广播
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    用来接收系统和应用中的广播，但建议应用的中的广播使用EventBus来实现，更简便
+
+
+ ※ 广播的注册方式 两种
+     1. 静态注册，在AndroidManifest.xml里面注册，这种方式注册的广播在程序关闭的情况下也可以收到广播
+     2. 动态注册，在程序内部用代码注册，这种方式注册的广播的生命周期和程序的生命周期是一样一样的。
+
+     静态注册：在androidmanifest.xml中注册，常驻广播
+	       <receiver>
+		 <intent-filter>
+			<action android:name="android.intent.action.PICK"/>
+		 </intent-filter>
+	       </receiver>
+	       弊端：始终处于活动状态，对于手机的cpu和电量都不利
+
+     动态注册：在activity里面注册，非常驻广播
+	       registerReceiver(receiver, filter);
+	       unregisterReceiver(receiver);
+
+
+ ※ 广播的发送方式 两种
+     1. 发送普通广播，sendBroadcast() 所有监听这个广播的都可以收到消息。
+     2. 发送有序广播，sendOrderedBroadcast() ，按照广播注册时的优先级(android:priority -1000~1000),
+        从高到低发，高的优先级可以对广播进行处理或者终止广播发送(abortBroadcast())
+
+
+ ※ 使用
+    1.短信监听
+      manifest.xml:   action="android.provider.Telephony.SMS_RECEIVED"
+      在广播接受者receiver里面
+      Bundle bundle = intent.getExtras();
+      Object[] pdus = (Object[])bundle.getExtras("pdus");
+      for(Object p : pdus){
+	byte[] pdu = (byte[])p;
+	SmsMessage message = SmsMessage.createFromPdu(pdu);
+	String content = message.getMessageBody(); //短信内容
+	Date date = new Date(message.getTimestampMillis()); //短信时间
+	String number = message.getOriginatingAddress(); //短信号码
+      }
+      注：需要权限：<uses-permission android:name="android.permission.RECEIVE_SMS"/>
+
+
+    2.短信拦截
+      1.在<receiver>的<intent-filter android:priority="1000"> //优先级别：范围：-1000--1000  数字越大 级别越高
+      2.if("5556".equals(senderNumber)){ abortBroadcast(); }  //终止广播传递
+	注：需要权限：<uses-permission android:name="android.permission.RECEIVE_SMS"/>
+
+    3.电话拦截
+      1.设置优先级别, action="android.intent.action.NEW_OUTGOING_CALL"
+      2.广播里面：1.得到号码：String number = getResultData();
+                  2.判断号码
+		  3.修改号码后，发送出去，setResultData(null); setResultData(null);
+	注：需要权限：<uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+
+
+ ※ 本地广播
+    本应用才能接收的到的广播
+
+    使用:
+     LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);//获取本地广播
+
+     //注册（注意：只能动态注册）
+     IntentFilter intentFilter = new IntentFilter();
+     intentFilter.addAction("com.example.broadcasttest.LOCAL_BROADCAST");
+     MyBroadcast localReceiver = new MyBroadcast();
+     localBroadcastManager.registerReceiver(localReceiver, intentFilter);
+
+     //发送广播
+     Intent intent = new Intent("com.example.broadcasttest.LOCAL_BROADCAST");
+     localBroadcastManager.sendBroadcast(intent);
+
+   优势:
+     1.可以明确的知道正在发送的广播不会离开我们的程序，因此不需要担心机密数据泄露的问题
+     2.其他程序无法将广播发送到我们程序的内部，因此不需要担心会有安全漏洞的隐患
+     3.发送本地广播比起发送系统全局广播将会更加高效
+
+   参考:
+     http://blog.csdn.net/liuhe688/article/details/6955668
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+ContentProvider 内容提供者
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    ContentProvider，Android四大组件之一，用于对应用程序中的数据进行共享和操作， ContentProvider向我们提供了我们在应用程序之间共享数据的一种机制，
+    通过ContentProvider我们可以对Android系统中的媒体中的媒体库(音频，视频，图片)、通讯录等 进行增删改查操作。
+
+
+
+ ※ ContentResolver类：用于操作ContentProvider类
+      增： Uri url = Uri.parse("content://com.jiahui.provider.myprovider/person");
+          ContentValues values = new ContentValues();
+          values.put("name", edtname.getText().toString());
+          values.put("age", edtage.getText().toString());
+          Uri result = this.getContentResolver().insert(url, values);
+          if (ContentUris.parseId(result)>0) {
+              sysou("添加成功");
+          }
+      删：Uri uri = Uri.parse(“content://com.jiahui.provider.myprovider/person/2”);
+          int result = contentResolver.delete(uri, null, null);
+          if (result >= 1) {
+             sysou("删除成功");
+          }
+      改：Uri uri = Uri.parse("content://com.jiahui.provider.myprovider/person/3");
+          ContentValues values = new ContentValues();
+          values.put("name", edt_item_name.getText().toString());
+          values.put("age",  Integer.parseInt(edt_item_age.getText().toString()));
+          int result = contentResolver.update(uri, values, null, null);
+          if (result >= 1) {
+             sysou("修改成功");
+          }
+      查：Uri url = Uri.parse("content://com.jiahui.provider.myprovider/person");
+          Cursor cursor = context.getContentResolver().query(url, new String[] { "_id", "name", "age" }, null, null, "_id");
+
+
+    1.理解Uri Uri:通用资源标识符
+      Uri--> content://com.example.aaa/person/122
+      解释：A.content:// 固定写法，从不修改。一种标识，一种概要
+            B.com.example.aaa 是指在AndroidMainfest.xml中我们注册的provider中的android:authorities属性所对应的
+	    C./person 具体操作那个条目
+	    D./122 具体指定到哪个条目下的哪条记录
+
+    2.UriMatcher 用于uri的注册和匹配：
+      实例化：UriMatcher  sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+      方法：1.sMatcher.addURI(“com.jiahui.provider.myprovider”, “person”, 1);//匹配此uri，如果匹配成功则返回最后一个参数1
+              sMatcher.addURI(“com.jiahui.provider.myprovider”, “person/#”, 2);//匹配此uri，如果匹配成功则返回最后一个参数2
+            2.sMatcher.match(uri); 此方法会返回已经加入的addURI，比如上面两个，如果没有就会返回-1
+
+    3.ContentUris 用于在Uri后面追加一个ID或者解析出传入的Uri所带上的ID值
+      方法：1.public static long parseId (Uri contentUri) //从路径中获取ID部分
+            2.public static Uri withAppendedId (Uri contentUri, long id) //用于为路径加上ID部分
+
+
+
+ ※ 例子-通讯录
+    1. uri:Contacts.CONTENT_URI,
+    2. 得到Id,name
+        moveToNext() 得到 id = Contacts._ID, name= Contacts.DISPLAY_NAME
+    3. 得到number
+        查询phone表query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID+"=?", new String[]{String.valueOf(id)}, null);
+        moveToNext() 得到 number=ContactsContract.CommonDataKinds.Phone.NUMBER
+    4. 得到email
+        query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, ContactsContract.CommonDataKinds.Email.CONTACT_ID+"=?",new String[]{String.valueOf(id)}, null);
+        moveToNext() 得到 email=ContactsContract.CommonDataKinds.Email.DATA
+
+    注:如果是自己的类共享数据,则需要写一个类继承ContentProvider,并重写里面的方法
+       如果是得到系统的数据,则不需要重写ContentProvider类
+
+
+ ※ 参考
+    http://blog.csdn.net/worker90/article/details/7016430
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Intent 意图
+----------------------------------------------------------------------------------------------------------------------------------
+ ※ 作用
+    用来激活组件和携带数据
+
+ ※ 分类
+    意图可分为显示意图和隐士意图
+
+    显式意图：明确指定了要激活那个组件
+    隐式意图：没有明确指定组件名，会根据设置的动作(action)、类别(category)、数据(URI和数据类型)
+              找到最合适的组件来处理这个意图。(添加category的时候一定要把默认的那个也加上)
+
+----------------------------------------------------------------------------------------------------------------------------------

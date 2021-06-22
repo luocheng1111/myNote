@@ -1,0 +1,77 @@
+ 
+
+
+Android 第三方登录
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ QQ登录 版本(Android_SDK_V3.3.1)
+    API开发指南 http://wiki.open.qq.com/wiki/%E5%88%9B%E5%BB%BA%E5%B9%B6%E9%85%8D%E7%BD%AE%E5%B7%A5%E7%A8%8B
+
+      1).准备工作
+        1.登录获取应用的的APP_ID和APP_KEY 腾讯开放中心->应用接入->创建应用->创建成功后可以获得(即使未审核，未上线也可以获得)
+	  APP_ID:1106703585  APP_KEY:
+        2.下载sdk http://wiki.open.qq.com/wiki/mobile/SDK%E4%B8%8B%E8%BD%BD
+
+      2).接入SDK(以V3.3.1版本为例)
+        1.接入并配置工程
+	  1.导入open_sdk_r5990_lite.jar包(具体需要导入什么包，需要导入几个包，参考Demo中导入的包)
+	  2.在moudle级中的build.gradle中的dependencies引用导入包
+	    compile files('libs/open_sdk_r5990_lite.jar')
+	  3.配置AndroidManifest，添加权限并添加AuthActivity和AssistActivity,且将<data android:scheme="xxx" />修改成自己的AppId
+	    <!--QQ登录配置 start -->
+	    <activity
+               android:name="com.tencent.tauth.AuthActivity"
+               android:noHistory="true"
+               android:launchMode="singleTask" >
+               <intent-filter>
+                   <action android:name="android.intent.action.VIEW" />
+                   <category android:name="android.intent.category.DEFAULT" />
+                   <category android:name="android.intent.category.BROWSABLE" />
+                   <data android:scheme="1106703585" />
+               </intent-filter>
+	    </activity>
+
+	    <!--SDK_V2.0引入了AssistActivity，开发者需在androidManifest.xml中注册。代码如下：-->
+	    <activity
+               android:name="com.tencent.connect.common.AssistActivity"
+               android:configChanges="orientation|keyboardHidden"
+               android:screenOrientation="behind"
+               android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+	    <!--QQ登录配置 end-->
+
+      3).编写代码
+          Demo见 /Demo/第三方登录-QQ V3.3.1.zip
+     
+  
+
+  
+ ※ 微信登录 版本 （微信登录接入需要开发者认证，需要钱 所以暂且搁置）
+     API接入指南 https://open.weixin.qq.com/cgi-bin/showdocument?action=dir_list&t=resource/res_list&verify=1&id=1417751808&token=&lang=zh_CN
+      1).准备工作
+        1.申请AppID 开发者应用登记页面 进行登记，登记并选择移动应用进行设置后，将该应用提交审核，只有审核通过的应用才能进行开发。
+        2.下载SDK及API文档
+      2).接入SDK
+        1.接入并配置工程
+	  1.build.gradle文件中，添加依赖即可：
+	    有两种,选其一即可
+	    不包含统计功能 compile 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
+            包含统计功能 compile 'com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+' 
+	  2.配置AndroidManifest，添加权限
+      3).编写代码
+          
+
+     
+ ※ 微博登录 待研究
+    
+      
+     
+
+ ※ 参考
+    QQ登录   http://blog.csdn.net/pkandroid/article/details/72912109
+    微信登录 http://blog.csdn.net/pkandroid/article/details/72974552
+    微博登录 http://blog.csdn.net/pkandroid/article/details/72983757
+ 
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+

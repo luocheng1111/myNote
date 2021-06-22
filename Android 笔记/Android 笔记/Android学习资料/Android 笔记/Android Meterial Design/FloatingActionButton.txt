@@ -1,0 +1,73 @@
+
+
+
+FloatingActionButton
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    FloatingActionButton 悬浮按钮 具有立体感的ImageView 自带阴影效果和点击效果，给人一种立体的悬浮在界面上的感觉
+    一般作为进阶操作的开关，在用户界面中通常是一个漂浮的小圆圈，它有自身独特的动态效果，比如变形、弹出、位移等等，代表着在当前页面上用户的特定的操作。
+
+
+ ※ 使用
+    //直接当成ImageView来用即可 可以随意设置位置
+    <android.support.design.widget.FloatingActionButton
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_gravity="right|bottom"
+         android:src="@drawable/ic_discuss"
+    />
+
+
+
+ ※ 改变 背景色、点击后的波纹效果、正常的阴影大小、点击时显示的阴影大小
+    <android.support.design.widget.FloatingActionButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:src="@drawable/ic_discuss"
+	    android:clickable="true"
+            app:backgroundTint="#ff87ffeb" //默认背景色
+            app:rippleColor="#33728dff"    //点击后的波纹效果
+            app:elevation="6dp"            //正常的阴影大小
+            app:pressedTranslationZ="12dp" //点击时显示的阴影大小
+     />
+
+
+ ※ 关联其他视图的悬浮视图
+    app:layout_anchor="@id/appbar"  //关联控件的id
+    app:layout_anchorGravity="bottom|end" //关联控件的属性
+ 
+
+ ※ 5.x存在的一些问题
+    在在5.x的设备上运行，你会发现一些问题（测试系统5.0）：
+    1.木有阴影   设置app:borderWidth="0dp"
+    2.有矩形边界  根据版本大小 设置边距
+
+    解决范例：
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        app:borderWidth="0dp"
+        android:layout_margin="@dimen/fab_margin"
+        android:src="@drawable/ic_headset" />
+    
+    values.xml
+     <dimen name="fab_margin">0dp</dimen>
+
+    values-v21
+     <dimen name="fab_margin">16dp</dimen>
+
+
+ ※ 问题解决
+    1.FloatingActionButton没有点击后的涟漪效果
+      加上android:clickable="true"就好了
+
+
+ ※ 学习
+    https://blog.csdn.net/lmj623565791/article/details/46678867
+    FloatingActionButton实现的很多酷炫的效果 https://www.jianshu.com/p/5328b2eee827
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

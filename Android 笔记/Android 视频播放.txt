@@ -1,0 +1,193 @@
+
+
+
+直播(播放网络视频)
+----------------------------------------------------------------------------------------------------------------------------------------
+
+介绍
+ 现在市面上有几个比较主流好用的第三方框架
+  Vitamio （ 体积比较大，有商业化风险 github:https://github.com/yixia/VitamioBundle/）
+  ijkplayer（B站下开源的框架 体积大 配置环境比较麻烦 github:https://github.com/Bilibili/ijkplayer ）
+  PLDroidPlayer（七牛根据ijkplayer二次开发的 定制简单 github:https://github.com/pili-engineering/PLDroidPlayer）
+  TXLivePlayer (腾讯的直播框架 基于jkplayer二次开发 集成了很多功能 )
+  https://blog.csdn.net/yewei02538/article/details/51882933
+
+※ ijkplayer的使用
+  Github:   https://github.com/bilibili/ijkplayer
+  注：ijkplayer的Demo没啥运行效果，也很难理解 所以
+  教程：ijkplayer的使用： https://www.zhangningning.com.cn/blog/Android/android_ijkplayer_demo2.html
+  基于ijkplayer框架开发网络电视直播播放器的实现 https://blog.csdn.net/fukaimei/article/details/80553709
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+JiaoZiVideoPlayer
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  原节操视频播放器、封装好的一个视频播放器。使用很简单，且支持自定义，自定义示例可以看Demo
+  GitHub：https://github.com/lipangit/JiaoZiVideoPlayer
+
+※ 使用
+  1.添加依赖
+    compile 'cn.jzvd:jiaozivideoplayer:7.0.5'
+
+  2.添加布局
+    <LinearLayout
+      ...
+      android:layout_height="200dp">
+        <cn.jzvd.JzvdStd
+            android:id="@+id/jz_video"
+            android:layout_width="match_parent"
+            android:layout_height="200dp" />
+    </LinearLayout>
+
+  3.设置视频地址、缩略图地址、标题
+    MyJzvdStd jzvdStd = (MyJzvdStd) findViewById(R.id.jz_video);
+    jzvdStd.setUp("http://jzvd.nathen.cn/c6e3dc12a1154626b3476d9bf3bd7266/6b56c5f0dc31428083757a45764763b0-5287d2089db37e62345123a1be272f8b.mp4"
+                            , "饺子闭眼睛");
+    jzvdStd.thumbImageView.setImage("http://p.qpic.cn/videoyun/0/2449_43b6f696980311e59ed467f22794e792_1/640");
+
+  4.在Activity
+    @Override
+    public void onBackPressed() {
+       if (Jzvd.backPress()) {
+        return;
+       }
+       super.onBackPressed();
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Jzvd.releaseAllVideos();
+    }
+
+  5.在AndroidManifest.xml中
+    <activity
+        android:name=".MainActivity"
+        android:configChanges="orientation|screenSize|keyboardHidden"
+        android:screenOrientation="portrait" /> <!-- or android:screenOrientation="landscape"-->
+
+  6.混淆
+    -keep public class cn.jzvd.JZMediaSystem {*; }
+    -keep public class cn.jzvd.demo.CustomMedia.CustomMedia {*; }
+    -keep public class cn.jzvd.demo.CustomMedia.JZMediaIjk {*; }
+    -keep public class cn.jzvd.demo.CustomMedia.JZMediaSystemAssertFolder {*; }
+
+    -keep class tv.danmaku.ijk.media.player.** {*; }
+    -dontwarn tv.danmaku.ijk.media.player.*
+    -keep interface tv.danmaku.ijk.media.player.** { *; }
+
+
+※ 具体功能使用文档
+  https://blog.csdn.net/weixin_37536584/article/details/85288748
+  https://shimo.im/docs/xj5F85W1gqEEBXRJ/read
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+腾讯云移动直播 可以实现直播预览，直播推拉流，直播播放功能
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍(https://cloud.tencent.com/document/product/454)
+     腾讯云移动直播：提供了一套快速集成方案, 也提供了集直播(LVB)、点播(VOD)、云通信(IM) 和 对象存储(COS) 等多云端服务与一体
+     的“一体化解决方案”，且不收取除流量之外的额外费用
+
+ ※ 搭建环境 实现直播预览，主播推流(https://cloud.tencent.com/document/product/454/7877)
+    1.下载Demo,找到类似于LiteAVSDK_Smart_5.3.6004.aar文件，放入项目libs文件夹下
+    2.项目的build.gradle 中，添加引用 aar 包的代码：
+       dependencies {
+  		compile fileTree(dir: 'libs', include: ['*.jar'])
+ 		 // 导入腾讯云直播 SDK aar
+  		compile(name: 'LiteAVSDK_Smart_5.3.6004.aar', ext: 'aar')
+	   }
+    3.工程的build.gradle 中，添加 flatDir，指定本地仓库：
+       allprojects {
+  	     repositories {
+          jcenter()
+           flatDir {
+             dirs 'libs'
+          }
+    4.工程build.gradle 的 defaultConfig 里面，指定 ndk 兼容的架构：
+       defaultConfig {
+         applicationId "com.tencent.liteav.demo"
+         ……
+       ndk {
+            abiFilters "armeabi", "armeabi-v7a"
+            // 如果您使用的是商业版，只能使用 armeabi 架构，即：
+           // abiFilters "armeabi",
+        }
+       }
+    5.配置 APP 权限
+      在 AndroidManifest.xml 中配置 APP 的权限，音视频类 APP 一般需要以下权限：
+      <uses-permission android:name="android.permission.INTERNET" />
+      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+      <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+      <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+      <uses-permission android:name="android.permission.CALL_PHONE"/>
+      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+      <uses-permission android:name="android.permission.READ_LOGS" />
+      <uses-permission android:name="android.permission.RECORD_AUDIO" />
+      <uses-permission android:name="android.permission.CAMERA" />
+      <uses-feature android:name="android.hardware.Camera"/>
+      <uses-feature android:name="android.hardware.camera.autofocus" />
+    6.验证是否配置成功，再onCreate夹 得到版本号就成功
+      Log.d("liteavsdk", "liteav sdk version is : " + TXLiveBase.getSDKVersionStr(););
+
+    7.实现主播直播预览及直播推流功能
+      mTXLivePusher = new TXLivePusher(getActivity());
+      mTXPushConfig = new TXLivePushConfig();
+
+      //摄像头默认设置
+      mTXPushConfig.setCustomModeType(0);
+      mTXLivePusher.setPushListener(this);
+      mTXPushConfig.setPauseImg(300, 5);
+      //切后台推流图片
+      BitmapFactory.Options options = new BitmapFactory.Options();
+      options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+      Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.pause_publish, options);
+      mTXPushConfig.setPauseImg(bitmap);
+      mTXPushConfig.setPauseFlag(TXLiveConstants.PAUSE_FLAG_PAUSE_VIDEO | TXLiveConstants.PAUSE_FLAG_PAUSE_AUDIO);
+	  //mTXPushConfig.setFrontCamera(mFrontCamera);
+      mTXPushConfig.setBeautyFilter(mBeautyLevel, mWhiteningLevel, mRuddyLevel);
+      mTXLivePusher.setConfig(mTXPushConfig);
+
+      if (checkPermission()) {
+          //开启摄像头预览
+          mTXLivePusher.startCameraPreview(mTXCloudVideoView);
+      }
+
+      //请求接口,得到推流地址(此接口需要与腾讯云对接)
+        ……
+      //开始推流，摄像头继续显示本地画面
+       int result = mTXLivePusher.startPusher(mPushUrl);
+       LogUtils.e("推流是否成功 result : " + result);
+
+      //详细细节处理(电话处理，权限处理，生命周期处理见KingTv项目)
+
+
+ ※ 实现直播播放功能
+     //创建 player 对象
+     mTXLivePlayer = new TXLivePlayer(getActivity());
+     mTXLivePlayer.setPlayerView(mTXCloudVideoView);
+     mTXLivePlayer.setRenderRotation(TXLiveConstants.RENDER_ROTATION_PORTRAIT);
+     mTXLivePlayer.setRenderMode(TXLiveConstants.RENDER_MODE_FULL_FILL_SCREEN);
+     mTXLivePlayer.setPlayListener(this);
+     if (pullStreamUrl.startsWith("rtmp://")) {
+         mUrlPlayType = TXLivePlayer.PLAY_TYPE_LIVE_RTMP;
+     } else if ((pullStreamUrl.startsWith("http://") || pullStreamUrl.startsWith("https://") && pullStreamUrl.contains(".flv"))) {
+         mUrlPlayType = TXLivePlayer.PLAY_TYPE_LIVE_FLV;
+     }
+     mTXLivePlayer.startPlay(pullStreamUrl, mUrlPlayType); //推荐 FLV
+
+ ※ 具体案例见KingTV-LC项目
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+

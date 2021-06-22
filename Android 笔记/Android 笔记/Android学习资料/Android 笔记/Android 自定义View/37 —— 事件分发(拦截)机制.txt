@@ -1,0 +1,157 @@
+
+1.Android View 事件分发机制
+  1.1 View事件分发机制涉及的类
+  1.2 事件分发机制的顺序
+  1.3 事件分发机制的拦截
+  1.4 setOnLongCikckListener和setOnClickListener的事件拦截
+
+2.Android ViewGroup 事件分发机制
+  2.1 事件分发机制的顺序
+  2.2 父类的拦截与子类的反拦截
+
+
+
+Android View 事件分发机制
+----------------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+    http://blog.csdn.net/lmj623565791/article/details/38960443
+
+ ※ 例子
+   public class MyButton extends Button{
+
+    public MyButton(Context context, AttributeSet attrs){
+        super(context, attrs);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event){
+        int action = event.getAction();
+        switch (action){
+            case MotionEvent.ACTION_DOWN:
+                Log.e(TAG, "dispatchTouchEvent ACTION_DOWN");
+                break;
+            case MotionEvent.ACTION_MOVE:
+                Log.e(TAG, "dispatchTouchEvent ACTION_MOVE");
+                break;
+            case MotionEvent.ACTION_UP:
+                Log.e(TAG, "dispatchTouchEvent ACTION_UP");
+                break;
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        int action = event.getAction();
+        switch (action){
+            case MotionEvent.ACTION_DOWN:
+                Log.e(TAG, "onTouchEvent ACTION_DOWN");
+                break;
+            case MotionEvent.ACTION_MOVE:
+                Log.e(TAG, "onTouchEvent ACTION_MOVE");
+                break;
+            case MotionEvent.ACTION_UP:
+                Log.e(TAG, "onTouchEvent ACTION_UP");
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
+
+  }
+
+  MainActivity,java
+  public class MainActivity extends Activity{
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState){
+        ...
+        mButton.setOnTouchListener(new OnTouchListener(){
+            @Override
+            public boolean onTouch(View v, MotionEvent event){
+                int action = event.getAction();
+                switch (action){
+                case MotionEvent.ACTION_DOWN:
+                    Log.e(TAG, "onTouch ACTION_DOWN");
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    Log.e(TAG, "onTouch ACTION_MOVE");
+                    break;
+                case MotionEvent.ACTION_UP:
+                    Log.e(TAG, "onTouch ACTION_UP");
+                    break;
+                }
+
+                return false;
+            }
+        });
+    }
+
+
+
+ ※ 日志输出
+    跟View事件相关一般有三个地方，View.onTouchEvent()、View.dispatchTouchEvent()、View.setOnTouchListener()
+    日志：
+    08-31 06:09:39.030: E/MyButton(879): dispatchTouchEvent ACTION_DOWN
+	08-31 06:09:39.030: E/MyButton(879): onTouch ACTION_DOWN
+	08-31 06:09:39.049: E/MyButton(879): onTouchEvent ACTION_DOWN
+	08-31 06:09:39.138: E/MyButton(879): dispatchTouchEvent ACTION_MOVE
+	08-31 06:09:39.138: E/MyButton(879): onTouch ACTION_MOVE
+	08-31 06:09:39.147: E/MyButton(879): onTouchEvent ACTION_MOVE
+	08-31 06:09:39.232: E/MyButton(879): dispatchTouchEvent ACTION_UP
+	08-31 06:09:39.248: E/MyButton(879): onTouch ACTION_UP
+	08-31 06:09:39.248: E/MyButton(879): onTouchEvent ACTION_UP
+    可看到，不管是DOWN、MOVE、UP都会按照下列顺序 其中返回true则会拦截，返回false则会继续往下执行
+     1.View.dispatchTouchEvent()
+     2.View.setOnTouchListener的onTouch()
+     3.View.onTouchEvent()
+
+
+ ※ 总结
+    1.整个View的事件转发过程是：
+     View.dispatchEvent() -> View.setOnTouchListener() -> View.onTouchEvent()
+     在dispatchEvent中会进行OnTouchListener的判断，如果OnTouchListener不为null且返回true，
+     则表示事件被消费，onTouchEvent不会被执行，反之，执行onTouchEvent
+
+    2.setOnLongCikckListener和setOnClickListener是否只能执行一个？
+     不是的，只要setOnLongClickListener中的OnClick返回false，则两个都会执行，执行完setOnLongClickListener再执行setOnClickListener
+     反之，则只会执行setOnLongClickListener
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Android ViewGroup 事件分发机制
+----------------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+    http://blog.csdn.net/lmj623565791/article/details/39102591
+
+ ※ 日志输出
+    日志：
+	09-06 09:57:27.287: E/MyLinearLayout(959): dispatchTouchEvent ACTION_DOWN
+	09-06 09:57:27.287: E/MyLinearLayout(959): onInterceptTouchEvent ACTION_DOWN
+	09-06 09:57:27.287: E/MyButton(959): dispatchTouchEvent ACTION_DOWN
+	09-06 09:57:27.297: E/MyButton(959): onTouchEvent ACTION_DOWN
+	09-06 09:57:27.327: E/MyLinearLayout(959): dispatchTouchEvent ACTION_MOVE
+	09-06 09:57:27.327: E/MyLinearLayout(959): onInterceptTouchEvent ACTION_MOVE
+	09-06 09:57:27.337: E/MyButton(959): dispatchTouchEvent ACTION_MOVE
+	09-06 09:57:27.337: E/MyButton(959): onTouchEvent ACTION_MOVE
+	09-06 09:57:27.457: E/MyLinearLayout(959): dispatchTouchEvent ACTION_UP
+	09-06 09:57:27.457: E/MyLinearLayout(959): onInterceptTouchEvent ACTION_UP
+	09-06 09:57:27.457: E/MyButton(959): dispatchTouchEvent ACTION_UP
+	09-06 09:57:27.457: E/MyButton(959): onTouchEvent ACTION_UP
+    可看到，如果点击一个ViewGroup下Button大致流程为：
+     MyLinearLayout的dispatchTouchEvent() -> MyLinearLayout的onInterceptTouchEvent()
+     -> MyButton的dispatchTouchEvent() -> MyButton的onTouchEvent()
+
+ ※ 关于ViewGroup拦截View事件
+    只需onInterceptTouchEvent()返回true，即可实现子View的拦截，交给自己处理，此后会执行父类的
+    onTouchEvent()方法, 默认则返回false，
+
+ ※ 子类View防止父类拦截
+    只需在View的dispatchView()中加上这句话getParent().requestDisallowInterceptTouchEvent(true)即可
+    getParent().requestDisallowInterceptTouchEvent(true) 设置不允许父类进行拦截，即使父类return true，子View
+    依然可以捕获到MOVE以及UP事件
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+

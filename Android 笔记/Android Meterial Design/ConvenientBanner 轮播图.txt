@@ -1,0 +1,81 @@
+
+
+
+ConvenientBanner 轮播图 https://github.com/Bigkoo/Android-ConvenientBanner
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    通用的广告栏控件，让你轻松实现广告头效果。支持无限循环，可以设置自动翻页和时间，而且非常智能，手指触碰则暂停翻页，离开自动开始翻页。你也可以设置在界面onPause的时候不进行自动翻页，onResume之后继续自动翻页)，并且提供多种翻页特效。 对比其他广告栏控件，大多都需要对源码进行改动才能加载网络图片，或者帮你集成不是你所需要的图片缓存库。而这个库能让有代码洁癖的你欢喜，不需要对库源码进行修改你就可以使用任何你喜欢的网络图片库进行配合。
+
+
+ ※ 具体使用:
+    1.添加依赖
+      //轮播图
+      compile 'com.bigkoo:ConvenientBanner:2.1.4'
+      //(如果需要则添加)轮播图切换效果
+      compile 'com.ToxicBakery.viewpager.transforms:view-pager-transforms:1.2.32@aar'
+
+
+    2.xml添加
+      ...
+     <com.bigkoo.convenientbanner.ConvenientBanner xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/convenientBanner"
+        android:layout_width="match_parent"
+        android:layout_height="115dp"
+        android:background="@color/egg_yellow"
+        android:layout_below="@+id/game_luck_danmu"
+        app:canLoop="true" />
+      ...
+
+    3.代码使用
+      convenientBanner = mRootView.findViewById(R.id.convenientBanner);
+      //(需要先在build.gradle添加view-pager-transforms)设置Banner切换效果
+      convenientBanner.getViewPager().setPageTransformer(true, new ZoomOutSlideTransformer());
+
+      convenientBanner.setPages(new CBViewHolderCreator() {
+                @Override
+                public Holder<Banner> createHolder() {
+                    return new BannerHolder();
+                }
+       }, bannerList)
+                    .setPageIndicator(new int[]{R.drawable.banner_dot_normal, R.drawable.banner_dot_pressed})
+                    .setPageIndicatorAlign(ConvenientBanner.PageIndicatorAlign.CENTER_HORIZONTAL);
+
+       if (!convenientBanner.isTurning()) {
+                convenientBanner.startTurning(5000);
+       }
+       convenientBanner.setOnItemClickListener(new com.bigkoo.convenientbanner.listener.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Banner banner = bannerList.get(position);
+                ...
+            }
+        });
+
+        public class BannerHolder implements Holder<Banner> {
+
+            private ImageView iv;
+            @Override
+            public View createView(Context context) {
+              View view = LayoutInflater.from(context).inflate(R.layout.item_banner_image, null);
+              iv = view.findViewById(R.id.iv_);
+              return view;
+            }
+
+            @Override
+            public void UpdateUI(Context context, int position, Banner banner) {
+              GlideUtils.loadRoundedCornersImage(mContext, banner.getImgUrl(), R.mipmap.ic_bg_default, iv);
+            }
+        }
+
+
+
+ ※ 效果1：让点脱离图片 显示在图片外的下方
+    1.给ConvenientBanner设置为固定高度 比如115dp
+    2.给BannerHolder->layout->需要显示ImageView设置固定高度(高度要<ConvenientBanner高度) 比如96
+    原因:因为点的高度有个默认marginBottom值，点的位置并不是置于底部的
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+

@@ -1,0 +1,100 @@
+
+
+Android 使用Jenkins自动打包
+----------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+   每次写完功能要打包，因为项目原因打包时间较长, 所以就需要等待,打完包之后还要把这个包发给测试,很不方便.
+   而利用自动化打包技术，就可以在后台偷偷打包，不占用时间，打包完直接生产一个二维码测试下载安装就好了
+
+※ 自我理解
+   Jenkins虽然可以自动化打包项目，节省一点点时间，但在实际情况下不怎么实用。目前找不到他的价值
+
+※ 使用Jenkins自动打包（Mac环境）
+
+  一.下载Jenkins (需要2个小时左右)
+     有两种安装方式，一种通过brew终端命令安装，第二种方式可以到官方下载dmg安装。下面用的是第一种方式
+     操作步骤：(注：需要有brew环境，和java sdk)
+     1.(需1个多小时)打开终端，输入命令：brew install jenkins 就会自动下载
+       等到100%即为下载成功，可继续进行第二步
+
+  二.安装Jenkins及插件(需60分钟)
+     1.启动jenkins 在终端输入命令jenkins 就会启动jenkins
+     2.在浏览器输入http://localhost:8080后 会弹出一个需要输入密码界面
+       密码在 open /Users/电脑用户名称/.jenkins/secrets/initialAdminPassward 查看
+     3.选择用户，选择默认admin用户即可 用户名admin 密码为initialAdminPassward文件中的密码
+     4.输入密码后，会让你选择推荐插件安装还是自定义插件安装，选择推荐插件即可，此过程需要大概
+       60分钟，安装成功会进入jenkins主页，然后就可以构建任务了
+
+  三.部署Android自动打包环境
+     进入Jenkins主页后
+     1.选择系统管理->全局属性->勾选环境变量->新增键值
+       输入键: ANDROID_HOME 值: sdk地址(Android Studio设置搜sdk可看到)
+     2.选择系统管理->全局工具管理->点击Gradle安装->取消勾选自动安装
+       name输入Gradle4.1  GRADLE_HOME输入/Users/appleMac/Documents/gradle-4.1
+       (Gradle的路径可点击应用程序->右键选择Android Studio->显示包内容->选择gradle 就可以看到gradle-4.1文件,
+        由于Mac电脑系统的权限问题 固不能填此路径 所以复制gradle-4.1文件到Documents,然后填Documents下的gradle-4.1即可）
+     3.点开Gradle的高级，勾选上Force GR.... to use woekspace
+     4.点击保存
+
+  四.新建自动打包任务
+     1.选择新建任务->输入名称->选择构建一个自由风格的软件项目->点击确定
+     2.进入源码管理模块->选择Git Repository URL 填写Git的https地址
+       点击Credentials添加->输入Git的用户名和密码后->点击添加
+       ->Credentials选择刚添加的用户
+     3.进入构建模块->选择Invoke Gradle->选择Gradle4.1
+       Tasks填写app:assembleDebug
+     4.点击保存
+     5.点击立即构建就会自动构建项目
+     注:一定要保证Git上的项目能在你机器上的环境正常运行，否则自动构建会出问题
+
+
+※ 构建后项目上传到蒲公英，并获取到二维码下载到本地
+    参考：https://www.pgyer.com/doc/view/jenkins_plugin
+    步骤按上面来就可以了，只不过有几个注意点
+    1.sandir 填的是apk 所在目录 最后面没有/这个符号
+    2.sandir在mac环境下不能填项目中build下的目录，会失败，应该是权限问题
+      这里建议，把apk包打包到其他地方，然后填其他地方的目录地址
+    3.file wildcard 填的是apk名称，这里要写完整的apk名称
+
+
+
+※ 已搭好Jenkins环境，如何使用Jeckins
+   1.启动jenkins 在终端输入命令jenkins
+   2.在浏览器输入http://localhost:8080后 会弹出一个需要输入密码界面
+     用户名:admin 密码:open /Users/电脑用户名称/.jenkins/secrets/initialAdminPassward 查看
+   3.直接构建项目
+
+
+
+※ 配置构建触发器，自动定时定点构建
+  1.设置定时器，循环构建 每5分钟自动构建一次
+    点击构建任务->进入构建触发器模块->勾选定时构建(Poll SCM)->输入*/5 * * * * 代表每5分钟自动执行一次构建
+    第一个参数代表的是分钟 minute，取值 0~59；
+    第二个参数代表的是小时 hour，取值 0~23；
+    第三个参数代表的是天 day，取值 1~31；
+    第四个参数代表的是月 month，取值 1~12；
+    最后一个参数代表的是星期 week，取值 0~7，0 和 7 都是表示星期天。
+    如H/5 * * * * 表示的就是每5分钟检查一次源码变化。
+
+  2.设置轮训SCM 每天2点自动构建
+    点击构建任务->进入构建触发器模块->勾选轮训SCM(Build periodically)->输入0 2 * * * 代表每天2点自动构建
+
+
+
+※ 本机Jenkins常用命令
+   启动Jenkins: jenkins
+   服务器地址: http://localhost:8080
+   用户名: admin
+   密码: 8705f33d06c841deae3a95c36f9c0a7b
+   查看密码: open /Users/appleMac/.jenkins/secrets/initialAdminPassword
+
+
+
+
+※ 参考
+   Mac下搭建Jenkins https://www.jianshu.com/p/af024eb7eb4d
+   Android Jenkins+Git+Gradle持续集成 https://www.jianshu.com/p/38b2e17ced73/
+   Android 使用Jenkins 打包发包 https://www.jianshu.com/p/74dd11121fc7
+----------------------------------------------------------------------------------------------------------------------------------
+

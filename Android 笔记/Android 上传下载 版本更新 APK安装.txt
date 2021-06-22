@@ -1,0 +1,263 @@
+
+
+
+
+
+Android 上传 下载 大文件下载
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    借助于OKHttp的上传
+
+
+ ※ 上传
+     //上传File对象
+     OkHttpClient client = new OkHttpClient();
+
+     MediaType fileType = MediaType.parse("File/*");
+     File file = new File("path");//file对象.
+     RequestBody body = RequestBody.create(fileType, file);
+
+     final Request request = new Request.Builder()
+       .url(URLContant.CHAT_ROOM_SUBJECT_IMAGE)
+       .post(multipartBody)
+       .build();
+     client.newCall(request).enqueue(new Callback() {。。。});
+
+
+     //上传多个File对象
+      ...
+      MultipartBody multipartBody =new MultipartBody.Builder()
+        .setType(MultipartBody.FORM)
+        .addFormDataPart("groupId",""+groupId)//添加键值对参数
+        .addFormDataPart("title","title")
+        .addFormDataPart("file",file.getName(),RequestBody.create(MediaType.parse("file/*"), file))//添加文件
+        .build();
+      ...
+
+
+
+ ※ 图片压缩上传
+    //图片压缩放到子线程去执行
+    new Thread() {
+        @Override
+          public void run() {
+            super.run();
+            compressImage();
+        }
+    }.start();
+
+   //图片进行压缩，打水印
+    private void compressImage() {
+        int nullPhoto = 0; //记录空照片的图片
+        for (int i = 0; i < imagesList.size(); i++) {
+            String path = imagesList.get(i).path;
+            //原始图片
+            Bitmap pathBitmap = BitmapFactory.decodeFile(path);
+            if (pathBitmap == null) {
+                nullPhoto++;
+                continue;
+            }
+            Bitmap upImage;  //要上传的图片
+            //如果图片大于5M ，则进行图片压缩
+            if (BitmapUtil.getBitmapSize(pathBitmap) > 1024 * 1024) {
+                //压缩后的图片
+                upImage = BitmapUtil.bitmapZoom(BitmapFactory.decodeFile(path), 1024 * 1024);//计算单位KB
+            } else {
+                upImage = pathBitmap;
+            }
+            //进行打水印
+            Bitmap watermarkBitmap = BitmapUtil.myCreateBitmap(upImage, BitmapUtil.convertViewToBitmap(view));
+            String[] arr = path.split("/");
+            filesList.add(BitmapUtil.saveBitmapFile(watermarkBitmap, FileUtil.getSkinGiftPath(this,FileUtil.IMAGE) + "/" + arr[arr.length - 1]));
+        }
+        if (nullPhoto == imagesList.size()) { //上传的图片所以的为空
+            handler.sendEmptyMessage(2);
+        } else {
+            handler.sendEmptyMessage(1);
+    }
+
+
+
+ ※ 下载
+    在OKHttp中并没有提供下载文件的功能，但是在Response中可以获取流对象，有了流对象我们就可以自己实现文件的下载。代码如下：
+    这段代码写在回调接口CallBack的onResponse方法中：
+    try{
+      InputStream  is = response.body().byteStream();//从服务器得到输入流对象
+      long sum = 0;
+      File dir = new File(mDestFileDir);
+      if (!dir.exists()){
+         dir.mkdirs();
+      }
+      File file = new File(dir, mdestFileName);//根据目录和文件名得到file对象
+      FileOutputStream  fos = new FileOutputStream(file);
+      byte[] buf = new byte[1024*8];
+      int len = 0;
+      while ((len = is.read(buf)) != -1){
+         fos.write(buf, 0, len);
+      }
+      fos.flush();
+      return file;
+    }
+
+
+
+   eg: 批量下载一批图片：
+    new Thread() {
+        @Override
+          public void run() {
+              for (Gift gift : giftList) {
+                  downFile(gift.getIcon(), getGiftPath() + "/" + gift.getGiftId() + ".png");
+              }
+          }
+    }.start();
+
+     /**
+     * 下载文件 支持https
+     *
+     * @param httpUrl 网络链接
+     * @param path    下载目的地
+     */
+    private boolean downFile(String httpUrl, String path) {
+        boolean isSuccess = false;
+        InputStream stream = null;
+        try {
+            if(httpUrl.startsWith("https")) {
+                //如果是Https请求 则忽略素有证书
+                HTTPSTrustManager.allowAllSSL(); //此文件已加入基础包或者见https://blog.csdn.net/suyimin2010/article/details/81025083
+            }
+            URL url = new URL(httpUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(5000);
+            conn.setRequestMethod("GET");
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                stream = conn.getInputStream();
+                isSuccess = IOUtils.writeFileFromIS(paths, tream);
+            }
+            conn.disconnect();
+        } catch (MalformedURLException e) {
+            LogUtils.e("下载错误:"+e.getMessage());
+            e.printStackTrace();
+        } catch (IOException e) {
+            LogUtils.e("下载错误:"+e.getMessage());
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeIO(stream);
+        }
+        return isSuccess;
+    }
+
+
+
+
+ ※ 大文件下载(>20M)
+    需使用断点续传功能
+
+
+ ※ 注：
+    上面的功能已封装好，已经加入到KingTV-demo里面
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+APK 安装(兼容8.0以上)
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    APK 安装有些兼容的问题和配置的问题需要注意
+
+ ※ 使用
+    1.需要在AndroidManifest.xml中添加如下代码
+      <application
+         ....>
+
+         <activity ... />
+
+         <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="app的包名.fileprovider"
+            android:grantUriPermissions="true"
+            android:exported="false">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+      </application>
+
+    2.且要在AndroidManifest.xml中添加以下权限
+      <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+
+    2.在res目录下新建一个xml文件夹，并且新建一个file_paths的xml文件
+    3.打开file_paths.xml文件添加如下内容
+      <?xml version="1.0" encoding="utf-8"?>
+      <paths>
+             <external-path path="Android/data/app的包名/" name="files_root"/>
+             <external-path path="." name="external_storage_root"/>
+      </paths>
+
+    4.调用安装代码(此段代码已加入到AppUtils中，可直接调用)
+      public static void installApk(Context context, File apkFilePath) {
+        if (apkFilePath == null || !apkFilePath.exists() || !apkFilePath.isFile()) {
+            ToastUtils.showShort("apk文件不存在");
+            return;
+        }
+        if (apkFilePath.toString().endsWith(".apk")) {
+            Intent install = new Intent(Intent.ACTION_VIEW);
+            Uri apkUri;
+            if (Build.VERSION.SDK_INT >= 24) {//判读版本是否在7.0以上
+                LogUtils.e(context.getPackageName());
+                apkUri = FileProvider.getUriForFile(context, context.getPackageName() + ".fileprovider", apkFilePath);//在AndroidManifest中的android:authorities值
+                install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);//添加这一句表示对目标应用临时授权该Uri所代表的文件
+            } else {
+                apkUri = Uri.fromFile(apkFilePath);
+            }
+            install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            install.setDataAndType(apkUri, "application/vnd.android.package-archive");
+            context.startActivity(install);
+        }else {
+            ToastUtils.showShort("apk文件格式不对");
+        }
+      }
+
+
+ ※ 参考
+    https://blog.csdn.net/biickvtkd/article/details/78803481
+    https://www.jianshu.com/p/51a7c89cc854
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+Android DowanloadManager 系统的下载管理器(不建议使用)
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍 (不建议使用)
+    DownloadManager是Android 2.3（API level 9）用系统服务(Service)的方式提供了DownloadManager来处理长时间的下载操作。
+    主要功能：功能：后台下载, 并在通知栏显示下载进度，下载完安装新APK
+    内部实现了断点续传的操作。通常用来做APK更新或者视频下载等操作
+
+    碰到的问题：
+    1.下载大文件时，会出错
+    2.华为手机下载很慢 不知道原因
+    3.下载完安装时会出现解析包错误的问题
+    4.美图手机下载后，安装包运行后和正常不一样，而华为手机运行正常
+
+
+ ※ 参考
+     已经写了一个DownloadManagerUtils，放入KingTv的Base项目
+     https://www.jianshu.com/p/5b1ad56b9cef
+     https://blog.csdn.net/u012861467/article/details/82808290
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+

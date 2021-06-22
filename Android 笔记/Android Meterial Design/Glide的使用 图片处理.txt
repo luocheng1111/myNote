@@ -1,0 +1,329 @@
+
+
+Glide 的使用
+----------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+   Android官方推荐使用的图片处理框架,他可以加载缓存本地图片、加载缓存网络图片、还可以加载GIF图片与图形变换操作等.
+   Glide是Google员工基于Picasso开发，对Picasso进行了一些优化和改进，和Picasso的API相似度90%以上，
+
+
+※ 基本使用(基于Glide 4.4.0)
+   1.添加依赖
+     implementation 'com.github.bumptech.glide:glide:4.4.0'
+     annotationProcessor 'com.github.bumptech.glide:compiler:4.4.0'
+     implementation 'jp.wasabeef:glide-transformations:3.0.1' //Glide-transformations图片变换
+     如果版本高低于27则添加依赖应该是
+     compile 'com.github.bumptech.glide:glide:3.7.0'
+     compile 'jp.wasabeef:glide-transformations:3.0.1'
+
+   2.Manifest.xml中声明一下网络权限
+     <uses-permission android:name="android.permission.INTERNET" />
+   3.编写布局
+     <ImageView
+        android:id="@+id/image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+     </LinearLayout>
+   4.Activity 中使用
+     //placeholder 设置占位图 error 设置错误图
+     Glide.with(this).load(url).into(imageView);
+
+
+※ 其他用法
+   1.设置占位图和错误图
+     RequestOptions options = new RequestOptions().placeholder(R.drawable.loading).error(R.drawable.error);
+     Glide.with(this).load(url).apply(options).into(imageView);
+
+   2.图片变换( 圆形图片、圆角图片、模糊化图片等等)
+     Glide已经内置了几种图片变换操作，我们可以直接拿来使用，比如FitCenter、CenterCrop、CircleCrop等。
+     FitCenter是将图片按照原始的长宽比充满全屏 CenterCrop是中心区域进行裁剪后得到的图片  CircleCrop 圆角效果
+     至于图片圆角化、模糊化等等需要自己来写，但一个第三方库已经写好了很多变换效果，见https://github.com/wasabeef/glide-transformations
+
+     //圆形图片效果
+     RequestOptions options = new RequestOptions().circleCrop();
+     Glide.with(this).load(url).apply(options).into(imageView);
+
+     //第三方库Glide-transformations使用 模糊、灰化效果
+     RequestOptions options = new RequestOptions().transforms(new BlurTransformation(), new GrayscaleTransformation());
+     Glide.with(this).load(url).apply(options).into(imageView);
+
+
+   3.过渡动画 淡入效果
+     Glide.with(fragment).load(url).transition(new DrawableTransitionOptions().crossFade()).into(view);
+     有3个值：
+     GenericTransitionOptions  通用型
+     BitmapTransitionOptions   图片是位图(Bitmap)时使用
+     DrawableTransitionOptions 图片是Drawable时使用
+
+
+   4.Glide的缓存机制
+     Glide的缓存设计可以说是非常先进的，Glide又将它分成了两个模块，一个是内存缓存，一个是硬盘缓存。
+     默认情况下，Glide自动就是开启内存缓存的，这样可以大幅度提升图片的加载效率
+
+     内存缓存：
+      如果有什么特殊的原因需禁用内存缓存：RequestOptions options = new RequestOptions().skipMemoryCache(true);
+
+     硬盘缓存：
+      RequestOptions options = new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE);
+      有5个值：
+      DiskCacheStrategy.NONE：表示不缓存任何内容。
+      DiskCacheStrategy.DATA：表示只缓存原始图片。
+      DiskCacheStrategy.RESOURCE：表示只缓存转换过后的图片。
+      DiskCacheStrategy.ALL：表示既缓存原始图片，也缓存转换过后的图片。
+      DiskCacheStrategy.AUTOMATIC：表示让Glide根据图片资源智能地选择使用哪一种缓存策略（默认选项）
+      注：Glide去加载一张图片的时候，Glide默认并不会将原始图片展示出来，而是会对图片进行压缩和转换后的图片
+
+
+   5.图片预加载 preload()
+     //preload()方法有两个重载，一个不带参数，表示将会加载图片的原始尺寸，另一个可以通过参数指定加载图片的宽和高
+     Glide.with(this).load("http://guolin.tech/book.png").preload();
+
+
+   6.加载指定大小
+     实际运用中，大多数情况下我们是不需要指定图片大小的，因为Glide会自动根据ImageView的大小来决定图片的大小，以此保证图片不会占用过多的内存从而引发OOM。
+     RequestOptions options = new RequestOptions().override(200, 100);
+     Glide.with(this).load(url).apply(options).into(imageView);
+
+     如果想加载一张图片的原始尺寸的话，使用override(Target.SIZE_ORIGINAL); 这样Glide就不会再去自动压缩图片，而是会去加载图片的原始尺寸，
+     当然，这种写法也会面临着更高的OOM风险。
+
+
+   7.图片加载监听
+     Glide.with(this)
+     .load("http://www.guolin.tech/book.png")
+     .listener(new RequestListener<Drawable>() {
+         @Override
+         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+             return false;
+         }
+
+         @Override
+         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+             return false;
+         }
+     })
+     .into(imageView);
+
+     注:两个方法都有一个布尔返回值，false表示这个事件没有被处理，还会继续向下传递，true表示这个事件已经被处理掉了，从而不会再继续向下传递。
+        举个简单点的例子，如果我们在两个方法中返回了true，那么就不会再回调Target的onResourceReady()方法了。
+
+
+   8.Glide 指定加载格式
+     Glide是支持加载GIF图片的，Glide内部会自动判断图片格式后显示，如果是静态图就显示静态图，如果是GIF图，就显示GIF图片。
+
+     加载一张GIF图或静态图
+     Glide.with(this).load("http://guolin.tech/test.gif").into(imageView);
+
+     指定加载静态图，而不需要Glide帮我们判断，其于对应的有asGif、asFile和asDrawable分别用于指定 文件格式的加载和Drawable格式的加载
+     Glide.with(this).asBitmap().load("http://guolin.tech/test.gif").into(imageView);
+
+
+
+※ 参考
+   Glide的基本使用(基于Glide 4.4版本) https://blog.csdn.net/guolin_blog/article/details/78582548
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Android 图片加载第三方库的的对比
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 图片加载第三方库介绍
+
+   Universal-Image-Loader
+    Android-Universal-Image-Loader是一个老牌的图片处理框架，但是在2015年的9月份已经停止更新维护，不推荐使用
+
+   Fresco
+    Fresco是Facebook开源的图片处理框架，真正做到了三级缓存，功能强大
+    Fresco是这几个框架中功能最强大的库，但是代码易用性和优雅性方面比Glide和Picasso难
+    Fresco在内存管理上做到了极致，对于重度图片使用的APP应该是非常好的。
+    它一般是直接使用SimpleDraweeView来替换ImageView，呃～侵入性较强，依赖上它apk包直接大1M，代码量惊人。
+
+
+   Picasso
+    Picasso是Square公司开源的一个Android图片加载框架，简单易用，一句话搞定项目中的图片加载
+    Picasso.with(this).load("url").placeholder(R.mipmap.ic_default).into(imageView);
+
+
+   Glide
+    Glide是Google员工基于Picasso开发，对Picasso进行了一些优化和改进，和Picasso的API相似度90%以上，
+    Glide是Android官网推荐使用的图片处理框架
+    Glide.with(context).load("url").into(imageView);
+
+    Glide进行的优化和扩展有
+    优化:
+     1.初始化: Glide的with方法不光接受Context，还接受Activity 和 Fragment，Context会自动的从他们获取。建议传Activity或Fragment，而不是Context，
+               这样做的好处是图片加载会和Activity/Fragment的生命周期保持一致，
+     2.降低图片清晰度,减少内存开销: 将默认的Bitmap格式是设置为RGB_565，而不是Picasso的ARGB_8888,这样做开销少一倍,但对图片清晰度稍有影响
+     3.缓存模式调整,加快图片加载速度: 将换成模式进行调整, Picasso缓存的是全尺寸的图片,而Glide缓存的是跟ImageView尺寸相同的的图片。这样做的好处是减少图片加载的进一步开销,图片加载更快
+       但改变一次图片尺寸,就会多缓存一次
+    扩展:
+     1.Glide支持Gif图片展示
+     ....
+
+     Glide VS Picasso： http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0327/2650.html
+
+
+
+ ※ 总结
+    1.四个库对比起来Fresco最为强大，但代码量大，使用起来不是很方便，建议图片的app使用Fresco，一般的app使用Glide和Picasso就够了！
+    2.Glide和Picasso对比起来，Glide的优化更好，加载图片速度更快，还能处理大型的图片流，比如gif、Video，随意更推荐使用Glide
+    3.Glide是Android官方推荐使用的图片加载方案，这个库被广泛的运用在google的开源项目中，所以大多数情况下，建议使用Glide
+    4.(这条待考量)Picasso体积比起Glide小很多，如果项目中网络请求本身用的就是okhttp或者retrofit(本质还是okhttp)，那么建议用Picasso，因为okhttp和retrofit
+      是同一家公司出的，所以他们的配合使用最简单
+
+
+ ※ 参考
+    http://blog.csdn.net/axi295309066/article/details/56984137
+    http://blog.csdn.net/guolin_blog/article/details/53759439?utm_source=tuicool&utm_medium=referral
+
+
+
+ ※ 三级缓存
+    网上常说三级缓存－－服务器，文件，内存。不过我觉得服务器不算是一级缓存，那就是数据源嘛。
+    1.内存缓存
+    首先内存缓存使用LruCache。LRU是Least Recently Used 近期最少使用算法，
+    这里确定一个大小，当Map里对象大小总和大于这个大小时将使用频率最低的对象释放。
+    我将内存大小限制为进程可用内存的1/8.
+    内存缓存里读得到的数据就直接返回，读不到的向硬盘缓存要数据。
+
+    2.硬盘缓存
+    硬盘缓存使用DiskLruCache(http://t.cn/RQCcysg)。这个类不在API中。得复制使用。
+    看见LRU就明白了吧。我将硬盘缓存大小设置为100M。
+    ....
+    DiskLruCache的原理不再解释了(我还解决了它存在的一个BUG，向Log中添加的数据增删记录时,最后一条没有输出,导致最后一条缓存一直失效。)
+    硬盘缓存也没有数据就返回空，然后就向服务器请求数据。
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+图片管理方案
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+ ※ 图片管理方案
+    再说说图片存储。不要存在自己服务器上面，徒增流量压力，还没有图片处理功能。
+    推荐七牛与阿里云存储(没用过其它 π__π )。它们都有很重要的一项图片处理。在图片Url上加上参数来对图片进行一些处理再传输。
+    于是（七牛的处理代码）
+    public static String getSmallImage(String image){
+        if (image==null)return null;
+        if (isQiniuAddress(image)) image+="?imageView2/0/w/"+IMAGE_SIZE_SMALL;
+        return image;
+    }
+
+    public static String getLargeImage(String image){
+        if (image==null)return null;
+        if (isQiniuAddress(image)) image+="?imageView2/0/w/"+IMAGE_SIZE_LARGE;
+        return image;
+    }
+
+    public static String getSizeImage(String image,int width){
+        if (image==null)return null;
+        if (isQiniuAddress(image)) image+="?imageView2/0/w/"+width;
+        return image;
+    }
+
+
+    既可以加快请求速度，又能减少流量。再配合Fresco或Glide。完美的图片加载方案。
+    不过这就需要你把所有图片都存放在七牛或阿里云，这样也不错。
+
+    图片/文件上传也都是使用它们第三方存储，它们都有SDK与官方文档教你。
+    不过图片一定要压缩过后上传。上传1-2M大的高清照片没意义。
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Android 网络图片加载优化
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    对于图片的传输，就像上面的登录接口的avatar字段，并不会直接把图片写在返回内容里，而是给一个图片的地址。需要时再去加载。
+    如果你直接用HttpURLConnection去取一张图片，你办得到，不过没优化就只是个BUG不断demo。绝对不能正式使用。
+
+    注意网络图片有些特点：
+    1.它永远不会变
+    一个链接对应的图片一般永远不会变，所以当第一次加载了图片时，就应该予以永久缓存，以后就不再网络请求。
+    2.它很占内存
+    一张图片小的几十k多的几M高清无码。尺寸也是64*64到2k图。你不能就这样直接显示到UI，甚至不能直接放进内存。
+    3.它要加载很久
+    加载一张图片需要几百ms到几m。这期间的UI占位图功能也是必须考虑的。
+
+
+ ※ 三级缓存
+    网上常说三级缓存－－服务器，文件，内存。不过我觉得服务器不算是一级缓存，那就是数据源嘛。
+    1.内存缓存
+    首先内存缓存使用LruCache。LRU是Least Recently Used 近期最少使用算法，
+    这里确定一个大小，当Map里对象大小总和大于这个大小时将使用频率最低的对象释放。
+    我将内存大小限制为进程可用内存的1/8.
+    内存缓存里读得到的数据就直接返回，读不到的向硬盘缓存要数据。
+
+    2.硬盘缓存
+    硬盘缓存使用DiskLruCache(http://t.cn/RQCcysg)。这个类不在API中。得复制使用。
+    看见LRU就明白了吧。我将硬盘缓存大小设置为100M。
+    ....
+    DiskLruCache的原理不再解释了(我还解决了它存在的一个BUG，向Log中添加的数据增删记录时,最后一条没有输出,导致最后一条缓存一直失效。)
+    硬盘缓存也没有数据就返回空，然后就向服务器请求数据。
+
+    这就是整个流程。
+    但我这样的处理方案还是有很多局限。
+    图片未经压缩处理直接存储使用
+    文件操作在主线程
+    没有完善的图片处理API
+    以前也觉得这样已经足够好直到我遇到下面俩。
+
+
+ ※ Fresco&Glide
+    Fresco是Facebook公司的黑科技。光看功能介绍就看出非常强大。使用方法官方博客说的够详细了。
+    真三级缓存，变换后的BItmap(内存)，变换前的原始图片(内存)，硬盘缓存。
+    在内存管理上做到了极致。对于重度图片使用的APP应该是非常好的。
+    它一般是直接使用SimpleDraweeView来替换ImageView，呃～侵入性较强，依赖上它apk包直接大1M。代码量惊人。
+
+    所以我更喜欢Glide，作者是bumptech。这个库被广泛的运用在google的开源项目中，包括2014年google I/O大会上发布的官方app。
+    这里有详细介绍。直接使用ImageView即可，无需初始化，极简的API，丰富的拓展，链式调用都是我喜欢的。
+    丰富的拓展指的就是这个。
+    另外我也用过Picasso。API与Glide简直一模一样，功能略少，且有半年未修复的BUG。
+
+
+ ※ 图片管理方案
+    再说说图片存储。不要存在自己服务器上面，徒增流量压力，还没有图片处理功能。
+    推荐七牛与阿里云存储(没用过其它 π__π )。它们都有很重要的一项图片处理。在图片Url上加上参数来对图片进行一些处理再传输。
+    于是（七牛的处理代码）
+    public static String getSmallImage(String image){
+        if (image==null)return null;
+        if (isQiniuAddress(image)) image+="?imageView2/0/w/"+IMAGE_SIZE_SMALL;
+        return image;
+    }
+
+    public static String getLargeImage(String image){
+        if (image==null)return null;
+        if (isQiniuAddress(image)) image+="?imageView2/0/w/"+IMAGE_SIZE_LARGE;
+        return image;
+    }
+
+    public static String getSizeImage(String image,int width){
+        if (image==null)return null;
+        if (isQiniuAddress(image)) image+="?imageView2/0/w/"+width;
+        return image;
+    }
+
+
+    既可以加快请求速度，又能减少流量。再配合Fresco或Glide。完美的图片加载方案。
+    不过这就需要你把所有图片都存放在七牛或阿里云，这样也不错。
+
+    图片/文件上传也都是使用它们第三方存储，它们都有SDK与官方文档教你。
+    不过图片一定要压缩过后上传。上传1-2M大的高清照片没意义。
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+

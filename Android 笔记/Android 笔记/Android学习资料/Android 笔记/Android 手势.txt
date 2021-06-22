@@ -1,0 +1,137 @@
+
+Android 手势基本用法
+----------------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     http://blog.csdn.net/harvic880925/article/details/39520901
+
+ ※ 介绍
+     GestureDetector，手势监听类，这个类提供了一些手势监听的方法
+  
+ ※ 具体步骤
+    1.创建实例
+      GestureDetector gestureDetector = new GestureDetector(this, listener);  
+
+    2.在onTouch添加调用监听
+        public boolean onTouch(View v, MotionEvent event) {  
+	   return mGestureDetector.onTouchEvent(event);     
+	} 
+
+    3.控件绑定
+        TextView tv = (TextView)findViewById(R.id.tv);  
+	tv.setOnTouchListener(this);       
+
+ ※ 方法介绍
+    OnDown(MotionEvent e)：用户按下屏幕就会触发；
+    onShowPress(MotionEvent e)：如果是按下的时间超过瞬间，而且在按下的时候没有松开或者是拖动的，那么onShowPress就会执行
+    onLongPress(MotionEvent e)：长按超过一定时长，就会触发这个事件
+    onSingleTapUp(MotionEvent e)：轻击一下屏幕，立刻抬起来，触发这个方法
+    onScroll(MotionEvent e1, MotionEvent e2,float distanceX, float distanceY)： 在屏幕上拖动都会多次触发
+    onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) 
+     参数解释：
+      e1：第1个ACTION_DOWN MotionEvent
+      e2：最后一个ACTION_MOVE MotionEvent
+      velocityX：X轴上的移动速度，像素/秒
+      velocityY：Y轴上的移动速度，像素/秒   
+    
+
+ ※ OnDoubleTapListener
+    1.实现方法
+      
+    2.方法介绍
+
+    
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+双击手势监听 OnDoubleTapListener
+----------------------------------------------------------------------------------------------------------------------------------------
+ ※ 实现步骤
+     GestureDetector mGestureDetector = new GestureDetector(this, listener);
+     mGestureDetector.setOnDoubleTapListener(new OnDoubleTapListener() {});
+    
+ ※ 方法介绍
+     onSingleTapConfirmed(MotionEvent e)：
+       单击事件。用来判定该次点击是SingleTap而不是DoubleTap，如果连续点击两次就是DoubleTap手势，
+       如果只点击一次，系统等待一段时间后没有收到第二次点击则判定该次点击为SingleTap而不是DoubleTap，
+       然后触发SingleTapConfirmed事件。
+       触发顺序是：OnDown->OnsingleTapUp->OnsingleTapConfirmed
+       关于onSingleTapConfirmed和onSingleTapUp的一点区别：
+         OnGestureListener有这样的一个方法onSingleTapUp，和onSingleTapConfirmed容易混淆。
+	 二者的区别是：onSingleTapUp，只要手抬起就会执行，而对于onSingleTapConfirmed来说，如果双击的话，则onSingleTapConfirmed不会执行。
+
+     onDoubleTap(MotionEvent e)：双击事件
+     onDoubleTapEvent(MotionEvent e)：
+       双击间隔中发生的动作。指触发onDoubleTap以后，在双击之间发生的其它动作，
+       包含down、up和move事件；下图是双击一下的Log输出：
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+单双点击监听合计 SimpleOnGestureListener
+----------------------------------------------------------------------------------------------------------------------------------------
+ ※ 实现步骤
+     new GestureDetector(this, new GestureDetector.SimpleOnGestureListener());
+
+ ※ 特点
+    相当于上面两个方法的结合体，同时包含上面两个监听的所有方法，
+    里面的方法用得到那个方法就重写那个方法，简单方便
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+缩放手势检测 ScaleGestureDetector
+----------------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     例子：http://www.yiibai.com/android/android_gestures.html
+     官方文档：http://api.apkbus.com/reference/android/view/ScaleGestureDetector.html
+     手势相关：http://www.cnblogs.com/mengdd/p/3335508.html
+
+ ※ 介绍
+    ScaleGestureDetector这个类是专门用来检测两个手指在屏幕上做缩放的手势用的，
+    最简单的应用就是用来缩放图片或者缩放网页。
+
+
+ ※ 实现步骤
+    1.实例化
+      ScaleGestureDetector scd = new ScaleGestureDetector(this, listener);
+      这个类同样有SimpleOnScaleGestureListener方式
+    2.事件拦截
+      public boolean onTouch(View v, MotionEvent event) {  
+	   return mScaleGestureDetector.onTouchEvent(event);     
+      } 
+
+    3.onScaleBegin返回值改为true
+      这样才会调用到onScale方法
+ 
+
+ ※ 会重新的方法
+    onScaleBegin(): 双手指时会调用一遍，return true后，才会调用后面两个方法
+    onScale(): 过程中会一直调用。
+    onScaleEnd(): 单手指抬起时就会调用一遍
+    
+
+
+ ※ 方法解析
+      getCurrentSpan()
+	返回组成处理中的手势的两个触点的当前距离。
+      getEventTime()
+        返回当前事件执行时的时间戳。
+      getFocusX()
+	这种方法得到的X坐标当前手势的焦点
+      getFocusY()
+	这个方法得到当前手势的焦点的Y坐标
+      getPreviousSpan()
+	返回组成处理中的手势的两个触点的前一次的距离。
+      getScaleFactor()
+	返回前一个事件到当前事件的伸缩比率。该值为 getCurrentSpan() / getPreviousSpan()。
+      getTimeDelta()
+	此方法返回在先前接受缩放事件和当前缩放事件之间的毫秒的时间差
+      isInProgress()
+	如果多点触控手势进行中返回true 真。
+
+  ※ 注意点
+     如果要对ImageView进行矩阵缩放，则ImageView需要 android:scaleType="matrix"
+
+----------------------------------------------------------------------------------------------------------------------------------------

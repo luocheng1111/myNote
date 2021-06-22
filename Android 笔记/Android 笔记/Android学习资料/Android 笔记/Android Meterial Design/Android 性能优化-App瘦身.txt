@@ -1,0 +1,104 @@
+
+
+
+Android性能优化之App瘦身攻略
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    如果App包的体积过大，那么瘦身这点就不可忽略了，在宏观方面，瘦身的意义有这几点
+      1.对于用户来说，在功能差别不大的前提下，更小的Apk大小意味更少的流量消耗，也意味着更多的用户下载；
+      2.对于产品来说，大于竞品的Apk意味着较低的下载基数，不利于验证产品策略；
+      3.对于开发人员来说，App瘦身则是一次技术优化、技术提升的机会；
+
+
+ ※ 初步认识 App中所有文件大小的排行榜
+    1.关于Apk目录及文件的组成说明：
+      assets/        存放一些静态文件, 可以通过AssertManager访问
+      lib/           如果该目录存在, 一般存放的是NDK编译出来的so
+      META-INF/      保存着APK的签名信息
+	  res/           资源文件所在目录, 包含drawable、layout等
+      AndroidManifest.xml       程序全局配置文件
+      classes.dex    Java Class, 被DEX编译后可供Dalvik/ART虚拟机所理解的文件格式
+      resources.arsc 编译后生成的二进制资源文件
+
+    2.通过工具具体分析App文件中占用大小排行
+      工具有：1.AS自带的Analyze APK  2.反编译工具ClassShark  3.Nimbledroid
+      推荐使用 AS自带的Analyzy 方便省事便捷
+      使用方式：AS->Build->Anzlyze APK->选中Apk后，他会自动出一个列表 列出Apk中的文件大小排行
+      一般情况下 占用大小为 res>lib->dex->...->代码->其他
+
+
+  ※ 具体瘦身方案
+     1).资源瘦身
+        1.移除无用的资源 通过AS->Anzlyze->Run In.. By Name->输入unused resources 回车等待就会出现没用到的资源文件
+        2.图片目录只保留一份资源 鉴于Android会在不同的分辨率下自适应，所以一般准备一套比较大的图即可(建议放在mipmap-xhdpi)
+          1.图片放在drawable-xhdpi和mipmap-xhdpi是没有区别的,一般来说drawable更多的是用于放置selector、shape、ripple……blablabla的xml文件和.9图
+            而mipmap则是放项目的图片文件,根据市场是手机大小，目前推荐图片放在mipmap-xhdpi中就够了
+          2.一套图放在一个资源文件下就够了，但是icon图标，为了放大不失真，需要在各个mipmap中放置对应尺寸的icon图标
+          (学习：https://www.jianshu.com/p/f7dc272b3469)
+        3.对图片进行压缩,对于大于1M的图片，可以考虑使用TinyPng、pngquant、ImageOptim等工具对图片进行压缩，这些工具可以减少PNG文件大小，同时保持图像质量。
+          TinyPng网址：https://tinypng.com/ 另外AS有个插件 TinyPngPlugin，能够批量地压缩项目中的图片，更加方便。
+          注：Android构建流程中AAPT会使用内置的压缩算法来优化PNG图片，可能会导致本来已经优化过的图片体积变大，可在build.gradle中设置禁止AAPT采用默认方式
+          aaptOptions {
+    		cruncherEnabled = false //禁止Gradle检查png的合法性
+		  }
+        4.PNG转换JPG
+          PNG是一种无损格式，JPG是有损格式,一般比较大的图采用这种方式jpg的方式，比如启屏图可以使用jpg图片
+          注：png转jpg不建议直接改后缀,建议使用ps导入png，然后导出jpg，这样效果更好更安全
+        5.使用矢量图SVG
+          优点
+		   1.图片扩展性：不损伤图片质量，一套图适配所有；
+           2.图片非常小：比使用位图小十几倍，有利于减小apk体积；
+          缺点
+           1.性能优损失，系统渲染VectorDrawable需要花费更多时间，因为矢量图的初始化加载会比相应的光栅图片消耗更多的CPU周期，但是两者之间的内存消耗和性能接近；
+           2.矢量图主要用在色调单一的icon。
+        6.使用WebP(无损WebP相比PNG减少26%大小；有损WebP在相同的SSIM下相比JPEG减少25%~34%的大小)
+          优点
+		   1.WebP在同画质下体积更小，WebP支持透明度，压缩比比JPEG更高但显示效果却不输于JPEG；
+           2.可以通过工具、云服务等进行PNG到WebP的转换
+          缺点
+           1.Android从4.0才开始WebP的原生支持，意味着要兼容4.0以下机型需要添加适配库；当然现在市面上适配4.0以下的应用已经很少了。
+           2.Android 4.2.1+才支持显示含透明度的WebP，因此最低版本小于4.2.1的App也不是想用就能用的。可以将不显示透明度的图片转换为WebP。
+        7.资源混淆
+           1.文件信息变小，采用了超短路径，res/drawable-xhdpi/icon.png被修改为R/s/f.png
+           2.resources.arsc变小
+           推荐使用微信的解决方案：https://github.com/shwenzhang/AndResGuard
+        8.资源在线化
+           将部分使用频率不高的资源例如图片，放在网上，在恰当的时机提前下载，这样也能节约部分空间
+
+     2).So瘦身(谨慎使用,根据demo来)
+        介绍：在生成SO文件时，需要考虑适配市面上不同手机CPU架构，而生成支持不同平台的SO文件进行兼容。目前Android共支持七种不同类型的CPU架构，分别是：ARMv5，ARMv7，x86，Mips (从2012年起)，ARMv8，Mips64和x86_64 (从2014年起)
+        一般情况（注意限定）下留下armeabi目录即可，armeabi目录下的So可以兼容别的平台的So，但是性能会有所损耗，失去对特定平台的优化。
+        ndk {
+    		//设置支持的SO库架构
+    		abiFilters  'armeabi'
+		}
+
+	  3).Apk瘦身之7Zip压缩
+        我们知道Apk文件实际上就是一个Zip文件。Android SDK的打包工具apkbuilder采用的是Deflate算法将Android App的代码、资源等文件进行压缩，压缩成Zip格式，然后签名发布。
+        具体做法：使用7Zip工具，选择Deflate算法和极限压缩，
+        注：
+        1.需要注意这样极限压缩之后的签名被破坏，需要重新签名。
+        2.Android平台对Apk安装包的解压算法只支持Deflate算法，不能使用其他算法
+        3.目前在Mac上没发现好用的7Zip压缩软件，需要在Windows下使用。
+
+	  4).代码瘦身
+	    1.移除无用代码、功能
+	    2.移除无用的库、避免功能雷同的库
+	    3.而引入SDK也需要考虑其方法数,可以使用ClassyShark、Nimbledroid或者APK method count等工具查看(http://inloop.github.io/apk-method-count/)
+      4.启动Proguard(混淆)
+        Proguard是一个免费的Java类文件压缩、优化、混淆、预先验证的工具，可以检测和移除未使用的类、字段、方法、属性，优化字节码并移除未使用的指令，并将代码中的类、字段、方法的名字改为简短、无意义的名字。
+        注：对于Proguard，虽然效果很明显，但仍然需要谨慎；
+        1.代码混淆会拖慢项目构建速度，因此debug模式下关掉Proguard不至于RD在运行代码的时候抓狂；
+        2.因为在debug模式下关掉了Proguard，如果混淆规则没有配置好，在Release模式可能会出现debug模式下不出现的Bug；
+        3.Proguard也不是你想搞就能搞，如果App做了一段时间之后再来做Proguard，项目包结构不规范的话，那Proguard的规则将会非常多。而短时间内调整包结构也是一件相当痛苦的事情。
+      5.缩减方法数 Android著名的64k方法数
+
+
+
+ ※ 参考
+    Android性能优化（十）之App瘦身攻略 https://www.jianshu.com/p/99f3c09982d4
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+

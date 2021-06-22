@@ -1,0 +1,273 @@
+
+Fragment
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+    Android在3.0版本加入Fragment(碎片)，主要是为了解决Pad屏幕比较大，空间不能充分利用的问题。
+    Fragment就相当于在Activity中嵌入“小Activity”，然后每个"小Activity"又可以拥有自己的布局。
+
+
+※ Fragment的写法
+    1.静态写法-在xml中声明 一个界面显示2个并列的Fragment
+      <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          ....
+        <fragment
+           android:id="@+id/fragment1"
+           android:name="com.example.fragmentdemo.Fragment1"
+           android:layout_width="0dip"
+           android:layout_height="match_parent"
+           android:layout_weight="1" />
+
+       <fragment
+           ....
+           android:name="com.example.fragmentdemo.Fragment2"
+           .... />
+     </LinearLayout>
+
+     public class Fragment1 extends Fragment {
+      @Override
+      public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment1, container, false);
+      }
+     }
+
+     主要是依靠android:name="com.example.fragmentdemo.Fragment1"
+
+
+    2.动态的使用Fragment  Fragment的添加，隐藏，替换，显示
+      <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/main_layout"
+        ...  >
+      </LinearLayout>
+
+     public class MainActivity extends Activity {
+       @Override
+       protected void onCreate(Bundle savedInstanceState) {
+         ....
+         //替换
+         getFragmentManager().beginTransaction().replace(R.id.main_layout, fragment1).commit();
+       }
+     ｝
+
+
+    Fragment的添加，隐藏，替换，显示 例子见FragmentStydy_2
+      添加：add(R.id.main_activity, fragment);
+      隐藏：hide(fragment);
+      替换：replace(R.id.main_activity, fragment);
+      显示：show(fragment);
+      销毁布局，但不销毁实例：detach(fragment);
+      注意：调用commit()方法并不能立即执行transaction中包含的改变动作，
+            如果想立即执行，需调用fragmentManager.executePendingTransactions()
+
+      将Fragment添加到回退栈：
+      1. beginTransaction.replace(R.id.main_activity, fragment);
+         beginTransaction.addToBackStack(null);
+         beginTransaction.commit();
+
+      2. beginTransaction.hide(fragment);
+         beginTransaction.add(R.id.main_activity, fragment);
+         beginTransaction.addToBackStack(null);
+         beginTransaction.commit();
+      两种方式区别：方式一的EidtText输入了AAA，回退时没有AAA，方式二的EidtText输入了AAA，回退时还在
+
+      例子:
+      if(savedInstanceState == null){
+	FragmentManager fragmentManager = this.getSupportFragmentManager();
+	FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+	fragmentTransaction.add(R.id.main_activity, new Fragment()).commit();
+      }
+
+
+※ Fragment与Activity、Fragment与其他Frament之间的通信
+   Activity与Fragment通信:
+    1.有引用:直接调用
+    2.没有引用:getFragmentManager.findFragmentByTag()或者findFragmentById()获得任何Fragment实例，然后进行操作。
+
+   Fragment与Activity通信:
+    1.通过调用getActivity就可以得到Activity,然后进行操作
+    2.通过回调来进行操作
+
+   Fragment与Fragment通信:
+    1.通过getActivity或者回调到Activity类,然后由Activity进行操作
+    (不建议从一个Fragment里面直接操作另外一个Fragment,Activity作为Fragment的管理者,应该负责Fragment之间的通信)
+
+
+※ Fragment的生命周期 例子见FragmentStydy_3
+    进入程序 onAttach()-> onCreate()-> onCreateView()-> onActivityCreate()-> onStart()-> onResume();
+    按home健 onPause()-> onStop()
+    重新进入程序 onStart()-> onResume()
+    back退出 onPause()-> onStop()-> onDestroyView()-> onDestroy()-> onDetach()
+
+    onAttach(): 当Fragment与Activity发生关联时调用
+    onCreateView(): 创建该Fragment的视图
+    onActivityCreate(): 当Activity的onCreate方法返回时被调用
+    onDestroyView(): 当fragment的layout被销毁时被调用。
+    onDetach(): 当Fragment与Activity关联被取消时调用
+
+
+※ Fragment在ViewPager中不被销毁的方法
+   https://www.cnblogs.com/itpepe/p/4932540.html
+
+
+※ Fragment 界面切换刷新问题
+  1.当fragment结合viewpager使用的时候 每当Fragment显示时刷新一次界面
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (getUserVisibleHint()) {
+             //界面可见
+        }else{
+             //界面不可见 相当于onpause
+        }
+    }
+    参考：https://blog.csdn.net/kristch_wu/article/details/80000148
+
+
+
+※ Fragment 切换动画
+  1.如果Fragmen是v4包下面的
+    则写法：
+    getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_right_in, R.anim.slide_left_out,
+                        R.anim.slide_left_in, R.anim.slide_right_out)
+                .replace(R.id.fl_, ResetPwdFragment.newInstance())
+                .commitAllowingStateLoss();
+
+  2.如果Fragmen是app包下面的
+    则写法：
+    getFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(
+                        R.animator.slide_right_in, R.animator.slide_left_out,
+                        R.animator.slide_left_in, R.animator.slide_right_out)
+                .replace(R.id.fl_, ResetPwdFragment.newInstance())
+                .commitAllowingStateLoss();
+
+※  Fragment 的返回处理
+   1.在替换Fragment时增加.addToBackStack(null)代码
+     getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(
+                                R.anim.slide_right_in, R.anim.slide_left_out,
+                                R.anim.slide_left_in, R.anim.slide_right_out)
+                        .replace(R.id.fl_, ResetPwdFragment.newInstance())
+                        .addToBackStack(null)
+                        .commitAllowingStateLoss();
+   2.在Activit中加返回键监听
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        FragmentManager fm = getSupportFragmentManager();
+        int count = fm.getBackStackEntryCount();
+        if(keyCode== KeyEvent.KEYCODE_BACK && count>0){
+            LogUtils.e("back to list "+count);
+            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+
+※ 注意点
+    1.版本的写法区别
+      继承Activity  3.0以上：主方法继承Activity     3.0以下：若使用到了Fragment，主方法继承FragmentActivity
+      得到FragmentManager 3.0以上：getFragmentManager()   3.0以下：getSupportFragmentManager()
+
+    2.当在Fragment下面的view中使用到SupportFragmentManager的时候，
+      此时一定要用getChildFragmentManager()获取SupportFragmentManager
+      而不能用getActivity().getSupportFragmentManager()获取SupportFragmentManager
+
+    3.关于commit()方法
+      调用commit()并不立即执行事务.恰恰相反, 它将事务安排排期, 一旦准备好,就在activity的UI线程上运行(主线程).
+      如果有必要, 无论如何, 你可以从你的UI线程调用executePendingTransactions()来立即执行由commit()提交的事务.
+      但这么做通常不必要,除非事务是其他线程中的任务的一个从属.
+      注意：你只能在activity保存它的状态(当用户离开activity)之前使用commit()提交事务.，如果在存储状态之后调用commit()，将会抛出一个异常。
+      这是因为当activity再次被恢复时commit之后的状态将丢失。如果丢失也没关系，那么使用commitAllowingStateLoss()方法。
+
+
+ ◆ 参考
+     http://blog.csdn.net/guolin_blog/article/details/8881711   Android Fragment完全解析，关于碎片你所需知道的一切
+     http://blog.csdn.net/lmj623565791/article/details/37992017 Fragment 真正的完全解析
+     http://blog.csdn.net/linghu_java/article/details/8692172   Android之Fragment（官网资料翻译）
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+FragmentTabhost
+----------------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     http://www.2cto.com/kf/201309/242225.html
+     http://www.cnblogs.com/asion/archive/2013/09/25/3339313.html
+
+ ※ 介绍
+    继承自Tabhost，Tabhost替代品(已弃用，原因见下放)
+
+ ※ 用法
+    1.写好xml布局，
+    2.继承FrgamentActivity, 用findViewById 获得FragmentTabHost 对象
+    3.使用setup(this, getSupportFragmentManager(), R.id.realtabcontent)初始化
+    4.使用addTab(fragmentTabhost.newTabSpec().setIndicator(),Fragment.class, null) 添加Tab标签与内容
+
+ ※ 例子 demo见 FragmentTabhostStudyDemo
+    fragmentTabhost  = (FragmentTabHost) findViewById(R.id.tabhostsss);
+    fragmentTabhost.setup(this, getSupportFragmentManager(), R.id.ffff);
+
+    fragmentTabhost.addTab(fragmentTabhost.newTabSpec("1").setIndicator(setView("首页", R.drawable.tab_home_btn)), FragmentPage1.class, null);
+    fragmentTabhost.addTab(fragmentTabhost.newTabSpec("2").setIndicator(setView("消息", R.drawable.tab_message_btn)), FragmentPage2.class, null);
+
+
+ ※ 例子 FragmentTabhostStudyDemo默认会有一个分割线
+    去除分割线：fragmentTabhost.getTabWidget().setDividerDrawable(R.color.white);
+
+
+
+ ※ FragmentTabhost底部按钮监听
+    mTabHost.getTabWidget().getChildTabViewAt(1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (UserManager.ins().isLogin()) {
+                    mTabHost.setCurrentTab(1);
+                } else {
+                    toFragmentIndex = 1;
+                    PhoneLoginActivity.start(MainActivity.this);
+                }
+            }
+     });
+
+
+ ※ 碰到问题
+    1.问题：FragmentTabHost每次切换到某一Fragment时，都会重新加载一遍Frgament
+      需求：Fragment加载好之后，切换到此Fragment时，显示的是加载好的界面，而不需要重新加载一遍界面
+      解决：重写FragmentManager发现判断parent方法不生效，事件全部失效
+            private View rootView;// 使用FragementTabHost 每当切换时，都会重新加载一遍 这里是让切换时，不重新加载
+
+            @Override
+            public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+               if(rootView==null){
+                  rootView=inflater.inflate(R.layout.tab_fragment, null);
+               }
+               //缓存的rootView需要判断是否已经被加过parent， 如果有parent需要从parent删除，要不然会发生这个rootview已经有parent的错误。
+               ViewGroup parent = (ViewGroup) rootView.getParent();
+               if (parent != null) {
+                  parent.removeView(rootView);
+               }
+               return rootView;
+            }
+       参考：http://blog.csdn.net/nvcxy_1225/article/details/78465804?locationNum=2&fps=1
+
+
+ ※ 弃用FragmentTabHost的原因
+    原因：
+    1.因为是封装好的框架，所以不能更好的控制和满足自己的需求
+    2.我想在每次显示次Fragment时，都重新刷新一遍界面，要实现这个需求，在使用FragmentTabhost时，就需要在外部监听Fragment的切换，
+      调用Fragment.XXX来刷新界面，感觉很麻烦，实际上Fragement的onHiddenChanged()就可以实现这个效果，于是弃用FrgamentTabHost，而改用
+      RadioGroup+RadioButten来实现这个效果，让我们更好的进行每一步控制
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+

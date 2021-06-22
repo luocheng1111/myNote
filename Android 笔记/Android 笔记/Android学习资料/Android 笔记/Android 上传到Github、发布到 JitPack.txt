@@ -1,0 +1,123 @@
+
+
+
+示例
+----------------------------------------------------------------------------------------------------------------------------------
+
+echo "# base1" >> README.md
+git init
+git add .
+git commit -m "first commit"
+git remote add origin https://github.com/luocc/base1.git
+git push -u origin master
+
+JitPack.io
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Android 代码上传到Github
+----------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  https://www.cnblogs.com/mrszhou/p/7067772.html
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Android 写自己的开源库，发布到 JitPack.io
+----------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+   之前一直在用别人的开源库，尤其有了 Gradle 后，依赖别人的开源库就更简单了，只需要在项目的 build.gradle 文件中添加上类似 compile 'com.github.icodeu:CommonAdapter:v1.0' 的就好了，
+   剩下的就可以交给 Gradle 帮助我们完成 library 依赖了。
+   那如何写自己的library，然后只需 compile 'xxxxx'就可以使用了勒？
+
+
+※ 上传项目到Github上
+    1).编写library，并测试是否可用
+      1.新建library
+        File->New->Module，选择 Android library，起名，建立完毕，编写library代码
+
+      2.测试library是否可用
+        在Moudle级别的build.gradle的dependencies中添加
+        compile project(':library')
+	在项目中调用library中的方法看是否可用
+
+      3.将本地的 library 与 JitPack.io 结合起来
+        在Project的build.gradle的dependencies中添加
+	classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        再在ibrary的build.gradle中，在文件起始添加如下两行
+	apply plugin: 'com.github.dcendents.android-maven'
+	group='com.github.luocc'(最后一个单词替换成你的GitHub用户名)
+
+
+    2).上传项目到Github上面 (这里有很多方式，但这种方式我觉得好用且不容易出错，虽然第一次有点麻烦)
+
+      0.上传前，先检查项目中是否有.git文件，如果有，则先删除此文件，可以避免很多错误发生
+
+      1.下载git，并安装
+        官方下载地址 https://git-scm.com/downloads/ (如果下的慢，可在csdn上搜索，然后用积分下载，会下载很快)
+        安装教程：http://jingyan.baidu.com/article/7f766dafba84f04101e1d0b0.html
+
+      2.在Github上面新建一个仓库，然后得到仓库地址，具体如何操作看下面网站
+
+      3.打开安装好的git-bash.exe(这里以Base项目为例)
+        1.cd ...../Base              进入到项目文件
+	2.git init                   在当前目录中生成本地的git管理(会发现在当前目录下多了一个.git文件夹)
+	3.git add .                  将所有的文件添加到仓库中，如果想添加某个特定的文件，只需把.换成这个特定的文件名即可。注意中间有个空格
+	4.git commit -m "first commit"  提交到缓存区域并加提交的注释
+	5.git remote add origin https://github.com/luocc/base.git origin为组织名，可更改， url为第二步得到的仓库地址
+	6.git push -u origin master  把代码上传到github仓库。 origin为组织名，这个要与第五步的组织名一致
+        执行完后，如果没有异常，会等待几秒，然后跳出一个让你输入Username和Password的窗口，你只要输入github的登录账号和密码就行了。
+
+      4.检查是否上传成功  浏览器进入自己的GitHub, 头像->Your profile->Repositories->刚刚的仓库名 就可以看到自己刚刚上传的文件
+
+
+     3).发布项目，并检查是否可以在项目中compile
+       1.在Github上发布，进入项目->releases->Create a new release->填写好版本号等内容->Publish release
+       2.检查是否可用， 进入JitPack.io 输入自己的Github用户名/仓库名  eg: luocc/firsh
+         点击搜索， 如果下方Log是绿色的，且Status是绿色的Get it则代表项目检查完成且可以使用。
+       3.进入项目 compile 'xxxxx' 即可使用
+
+
+
+※ 更新github上的代码
+   重新提交一遍代码就好了
+   参考:https://blog.csdn.net/qq_23101033/article/details/77310930
+
+
+※ 参考
+   Android 写自己的开源库，发布到 JitPack.io https://www.jianshu.com/p/e443456bb506
+   手把手教新手小白在window把自己的项目上传到github http://blog.csdn.net/qq_31852701/article/details/52944312
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+Mac 代码上传到Github
+----------------------------------------------------------------------------------------------------------------------------------
+
+※ 工具
+  1、下载Sourcetree
+  2、有Github的账号密码
+
+※ 新项目 代码上传到GitHub
+  1、Mac下载Sourcetree
+  2、在GitHub上创建新项目，获得地址
+  3、在Sourcetree上添加账户、托管主机-Github 授权类型-基础 协议-Https
+  4、拖入本地项目到Sourcetree、双击项目
+  5、进入设置-远程项目-添加-填入URL
+  6、提交->推送就OK了
+
+
+※ 更新项目 到GitHub
+  1、拖入本地项目到Sourcetree、双击项目
+  2、提交->推送就OK了
+
+----------------------------------------------------------------------------------------------------------------------------------
+

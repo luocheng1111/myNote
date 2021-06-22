@@ -1,0 +1,166 @@
+
+1.自定义View3种构造方法的分别在那种情况下被调用
+2.自定义View，绘制一个圆环
+3.自定义属性的步骤
+4.自定义View中的刷新 3‘
+5.Paint、Cancas、Path的简单介绍
+
+自定义View中的 构造方法
+----------------------------------------------------------------------------------------------------------------------------------
+ ◆ 学习自
+    http://blog.csdn.net/aigestudio/article/details/41212583
+
+ ◆ 自定义View的构造方法
+    public CustomView(Context context);
+    此时当此View未设置任何属性，比如宽高的时候，没有问题，但设置了之后，就必须使用第二个构造方法
+
+    public CustomView(Context context, AttributeSet attrs);
+    一般情况下不会使用第三个构造方法
+
+    第三个构造方法在制定style的时候，就会调用
+
+    eg1:
+     CustomView customView = new CustomView(context);
+     layout.addView(customView) 此时会调用 构造方法㈠
+
+    eg2:
+     当在布局中xml引用自定义控件时，会调用 构造方法2
+
+ ◆ 画笔和画布
+    画笔Paint集成了所有"画的属性"
+    画布Canvas定义了所有要画的东西
+
+ ◆ 绘制一个圆
+   public class CustomView extends View {
+        private Paint mPaint;// 画笔
+        private Context mContext;// 上下文环境引用
+
+        private int radiu;// 圆环半径
+
+        public CustomView(Context context) {
+            this(context, null);
+        }
+
+        public CustomView(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            mContext = context;
+
+            // 初始化画笔
+            initPaint();
+        }
+
+        /**
+        * 初始化画笔
+        */
+        private void initPaint() {
+            // 实例化画笔并打开抗锯齿
+            mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+            /*
+             * 设置画笔样式为描边，圆环嘛……当然不能填充不然就么意思了
+             *
+             * 画笔样式分三种：
+             * 1.Paint.Style.STROKE：描边
+             * 2.Paint.Style.FILL_AND_STROKE：描边并填充
+             * 3.Paint.Style.FILL：填充
+             */
+            mPaint.setStyle(Paint.Style.STROKE);
+
+            // 设置画笔颜色为浅灰色
+            mPaint.setColor(Color.LTGRAY);
+
+            /*
+             * 设置描边的粗细，单位：像素px
+             * 注意：当setStrokeWidth(0)的时候描边宽度并不为0而是只占一个像素
+             */
+            mPaint.setStrokeWidth(10);
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            super.onDraw(canvas);
+
+            // 绘制圆环
+            canvas.drawCircle(MeasureUtil.getScreenSize((Activity) mContext)[0] / 2, MeasureUtil.getScreenSize((Activity) mContext)[1] / 2, radiu, mPaint);
+        }
+
+   }
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+自定义View - 自定义额外属性（attrs.xml）
+----------------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     http://blog.csdn.net/ethan_xue/article/details/7314907
+     http://blog.csdn.net/ethan_xue/article/details/7315217 Android自定义控件View中的方法
+
+
+ ※ 步骤1：在res/values/下新建attrs.xml
+     <?xml version="1.0" encoding="utf-8"?>
+     <resources>
+        <attr name="textColor" format="color"></attr>
+
+        <declare-styleable name="CustomView2">
+           <attr name="textColor"/>
+           <attr name="textSize" format="dimension" />
+        </declare-styleable>
+     </resources>
+
+
+ ※ 步骤2：布局中设置属性值
+     <?xml version="1.0" encoding="utf-8"?>
+     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+         xmlns:test="http://schemas.android.com/apk/res/com.customview1"   //com.customview1 项目的包名
+         android:orientation="vertical"
+         android:layout_width="fill_parent"
+         android:layout_height="fill_parent" >
+
+     <com.customview1.CustomView2
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         test:textColor="#f00"
+         test:textSize="20sp" />
+     </LinearLayout>
+
+
+ ※ 步骤3：代码中引用
+     public CustomView2(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        mPaint2 = new Paint();
+        // TypedArray是存放资源的array,1.通过上下文得到这个数组,attrs是构造函数传进来的,对应attrs.xml
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CustomView2);
+        // 获得xml里定义的属性,格式为 名称_属性名 后面是默认值
+        int textColor = a.getColor(R.styleable.CustomView2_textColor, 0xFFFFFFFF);
+        float textSize = a.getDimension(R.styleable.CustomView2_textSize, 35);
+        mPaint2.setColor(textColor);
+        mPaint2.setTextSize(textSize);
+        // 为了保持以后使用该属性一致性,返回一个绑定资源结束的信号给资源
+        a.recycle();
+     }
+
+ ※ 自定义属性高级简化
+    http://blog.csdn.net/lmj623565791/article/details/45022631
+    1.自定义一个Text，其中Text需要自己配置，比如test:text="罗罗罗"，
+      但Android中已经有android:text="",如果想用的话，就直接在attrs.xml中
+      <attr name="android:text" /> 然后引用就行了
+
+    2.如果连declare-styleable都不想写，则此时attrs.xml中变成
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+自定义View的刷新
+----------------------------------------------------------------------------------------------------------------------------------
+  1.invalidate()
+    刷新View，只会触发onDraw方法，只会改变绘制里面的内容，在UI线程自身中使用
+
+  2.postInvalidate()
+    刷新View，，只会触发onDraw方法，只会改变绘制里面的内容，可以非UI主线程中使用。
+
+  3.requestLayout()
+    View的布局参数改变之后刷新，比如view的宽高都修改了，可通过requestLayout()刷新
+
+----------------------------------------------------------------------------------------------------------------------------------

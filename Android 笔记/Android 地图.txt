@@ -1,0 +1,232 @@
+
+
+Android 地图
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    提供地图相关的API有, Google地图API/高德地图API/百度地图API/腾讯地图API/阿里地图API 等...
+    Google/高德/百度地图API的接口都很相似，所以3者之间可以进行非常快速的切换/迁移
+    
+    Google地图：在中国被墙,所以在中国不适用
+    高德地图：火星坐标系(gcj)，稳定性不错，支持全球定位，卫星地图不精细(很多户外区域放大没卫星数据), 默认UI感觉没百度精细漂亮
+    百度地图：百度坐标系，卫星地图不精细(很多户外区域放大没卫星数据)，支持全球定位，功能迭代较快，地图数据加载很快
+    腾讯/阿里云地图：还未发力
+    
+
+ ※ 百度地图 VS 高德地图
+     1.开发方面: 高德对开发者更友好, 更易上手易开发, 高德的配置相对简单, 进行地图开发时高德一行代码，百度最少要五行
+     2.定位方面: 百度的定位更准，好用。高德定位问题不少，最重要的问题是高德的定时定位和单次定位有冲突
+     3.导航方面: 高德完爆百度地图, 高德地图的导航比百度不是好一点两点
+     4.数据检索方面:百度的数据资源比高德强大的多, POI数据 云存储、云检索都是百度的优势
+     5.APP接入方面: 高德地图有更多APP接入
+
+   总结:
+    1.高德易上手，配置相对简单，高德更加适合新手，几乎有各种功能，但是需求如果比较变态，可能就要用百度了。
+    2.要性能就选高德，要数据就百度，添加大量annotation时百度卡成渣?
+    3.不想浪费时间的话，千万别选百度地图IOS版！
+ 
+   吐槽补充:
+    1.地图产品的多模块（地图、定位、检索、导航等）集成
+      百度地图是多模块集成方案是从官网上统一选取,生成一个jar包加入工程,这样产生的问题是,每次增加模块都需要对已有的工程进行变动，从而引入了不稳定因素
+      这样容易出BUG.这也反映了高德对开发者更友好的这一优点
+
+
+ ※ 参考
+    https://www.cnblogs.com/John-Chen/p/4229903.html
+    https://www.zhihu.com/question/23758141
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Android 高德地图
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    高德地图Android版 开放了常用版和专业版两套SDK。
+    常用版功能：地图显示（含室内、室外地图）、与地图交互、在地图上绘制、兴趣点搜索、地理编码、离线地图等功能。
+    专业版功能: 在已有服务的基础上，新增支持了自定义地图在线加载、自定义地图元素纹理等功能，便于开发者完成基于自身场景的更深层、更个性化地图的开发需求。
+
+
+ ※ 高德地图配置及地图显示
+     1.在高德控制台申请Key
+     2.Android Studio配置
+       1).build.gradle文件添加定位依赖(这里用到的是2d地图,所以只添加了2d依赖)
+          compile 'com.amap.api:map2d:5.2.0'
+       2).manifest.xml添加 权限/高德key
+	  1.添加权限(有很多权限,具体见demo或高德定位API)
+	    <uses-permission android:name="android.permission.INTERNET" />
+	    ...
+	  2.添加高德key,添加位置在application里,与Service同级
+            <meta-data
+               android:name="com.amap.api.v2.apikey"
+               android:value="高德申请的Key"/>
+     3.配置XML布局文件,在布局xml文件中添加地图控件；
+        <com.amap.api.maps2d.MapView
+	    android:id="@+id/map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+	</com.amap.api.maps2d.MapView>
+
+	
+     4.初始化地图容器,并合理的管理地图生命周期
+        //初始化
+	MapView mapView = (MapView) findViewById(R.id.map);
+        mapView.onCreate(savedInstanceState);// 此方法必须重写
+        
+	//合理的管理地图生命周期,且必须填写
+	//在onResume/onPause/onSaveInstanceState/onDestroy添加如下代码,其他类似
+	@Override
+	protected void onResume() {
+	  super.onResume();
+          mMapView.onResume();
+        }
+
+
+ ※ 在地图上显示当前位置定位蓝点
+    注:高德的地图上定位和高德定位模块各自是独立,在地图上定位不需要再引入高德定位模块,配置地图模块即可实现
+       如果只想获取定位信息,不显示在地图上,请移步定位笔记
+
+    1.获取MapView获取Map,通过Map进行配置一些参数
+      AMap aMap = mapView.getMap();
+    
+    2.设置定位图标的样式
+      MyLocationStyle myLocationStyle = new MyLocationStyle();
+      // myLocationStyle.myLocationType(MyLocationStyle.LOCATION_TYPE_SHOW);//设置定位模式 具体有哪些模式见下面注: (不是很理解这些模式,用默认的就好,不需要设置这个属性)
+      myLocationStyle.myLocationIcon(BitmapDescriptorFactory.fromResource(R.drawable.gps_point));// 设置小蓝点的图标
+      myLocationStyle.radiusFillColor(Color.argb(10, 0, 0, 180));// 设置圆形范围的填充颜色
+      myLocationStyle.strokeWidth(1f);// 设置圆形范围的边框粗细
+      myLocationStyle.strokeColor(Color.argb(180, 3, 145, 255));// 设置圆形范围的边框颜色
+    
+    3.对地图进行一些配置, 开始定位
+      aMap.setMyLocationStyle(myLocationStyle); //设置小蓝点的样式,小蓝点的样子
+      aMap.getUiSettings().setMyLocationButtonEnabled(true);// 设置默认定位按钮是否显示
+      aMap.setMyLocationEnabled(true);// 设置为true表示显示定位层并可触发定位，false表示隐藏定位层并不可触发定位，默认是false
+      aMap.setOnMyLocationChangeListener(this); //设置定位结果监听
+      aMap.moveCamera(CameraUpdateFactory.zoomTo(18)); // 设置地图的放大级别
+      
+    4.定位结果监听
+      @Override
+      public void onMyLocationChange(Location location) {
+        // 定位回调监听
+        if(location != null) {
+            Log.e("amap", "onMyLocationChange 定位成功， 纬度: " + location.getLatitude() + " 经度: " + location.getLongitude());
+            Bundle bundle = location.getExtras();
+            if(bundle != null) {
+                int errorCode = bundle.getInt(MyLocationStyle.ERROR_CODE);
+                String errorInfo = bundle.getString(MyLocationStyle.ERROR_INFO);
+                // 定位类型，可能为GPS WIFI等，具体可以参考官网的定位SDK介绍
+                int locationType = bundle.getInt(MyLocationStyle.LOCATION_TYPE);
+                Log.e("amap", "定位信息， code: " + errorCode + " errorInfo: " + errorInfo + " locationType: " + locationType);
+           ...
+      }
+    
+
+    注:定位模式 (不是很理解这些模式,用默认的就好,不需要设置这个属性)
+       1.MyLocationStyle.LOCATION_TYPE_SHOW   展示模式(只定位一次)
+       2.MyLocationStyle.LOCATION_TYPE_LOCATE 定位模式(只定位一次，且将视角移动到地图中心点)
+       3.MyLocationStyle.LOCATION_TYPE_FOLLOW 跟随模式(连续定位,   且将...., 定位点会跟随设备移动)
+       4.MyLocationStyle.LOCATION_TYPE_FOLLOW_NO_CENTER  跟随不移动中心点模式(连续定位、蓝点不会移动到地图中心点，并且蓝点会跟随设备移动)
+
+
+
+※ 高德地图监听
+   //地图上的点击监听
+   aMap.setOnMapClickListener(this);
+
+   @Override
+   public void onMapClick(LatLng point) {
+       Log.e("amap", "点击位置， point=" + point);
+   }
+
+
+   高德地图监听有三种
+    OnMapClickListener:     点击监听, 需实现的方法为onMapClick
+    OnMapLongClickListener: 长按监听, 需实现的方法为onMapLongClick
+    OnCameraChangeListener: 移动地图监听, 需实现的方法为onCameraChange(移动时回调), onCameraChangeFinish
+
+
+
+※ 在地图上绘制点
+   在地图上绘制标记点
+     1).简约写法
+     MarkerOptions markerOption = new MarkerOptions().icon(BitmapDescriptorFactory
+                .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                .position(point)
+                .title("标题")
+                .snippet("详细信息")
+                .draggable(true); 
+     //将自定义点的样式添加到地图上
+     aMap.addMarker(markerOption);
+
+     2).详细的写法
+     MarkerOptions markerOption = new MarkerOptions();
+     markerOption.position(point);
+     markerOption.title("罗成").snippet("啦啦啦:"+point); //设置点击点后显示的信息,默认显示只显示标题和内容
+     markerOption.draggable(true);  //设置Marker可拖动
+     markerOption.icon(BitmapDescriptorFactory.fromBitmap(BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher)));
+     aMap.addMarker(markerOption);
+   
+   自定义点击标记点后的显示样式-InfoWindow 
+     InfoWindow是点标记的一部分,SDK为用户提供了默认的InfoWindow样式,对应Marker的两个属性,title和snippet(点击后显示的标题和副标题)
+     调用Marker类的showInfoWindow()和hideInfoWindow()方法可以控制显示和隐藏。当改变Marker的title和snippet属性时，再次调用showInfoWindow(),可更新InfoWindow显示内容
+
+     1).自定义显示样式-InfoWindow 
+       1.类implements接口InfoWindowAdapter后
+       2.设置接口 aMap.setInfoWindowAdapter(this);
+       3.实现接口的两个方法View getInfoWindow(Marker marker)和View getInfoContents(Marker marker);
+         @Override
+	 public View getInfoWindow(Marker marker) {
+	   View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_window, null);
+           //之后可以infoWindow.findViewById获取控件,然后设置控件属性  
+	   return infoWindow;
+	 }
+
+       注:
+        1.getInfoWindow和getInfoContents 方法的实质是一样的，唯一的区别是：getInfoContents不能修改整个 InfoWindow 的背景和边框，但实际测试,可以修改.所以两个方式只用实现一个即可
+          建议只实现getInfoWindow,因为getInfoWindow的View会覆盖getInfoContents的View
+	2.当设置了setInfoWindowAdapter之后,默认的样式也会到这里来调用view,如果想回到默认样式,则设置aMap.setInfoWindowAdapter(null);即可
+   
+  
+
+※ 路线规划 自驾出行/公共出行/步行/骑车出行
+    1.需要导包
+      compile 'com.amap.api:search:5.7.0'
+    2.出行
+      1).初始化
+      RouteSearch routeSearch = new RouteSearch(this);
+      2).设置监听 共有4个方法 onDriveRouteSearched/onRideRouteSearched/onWalkRouteSearched/onBusRouteSearched
+      routeSearch.setRouteSearchListener(this);
+      3).设置搜索条件 fromAndTo包含路径规划的起点和终点，drivingMode表示驾车模式
+      DriveRouteQuery query = new DriveRouteQuery(fromAndTo, drivingMode);
+      4).发送请求,这里是异步请求 结果在监听方法里
+      routeSearch.calculateDriveRouteAsyn(query);
+      5).接受数据
+      ...具体可看Demo
+
+   3.以自驾出行为里,需要显示出路线来,还需要导入一些文件和图片
+     1.导入文件 AMapUtil/ChString/DrivingRouteOverLay/RouteOverlay
+     2.导入图片 dir*.png  amap_*.png
+
+
+
+※ 获取POI数据
+   高德提供了千万级别的 POI（Point of Interest，兴趣点）。在地图表达中，一个 POI 可代表一个位置。通过POI搜索，完成找餐馆、找景点、找厕所等等的功能
+   高德地图POI检索包含 
+   1.关键词检索POI   (用于搜索某个城市某个名称相关POI,例如：北京市的“肯德基”)
+   2.周边检索POI     (用于搜索某个位置附近的POI，例如：查找天安门附近的厕所)
+   3.多边形内检索POI (用于搜索某个不规则区域范围内的POI，例如：中关村范围内的停车场)
+   4.ID检索POI (通过任意检索得到的高德POI ID信息，可再通过ID检索来获取更完整的详细信息)
+   5.输入内容自动提示
+   6.道路沿途检索POI (可查询路径沿途的加油站、ATM、汽修店、厕所)
+
+   具体代码看官方Demo,官方Demo的例子写的很好
+
+
+
+※ Demo位置: /Demo/Gaode_Map.zip
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+

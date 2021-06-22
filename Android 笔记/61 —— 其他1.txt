@@ -1,0 +1,185 @@
+
+
+ADT SDK NDK JNI IDE
+----------------------------------------------------------------------------------------------------------------------------------------
+ ※ Android ADT
+    Android Development Tools 安卓开发工具插件，
+    作用:  ecplise 里的插件,布置开发环境时为了方便在ecplise里开发android程序而装的插件。
+
+
+ ※ Android SDK
+    Software Development Kit Android 软件开发工具包
+    作用:  辅助Android操作系统软件开发，是开发Android软件、文档、范例、工具的一个集合。
+
+
+ ※ Android NDK
+    Native Development Kit  一系列工具的集合
+    作用:  Android刚发布时，限定应用程序开发都使用Java语言进行编写，
+	   后来为方便C/C++开发者开发，就推出NDK，使得C/C++也可以编写Android程序。
+
+ ※ Android JNI
+    Java Native Interface
+    作用：运行Java代码和其他语言写的代码进行交互。JNI 是本地编程接口，它使得在 Java 虚拟机 (VM) 内部运行的 Java 代码能够与用其它编程语言(如 C、C++ 和汇编语言)编写的应用程序和库进行交互操作。
+          实现起来需要用到.so文件
+
+ ※ Android IDE
+    Integrated Development Environment 集成开发环境
+    作用：Android Studio就是一个Android IDE
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+layout_weight 权重
+----------------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     计算公式 http://blog.csdn.net/dazlly/article/details/13767343
+     范例 http://blog.csdn.net/xiaanming/article/details/13630837
+
+ ※ 适用范围
+     适用范围仅LinearLyout
+
+ ※ 计算实例分析
+    假设：LinearLayout为android:orientation="horizontal"， layout_weight属性值分别为1、2、2
+    
+    第一种情况：每个控件的宽度属性都为android:layout_width="0dp"，那么额外的空为（手机的宽度假设为X）X-0-0-0=X，那么根据sdk上所述：
+    第一个控件的宽度为 0+(1/(1+2+2))*X=X/5
+    第二个控件的宽度为 0+(2/(1+2+2))*X=2X/5
+    第三个控件的宽度为 0+(2/(1+2+2))*X=2X/5
+
+    第二种情况：每个控件的宽度属性都为android:layout_width="match_parent"，那么额外的空间就是X-X-X-X=-2X
+    第一个控件的宽度为 X+(1/(1+2+2))*(-2X)=3X/5
+    第二个控件的宽度为 X+(2/(1+2+2))*(-2X)=X/5
+    第三个控件的宽度为 X+(2/(1+2+2))*(-2X)=X/5
+
+    第三种情况：其中第一个控件宽度属性为android:layout_width="match_parent"，其他两个控件宽度为android:layout_width="0dp"，额外的空间为X-X-0-0=0
+    第一个控件的宽度为 X+(1/(1+2+2))*0=X
+    第二个控件的宽度为 0+(2/(1+2+2))*0=0
+    第三个控件的宽度为 0+(2/(1+2+2))*0=0
+
+ ※ 结论：layout_weight计算公式
+    控件的宽度/高度 = 控件的width/height值+（该控件的weight值/所有控件的weight的和）×额外的空间
+    额外的空间=手机的宽度/高度-所有控件的宽度/高度 
+
+    注：如果属性为android:layout_width="wrap_content" 则计算时，总宽/高要减去控件本身占据的宽/高 
+
+ ※ 总结
+    如果想让2个控件，一个占屏幕3/5，一个占2/5, 则宽/高设置0，android:layout_width设置2和3
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+getApplicationContext()和getContext()的区别
+----------------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+    http://blog.csdn.net/jiangwei0910410003/article/details/41800409
+
+ ※ 区别
+    getApplicationContext()：生命周期是整个应用，应用摧毁，它才摧毁。
+    getContext()：代表当前的Activity，当前Activity摧毁他就摧毁
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+.9.png图片的制作与使用
+----------------------------------------------------------------------------------------------------------------------------------
+ ◆牛人笔记
+   http://www.cnblogs.com/loulijun/archive/2011/12/22/2298087.html
+
+ ※ 特点(与普通图片的区别)
+    实现自适应大小且不失真的效果
+ 
+ ※ 制作
+    1.必须是png图片
+    2.在android-sdk-windows\tools目录下找到draw9patch.bat文件，然后将其打开，将你要处理的png图片拖入即可。或者File --> Open 9 patch。
+    3.制作
+    
+ ※ 黑线理解
+    上边黑线：横向拉伸区域，必须要画的，拉伸是横向拉伸，如右边的区域第二个拉伸的就是横向拉伸的效果
+    左边黑线：纵向拉伸区域，必须要画的，拉伸是纵向拉伸，如右边的区域第一个拉伸的就是纵向拉伸的效果
+    下边黑线：可选，横向内容显示区域， 边距,相当于paddingLeft和paddingRight
+    右边黑线：可选，纵向内容显示区域   边距,相当于paddingTop和paddingBottom
+
+ ※ 注意点
+    1.上边和左边必须要画，
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Android 的一些需要理解的部分
+----------------------------------------------------------------------------------------------------------------------------------------
+ ※ XML属性src和background的区别：
+     background会根据ImageView组件给定的长宽进行拉伸，而src就存放原图的大小，
+     src是图片内容（前景），bg是背景。可同时使用。
+     scaleType只对src起作用，bg可设置透明度。
+
+ ※ 理解padding和margin的区别？
+     padding：指控件中的内容于控件边框的距离
+     margin： 指控件于控件间的距离
+
+ ※ 理解layout_*和*的区别？（拿layout_gravity和gravity做例子）
+     android:layout_gravity：指控件在整个布局中的位置。
+     android:gravity：指控件中的内容相对在控件中的位置。（可以拿button中的文字想象）
+     
+ ※ Android中的距离单位
+     px(pixels)像素: 每个px对应屏幕上的一个点， 一般HVGA代表320X480像素，这个用的比较多。
+     dip或dp(device independent pixels, 设备独立像素): 在每英寸160点上，1dip=1px, 但随着屏幕密度改变，dip和px换算会变。这个和设备硬件有关，一般为了支持WVGA、HVGA和QVGA，推荐使用这个，不依赖像素。
+     sp(scaled pixels, 比例像素): 主要处理字体的大小，可以根据用户的字体大小首选项进行缩放。TextView默认为这个单位
+
+ ※ android:layout_gravity和android:gravity的区别
+     android:gravity
+     针对view里内容的限定，用来控制元素在该控件里的显示位置
+     android:layout_gravity
+     针对控件本身而言，用来控制该控件在包含该控件的父控件中的位置
+
+     对于 LinearLayout
+     当 android:orientation="vertical" 时， 只有水平方向的设置才起作用，垂直方向的设置不起作用。即：left，right，center_horizontal 是生效的。
+     当 android:orientation="horizontal" 时， 只有垂直方向的设置才起作用，水平方向的设置不起作用。即：top，bottom，center_vertical 是生效的。
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+Android 隐藏标题栏和状态栏
+----------------------------------------------------------------------------------------------------------------------------------------
+ ※ 隐藏标题栏（程序的名字） *必须放在setContentView(R.layout.activity_main)上面一行
+     requestWindowFeature(Window.FEATURE_NO_TITLE); 
+
+     requestWindowFeature（）用法
+     去掉窗口的标题: requestWindowFeature(Window.FEATURE_NO_TITLE);
+     不确定的进度:   requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS); 
+                     setProgressBarIndeterminateVisibility(true);  //配合这个用，这样才能让进度圈显示.当这个写在setContentView(R.layout.main)后面时，会一直有个进度圆形条
+     http://zhanhao.iteye.com/blog/1174914 (requestWindowFeature使用详解 及 效果演示图)
+
+ ※ 隐去状态栏部分（电池等图标那一行） 
+     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+     getWindow().setFlags（）用法
+     设置窗体全屏     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+     设置窗体始终点亮 getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+     设置窗体背景模糊 getWindow().setFlags(WindowManager.LayoutParams.FLAG_BLUR_BEHIND, WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
+     注：此两个要写在 setContentView(R.layout.main)前面，否则会报错
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+Android LayoutInflater详解 
+----------------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     http://www.cnblogs.com/top5/archive/2012/05/04/2482328.html
+ 
+ ※ LayoutInflater和findViewById()的区别？
+    LayoutInflater是找res/layout/xml布局文件，并且实例化
+    findViewById()是找xml布局文件下的具体widget控件
+
+ ※ 获得LayoutInflater实例的三种方式
+    1. LayoutInflater inflater = getLayoutInflater();
+    2. LayoutInflater inflater = LayoutInflater.from(context);
+    3. LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    三种方式本质相同，从源码看，其实最终都是调用Context.getSystemService()。
+  
+ ※ LayoutInflater.inflater的三个方法的区别 http://blog.csdn.net/lmj623565791/article/details/38171465
+    inflate(resId, null): 不能控制本身宽和高，
+    inflate(resId, parent, false); 可以控制本身宽高
+    inflate(resId, parent, true);  可以控制本身宽高，并且把此加入到父类控件
+    想象那个图
+
+----------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,57 @@
+
+
+
+Android MVC、MVP、MVVM、组件化
+----------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+   MVC、MVP和MVVM是常见的三种架构设计模式，当前MVP和MVVM的使用相对比较广泛，当然MVC也并没有过时之说。
+   而所谓的组件化就是指将应用根据业务需求划分成各个模块来进行开发，每个模块又可以编译成独立的APP进行开发
+
+   MVC:
+    模型层 (Model)：业务逻辑对应的数据模型，无View无关，而与业务相关；
+    视图层 (View)：一般使用XML或者Java对界面进行描述；
+    控制层 (Controllor)：在Android中通常指Activity和Fragment，或者由其控制的业务类
+
+   缺点：
+    1.Activity和Fragment相当于V和C,界面代码臃肿，耦合度不高，逻辑会比较混乱
+
+
+
+   MVP:
+    模型层 (Model)：主要提供数据存取功能。
+    视图层 (View)：处理用户事件和视图。在Android中，可能是指Activity、Fragment或者View。
+    展示层 (Presenter)：负责通过Model存取出数据，连接View和Model，从Model中取出数据交给View。也负责逻辑控制
+
+   与Mvc的区别：
+    1.这里的Model是用来存取数据的，也就是用来从指定的数据源中获取数据，不要将其理解成MVC中的Model。在MVC中Model是数据模型，在MVP中，我们用Bean来表示数据模型。
+    2.Model和View不会直接发生关系，它们需要通过Presenter来进行交互。在实际的开发中，我们可以用接口来定义一些规范，然后让我们的View和Model实现它们，并借助Presenter进行交互即可。
+
+   优点：
+    1.代码耦合度较低，M负责存取数据，P负责连接V和M且负责逻辑控制，V只负责界面的组件变化的赋值代码更清晰
+
+   缺点：
+    1.增加了很多类 相当于Mvc，原先一个Activit只用写一个类，如果用了Mvp，则需要增加XXContract、XXPrestener 2个类，
+      会比Mvc繁琐
+
+
+
+
+ ※  参考
+     Mvp、Mvvm、组件化的对比和示例 https://www.jianshu.com/p/aeb7dad34f05
+
+     Mvp
+     MVP入门，MVP例子  https://www.jianshu.com/p/a70c9140ba53
+     MVP理解加深
+      https://blog.csdn.net/ybf326/article/details/85059075?depth_1-utm_source=distribute.pc_relevant.none-task&utm_source=distribute.pc_relevant.none-task
+     MVP封装
+      https://www.jianshu.com/p/4e5c1fd007bf
+      https://blog.csdn.net/w962035216/article/details/78737453
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+

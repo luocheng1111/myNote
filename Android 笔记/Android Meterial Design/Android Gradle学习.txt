@@ -1,0 +1,553 @@
+
+
+Gradle
+----------------------------------------------------------------------------------------------------------------------------------
+
+※ Gradle介绍
+   维基百科：Gradle是一个基于Apache Ant和Apache Maven  概念的项目自动化构建工具。它使用一种基于Groovy的特定领域语言来声明项目设置，而不是传统的XML。当前其支持的语言限于Java、Groovy和Scala，计划未来将支持更多的语言。
+
+   Gradle介绍及优点
+   1.Gradle是一个自动化构建工具，可以进行自动化编译、单元测试、打包等工作。如果不使用Gradle，需要手动来进行这些功能，很繁琐且重复性很强，
+     使用了Gradle，可以让重复的步骤变得简单且减少手动导致的错误
+   2.Gradle独立于自己，不依赖操作系统和IDE，这样在不同的IDE和不同操作系统上都可以保持一致
+   3.Gradle可以方便的统一管理第三方库
+
+   为什么Android选择Gradle？
+   1.常用的构建工具有Ant、Gant和Maven，相对于这些构建工具，Gradle则是结合Ant和Maven等构建工具的最佳特性
+   2.Gradle采用了Groovy，Ant和Maven的构建脚本是由XML来编写的，如果XML逻辑复杂内容太多就不容易维护
+     Groovy是基于Jvm一种动态语言，它的语法和Java非常相似并兼容Java，因此你无需担心学习Groovy的成本。
+
+
+   学习参考：http://liuwangshu.cn/application/gradle/1-study-gradle.html
+           https://www.jianshu.com/p/40512c209b24
+
+
+※ Android中的Gradle
+   1.build.gradle文件
+     根文件下方的build.gradle通常是整个项目工程的通用配置，每个module下的build.gradle文件是针对每个module自身的配置
+     buildscript {
+        repositories {
+          ...
+        }
+
+        dependencies {
+          classpath 'com.android.tools.build:gradle:3.0.1'
+        }
+     }
+     allprojects {
+       repositories {
+        ...
+       }
+     }
+     这是一个项目build.gradle的默认配置，可以看到有buildscript，allprojects，repositories，dependencies这几个配置项
+     allprojects：代表的是每个project，可以理解成我们的每个module，也就是对我们所有的每个module的配置。
+     buildscript：主要配置的是打包相关的东西，比如gradle版本，gradle插件版本等，这些都是针对构建工具自己的配置
+                  repositories，dependencies是三方库的仓库和坐标
+
+     而module下的build.gradle主要是android，dependencies等配置项
+     android：是Android特有的，是通过Android的插件'com.android.application'带进来的配置项
+
+   2.settings.gradle
+     文件内容：include ':app', ':base', ':picture_library'
+     这个文件主要是决定每个module是否参与构建。我们可以这样去理解，settings.gradle相当于是每个module的开关，关上了这个module就不能使用了，别的依赖到它的module也都会出问题。
+
+   3.gradle.properties
+     文件内容：org.gradle.jvmargs=-Xmx1536m
+     这里主要是增加和修改一些可以在构建过程中直接使用的参数。不只是可以添加自定义参数，还可以修改系统的参数，这里可以定义一些常量
+
+
+※ 第三方依赖前缀compile、implementation、api的区别
+   compile：已弃用
+   implementation：当配置implementation模块时，会让Gradle了解您不希望该模块在编译时将该依赖项泄露给其他模块。也就是说此依赖为此模块独享
+                   因此implementation此依赖项配置代替 api 或 compile（已弃用）可以显著缩短构建时间
+   api：当一个模块包含 api 依赖项时，会让 Gradle 了解该模块要向上游传递方式将该依赖项导出到其他模块，以便这些模块在运行时和编译时都可以使用该依赖项。
+        因此，拥有大量的 api 依赖项会显著增加构建时间。除非要将依赖项的 API 公开给单独的模块，否则库模块应改用 implementation 依赖项。
+
+
+※ Gradle的jar包依赖和arr包依赖
+  jar依赖：
+  //依赖引入libs下所有的jar
+  implementation fileTree(dir:'libs',include:['*.jar'])
+  //指定依赖某一个或几个jar
+  implementation files('libs/XXX.jar','libs/XXX.jar')
+
+  arr依赖：
+  android {
+    ...
+    repositories {
+        flatDir {
+            dirs "libs"
+        }
+    }
+  }
+
+  dependencies {
+    implementation fileTree(dir:'libs',include:['*.aar'])
+    implementation(name:'XXX',ext:'aar')
+  }
+
+
+※ Gradle的Module依赖
+  1.在settings.gradle中引入
+    include ':app'
+    include ':library1', ':library2'
+  2.在模块build.gradle引入
+    implementation project(':library1')
+
+
+
+※ 解决Gradle的库依赖冲突
+  1.查看每个库依赖
+    1.安装Gradle View插件 在AS中选择File->Settings->Plugins中搜索gradle view，找到Gradle View插件安装并重启AS
+    2.重启后，选择View->Tools Windows->Gradle View,这时可以在AS底部发现Gradle View窗口，等运行结束后会显示当前项目的依赖树
+    3.选择Peoject Dependencies->Dependency Hierarchy->项目名->app->debugCompileClasspath即可看见
+
+  2.解决Gradle依赖冲突
+    1.transitive 禁止依赖传递
+    什么是依赖传递？projectC依赖projectB，projectB依赖projectA，那么projectC就依赖了projectA。
+    依赖传递会产生一些问题，比如重复依赖、依赖错误等问题，那么我们可以通过transitive来禁止依赖传递。
+
+    implementation 'com.squareup.retrofit2:retrofit:2.6.0'
+    的依赖是
+    +--- com.squareup.retrofit2:retrofit:2.6.0
+    |    \--- com.squareup.okhttp3:okhttp:3.12.0
+    |         \--- com.squareup.okio:okio:1.15.0
+
+    如果
+    implementation ('com.squareup.retrofit2:retrofit:2.6.0') {
+      transitive false
+	}
+	则依赖会变成
+	+--- com.squareup.retrofit2:retrofit:2.6.0
+
+	2.强制统一库的版本
+    有时候我们不是想要排除某个库，而是需要强制使用统一的库的版本，force可以强制设置模块的库的版本，在模块build.gradle中加入如下代码。
+    configurations.all {
+       resolutionStrategy {
+          force 'com.squareup.okio:okio:2.1.0'
+       }
+	}
+    dependencies {
+       ...
+    ｝
+    强制当前模块的okio的版本为2.1.0，使用依赖检查来查看下retrofit的依赖
+    +--- com.squareup.retrofit2:retrofit:2.6.0
+    |    \--- com.squareup.okhttp3:okhttp:3.12.0
+    |         \--- com.squareup.okio:okio:1.15.0 -> 2.1.0
+    \--- com.squareup.okio:okio:1.14.0 -> 2.1.0
+    可以看到okio的版本都被强制升级到了2.1.0，这样就可以解决一些依赖冲突的问题
+
+    3.删除某个库
+    有些时候需要排除库依赖传递中涉及的库，此时不能靠关闭依赖传递来解决问题，这时可以使用exclude
+    configurations {
+        all*.exclude group: 'com.android.support', module: 'support-annotations'
+	}
+    dependencies {
+		...
+	｝
+	则删除了com.android.support:appcompat-v7:28.0.0的com.android.support:support-annotations:28.0库
+
+
+
+※ 配置buildTypes 自定义"构建类型“
+  用于产品开发的不同阶段
+  专门给开发人员用于在软件开发的整个周期内根据不同的阶段来配置不同属性，打相对应阶段的 apk 包的。
+  说得白点，一个产品从开发到上线过程中，最起码需要经过开发、测试、上线三个阶段，用于产品开发
+  android {
+    ...
+    // 配置签名文件
+    signingConfigs {
+        debug {
+            // 这里会使用默认签名
+        }
+        release {
+            storeFile file("mykey.jks")
+            storePassword "android"
+            keyAlias "android"
+            keyPassword "android"
+            v2SigningEnabled true
+        }
+    }
+    buildTypes {
+        //默认有debug和release，可以自己任意添加配置
+        dev {
+            // 手机调试环境
+            signingConfig signingConfigs.debug
+        }
+        debug {
+            // 正式环境
+            signingConfig signingConfigs.release
+        }
+        release {
+            // 正式发布包
+            signingConfig signingConfigs.release
+        }
+    }
+    ....
+
+
+※ 配置productFlavors 多渠道、多风格打包
+  用于最后的打包配置
+  这个配置的作用跟 buildTypes 很类似，但它是从产品角度出发来设置不同的配置。
+  不同的渠道可能需要不一样的 Logo，不一样的包名，不一样的资源文件，不一样的功能模块等等，那么就可以通过这里来配置。
+  android {
+    flavorDimensions "zone", "themeColor"
+    // 定义多风味
+    productFlavors {
+        /**
+         * 越南版  每一个风味选项都必须指定独立的风味值
+         */
+        vn {
+            applicationId "com.global.vn.ftint"
+            dimension "zone"
+            manifestPlaceholders = [zone: "vn"]
+        }
+
+        /**
+         * 国内版
+         */
+        cn {
+            applicationId "com.global.cn.ftint"
+            dimension "zone"
+            manifestPlaceholders = [zone: "cn"]
+        }
+
+        /**
+         * 主题风格为红色
+         */
+        red {
+            dimension "themeColor"
+            manifestPlaceholders = [themeColor: "red"]
+        }
+
+        /**
+         * 主题风格为蓝色
+         */
+        blue {
+            dimension "themeColor"
+            manifestPlaceholders = [themeColor: "blue"]
+        }
+    }
+}
+
+
+※ 改变apk输出路径和文件名
+  有三种方式：
+  1.重写applicationVariants.all{} 参数闭包的方式，修改输出的绝对路径 对应api：outputs.first().outputFileName
+  2.重写applicationVariants.all{} 参数闭包的方式，修改输出的相对路径 对应api: variant.getPackageApplication().outputScope.apkDatas 和 apkData.outputFileName
+  3.使用 干涉task任务的方式 虽然比上面两个方式写起来更加复杂，但是可控制的精度也更高，比如：它除了可以改变输出路径之外，还可以直接指定拦截哪些task，而不是像 重写applicationVariants.all闭包 一样，一律变更输出路径和文件名。
+  详情见文章：https://www.jianshu.com/p/94933c63ecb2
+
+  1.修改输出的绝对路径和输出的包名
+  android {
+    applicationVariants.all { variant ->
+        //这个修改输出的APK路径
+        if (variant.buildType.name != "debug") {//防止AS无法安装debug包(apk)
+            variant.getPackageApplication().outputDirectory = new File(myPackageDir())
+        }
+        variant.getPackageApplication().outputScope.apkDatas.forEach { apkData ->
+            //这个修改输出APK的文件名
+            apkData.outputFileName = "HankZhou" +
+                    variant.versionName + "_" +
+                    "${releaseTime()}" + "_" +
+                    variant.flavorName + "_" +
+                    variant.buildType.name + "_" +
+                    ".apk"
+        }
+    }
+  }
+
+  def myPackageDir(){
+    return "C:\\Users\\adminstrator\\Desktop\\myPackage"
+  }
+
+
+  String releaseTime() {
+    Date date = new Date()
+    String dates = date.format("yyyyMMdd_hhmmss", TimeZone.getTimeZone("UTC"))
+    return dates
+  }
+
+  dependencies {
+    ...
+  }
+
+
+
+
+※ 参考
+   了解Gradle
+     Gradle介绍，为什么现在要用Gradle？ http://liuwangshu.cn/application/gradle/1-study-gradle.html
+     Android Gradle的每个模块介绍 http://liuwangshu.cn/application/android-gradle/1-gradle-plug-in.html
+     Android Gradle版本更新日志 https://developer.android.google.cn/studio/releases/gradle-plugin
+   Android Gradle使用
+     Gradle的骚操作 https://www.jianshu.com/p/94933c63ecb2
+     Gradle的使用技巧 https://www.jianshu.com/p/2b0036af4ef3
+     Gradle的使用技巧 https://www.jianshu.com/p/0ff4b5f5e892
+   一个项目下维护多套代码
+     https://www.jianshu.com/p/9d3dfdc5256c
+     https://www.jianshu.com/p/c7a098c34449
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Gradle模板(采用yh项目)
+----------------------------------------------------------------------------------------------------------------------------------
+
+1.项目的build.gradle文件
+  buildscript {
+
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+  }
+
+  allprojects {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+
+        flatDir { dirs 'libs' } //Toy
+    }
+  }
+
+  task clean(type: Delete) {
+    delete rootProject.buildDir
+  }
+
+
+
+
+2.主模块的build.gradl文件
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        applicationId "com.live.yh"
+        minSdkVersion 18
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.1.1"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+        renderscriptTargetApi 19
+        renderscriptSupportModeEnabled true
+        flavorDimensions "app"
+
+        ndk {
+            // 指定要ndk需要兼容的架构(这样其他依赖包里mips,x86,armeabi,arm-v8之类的so会被过滤掉)
+            abiFilters "armeabi", "armeabi-v7a", "arm64-v8a"
+        }
+    }
+
+    //解决包过大 打包时GC问题
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
+    signingConfigs {
+        debug {}
+        release {
+            storeFile file("live.key");
+            keyAlias "hdlive"
+            keyPassword "hdlive"
+            storePassword "hdlive"
+        }
+    }
+
+    compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            println("输出apk名称为 yhlive_anchor_release_v1.0.4_01090101.apk 樱花-主播版-环境-版本-日期.apk")
+            println("---------------------打包" + variant.flavorName + "端--------------------")
+            def fileName = "yhlive" + "_" +
+                    variant.flavorName      + "_" +
+                    variant.buildType.name  + "_" +
+                    "v"+variant.versionName + "_" +
+                    "${releaseTime()}.apk"
+            outputFileName = fileName
+        }
+    }
+
+
+    productFlavors {
+        anchor {
+            buildConfigField "Integer", "OS", project.anchorClient
+            buildConfigField 'Class<?>', 'INTENT_AnchorLiveActivity', 'com.live.yh.ui.live.anchor.AnchorLiveActivity.class'
+        }
+        user {
+            buildConfigField "Integer", "OS", project.userClient
+            buildConfigField 'Class<?>', 'INTENT_AnchorLiveActivity', 'com.live.yh.ui.TempActivity.class'
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+            java.srcDirs = ['src/main/java']
+        }
+        anchor {
+            java.srcDirs = ['src/anchor/java']
+        }
+        user {
+            java.srcDirs = ['src/user/java']
+        }
+    }
+
+    buildTypes {
+        //手机调试环境
+        dev {
+            //混淆 不开启 加快打包速度
+            minifyEnabled false
+            //Zipalign优化
+            zipAlignEnabled false
+            // 移除无用的resource文件
+            shrinkResources false
+            //加载默认混淆配置文件
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+
+
+            resValue "string", "app_name", "樱花-dev"
+            buildConfigField "String", "ToyToken", project.ToyToken
+            buildConfigField "String", "BuglyKey", project.BuglyKey
+            buildConfigField "Integer", "IMSdkAppId", project.IMSdkAppId
+            buildConfigField "Integer", "LiveAppId", project.LiveAppId
+            buildConfigField "String", "LivePushLicence", project.LivePushLicence
+            buildConfigField "String", "LivePushKey", project.LivePushKey
+            buildConfigField "String", "BASEURL_TEST", project.BASEURL_TEST
+            manifestPlaceholders = [OpenInstallKey: project.OpenInstallKey]
+            buildConfigField "Boolean", "IS_PUBLISH", "false"
+            buildConfigField "Boolean", "IS_SHOWLOG", "true"
+            buildConfigField "Boolean", "IS_CARSH", "false"
+        }
+
+        //测试环境
+        debug {
+            //混淆
+            minifyEnabled true
+            //Zipalign优化
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources true
+            //加载默认混淆配置文件
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+
+            resValue "string", "app_name", "樱花-debug"
+            buildConfigField "String", "ToyToken", project.ToyToken
+            buildConfigField "String", "BuglyKey", project.BuglyKey
+            buildConfigField "Integer", "IMSdkAppId", project.IMSdkAppId
+            buildConfigField "Integer", "LiveAppId", project.LiveAppId
+            buildConfigField "String", "LivePushLicence", project.LivePushLicence
+            buildConfigField "String", "LivePushKey", project.LivePushKey
+            buildConfigField "String", "BASEURL_TEST", project.BASEURL_TEST
+            manifestPlaceholders = [OpenInstallKey: project.OpenInstallKey]
+            buildConfigField "Boolean", "IS_PUBLISH", "false"
+            buildConfigField "Boolean", "IS_SHOWLOG", "true"
+            buildConfigField "Boolean", "IS_CARSH", "false"
+        }
+
+        //线上环境
+        release {
+            //混淆
+            minifyEnabled true
+            //Zipalign优化
+            zipAlignEnabled true
+            // 移除无用的resource文件
+            shrinkResources true
+            //加载默认混淆配置文件
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+
+            resValue "string", "app_name", "樱花"
+            buildConfigField "String", "ToyToken", project.ToyToken
+            buildConfigField "String", "BuglyKey", project.BuglyKey
+            buildConfigField "Integer", "IMSdkAppId", project.IMSdkAppId
+            buildConfigField "Integer", "LiveAppId", project.LiveAppId
+            buildConfigField "String", "LivePushLicence", project.LivePushLicence
+            buildConfigField "String", "LivePushKey", project.LivePushKey
+            buildConfigField "String", "BASEURL_TEST", project.BASEURL_TEST
+            manifestPlaceholders = [OpenInstallKey: project.OpenInstallKey]
+            buildConfigField "Boolean", "IS_PUBLISH", "true"
+            buildConfigField "Boolean", "IS_SHOWLOG", "false"
+            buildConfigField "Boolean", "IS_CARSH", "true"
+
+        }
+    }
+}
+
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    //导入base library
+    implementation project(':base')
+    implementation project(':picture_library')
+    implementation files('libs/OpenInstall_v2.2.2.jar')
+
+    //美颜 包大小会增加了21M(主播端才需添加)
+    anchorImplementation project(':faceunity')
+    //玩具(主播端才需添加)
+    anchorImplementation files('libs/lovense.aar')
+
+    //ButterKnife 注解
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
+
+    //SmartRefreshLayout 下拉刷新 上拉加载
+    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-alpha-22'
+
+    ......
+
+}
+
+
+def releaseTime() {
+    return new Date().format("MMddHHmm", TimeZone.getTimeZone("GMT+08"))
+}
+
+
+3.gradle.properties配置文件
+android.useDeprecatedNdk=true
+org.gradle.jvmargs=-Xmx4608M
+#Build process multithreading
+org.gradle.parallel=true
+org.gradle.daemon=true
+org.gradle.configureondemand=true
+android.enableD8=false
+
+#Base Config
+BASEURL_TEST="http://47.56.1..."
+LivePushLicence="http://license.vod2.myqcloud.com/license/v1/06548..."
+LivePushKey="2e6dfdfa..."
+LiveAppId=1258...
+IMSdkAppId=140...
+BuglyKey="517...
+ToyToken="dkL/VeIJ4uLH3q6rUiDj..."
+OpenInstallKey="h..."
+
+#1.Android UserClient 2. IOS UserClient 3.Anroid AnchorClient 4. IOS AnchorClient
+userClient=1
+anchorClient=3
+
+----------------------------------------------------------------------------------------------------------------------------------

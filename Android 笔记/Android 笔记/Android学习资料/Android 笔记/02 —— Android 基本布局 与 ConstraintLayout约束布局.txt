@@ -1,0 +1,204 @@
+
+
+Android 基本五大布局
+----------------------------------------------------------------------------------------------------------------------------------------
+   线性布局(LinearLayout)
+   相对布局(RelativeLayout)
+   帧布局(FrameLayout)
+   表格布局(TableLayout)
+   绝对布局(AbsoluteLayout)
+
+
+ ※ LinearLayout
+    LinearLayout 线性布局，可以使得布局中的的控件以垂直或水平的方式来排列
+    android:orientation=”horizontal” 水平布局
+    android:orientation=”vertical”   垂直布局
+
+
+ ※ RelativeLayout
+    RelativeLayout 相对布局, 把某一控件作为参照物来确定自己的位置
+
+
+ ※ FrameLayout
+    FrameLayout 帧布局, 后加入的组件会覆盖前面加入的组件，适合配合Fragment使用
+
+
+ ※ TableLayout
+    TableLayout 表格布局, TableRow表示一行，里面表示具体的一个或多个元素
+
+    使用：
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+       style="@style/MatchMatch" >
+
+      <TableRow android:gravity="center">
+         <Button ... />
+      </TableRow>
+      <TableRow android:gravity="center">
+         <TextView android:text="第一行第0列" .../>
+         <TextView android:text="第一行第1列" .../>
+      </TableRow>
+      <TableRow android:gravity="center">
+         <TextView android:text="第二行第0列" .../>
+         <TextView android:text="第二行第1列"  .../>
+      </TableRow>
+    </TableLayout>
+
+    属性：
+     android:collapseColumns 设置需要被隐藏的列的列序号，多个列序号之间用逗号隔开（从0开始）
+     android:shrinkColums    设置允许被收缩的列的列序号，多个列序号之间用逗号隔开（从0开始）当LayoutRow里面的控件还没有布满布局时
+     android:stretchColumns  设置允许被拉伸的列的列序号，多个列序号之间用逗号隔开（从0开始）
+
+
+ ※ AbsoluteLayout
+    AbsoluteLayout绝对布局,以具体的x、y坐标来确定自己控件的位置
+    android:layout_x  x坐标
+    android:layout_y  y坐标
+    由于Android手机的屏幕尺寸、分辨率存在较大差异，使用AbsoluteLayout无法兼顾适配问题，所以此布局不建议使用
+
+
+
+ ※ 参考：
+    http://www.jianshu.com/p/4fac6304d872
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ConstraintLayout 约束布局  用拖拽的的方式来实现布局
+----------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+   Android Studio 2.2新增的布局，让我们可以很优雅的通过拖拽的的方式来实现布局，像IOS那样，而不用手动去编写代码去实现布局
+   特点：
+    1.可以用拖拽控件方式编写布局，可视化布局 可谓省时省力 可以实现LinearLayout的效果，也可以实现RelativeLayout的效果(体现在手写布局里面)
+    2.它可以有效地解决布局嵌套过多的问题，提高程序性能。他是通过约束的方式来指定各个控件的位置和关系，有点类似于RelativeLayout，但远比RelativeLayout要更强大。
+    3.实现了一部分的适配效果
+
+
+※ 拖拽方式实现布局
+    学习：https://blog.csdn.net/guolin_blog/article/details/53122387
+    1.Modle's build.gradle 添加：（一般新建项目后，自动会添加）
+      compile 'com.android.support.constraint:constraint-layout:1.0.2'
+
+    基本操作：
+     操作区域内有两个类似于手机屏幕的界面，左边的是预览界面，右边的是蓝图界面 右边用于观察界面内各个控件的约束情况。
+     1.拖拽控件
+     2.一个控件时，通过控件小圆点给控件添加约束
+     3.两个控件时，通过控件小圆点给两个控件添加约束
+
+    删除约束：
+     1.删除某一个的约束   选中某个小圆点，圆点变红后，点击一下就删除了此约束
+     2.删除整个控件的约束 选中一个控件，然后它的左下角会出现一个删除约束的图标，点击该图标就能删除当前控件的所有约束了，
+     3.删除当前界面中的所有约束  点击工具栏中的删除约束图标即可，
+
+    Inspector区域的操作
+     右侧的Properties区域中有属性选项，其中基本属性一看就懂了，重点是Properties区域的上半部分，这部分被称为Inspector。
+     1.Inspector中的纵轴和横轴，这两个轴也是用于确定控件的位置的，比如纵轴值为50时，代表此控件正好垂直居中屏幕中间
+     2.控件与纵/横轴中有一条连线，上面还有一个数值，此值代表控件与边界的间距，默认为16，如果不想要，可以自行设置
+     3.Inspector最中间的那个正方形区域 它是用来控制控件大小的 有类似于这种>>>的图形，点击此图形，她和她相对的会切换到另外一种图形，一共有3种图形
+          >>>   表示wrap content，这个我们很熟悉，不需要多解释。
+	       |——|   表示固定值，也就是给控件指定了一个固定的长度或者宽度值。
+         |~~~|  表示match_contraint，它有点类似于match_parent，但和match_parent并不一样，是属于ConstraintLayout中特有的一种大小控制方式
+
+        match_contraint与match_parent的区别
+        match_contraint就是用于在ConstraintLayout中顶替match_parent的,match_parent是用于填充满当前控件的父布局，而match_contraint是用于填充满当前控件的约束规则
+
+    Guidelines 辅助线
+     设想一个场景，登录界面 我们登录和注册按钮显示在同一水平线上，且相对于中线居中显示，在垂直方向上都距离底部64dp
+     使用上面讲的约束，则无法完成此效果，此时我们就需要用到Guidelines
+     如果操作：
+      1.点击通知栏中的Guidelines图标可以添加一个垂直或水平方向上的Guideline
+      2.选中垂直方向上的，拖动到50%的位置
+      3.剩下的拖入两个控件，添加约束就可以了
+
+    自动添加约束
+     界面中的内容变得复杂起来，给每个控件一个个地添加约束也是一件很繁琐的事情，
+     ConstraintLayout中支持自动添加约束的功能，可以极大程度上简化那些繁琐的操作。
+     自动添加约束的方式主要有两种，一种叫Autoconnect，一种叫Inference
+
+     Autoconnect(磁铁按钮)
+     开启和关闭：默认是关闭的，工具栏上有个类似磁铁的图标，点击后切换开启和关闭
+     开启时，我们将Button拖放到界面上，Autoconnect会判断我们的意图，并自动给控件添加约束。
+     不过Autoconnect是无法保证百分百准确判断出我们的意图的，如果自动添加的约束并不是你想要的话，
+     还可以在任何时候进行手动修改。总之，可以把它当成一个辅助工具，但不能完全靠它去添加控件的约束。
+
+     Inference(魔法棒按钮)
+     一键自动为所以控件添加约束，很方便，但要适当使用(界面比较简单时)
+
+
+
+※ 代码方式实现布局
+   当界面复杂之后，想要完美的拖拽实在是太难了，而且我们也不期望，看不懂拖拽完成后的布局属性
+   学习：https://blog.csdn.net/lmj623565791/article/details/78011599?utm_source=tuicool&utm_medium=referral
+        https://segmentfault.com/a/1190000009536640?utm_source=tuicool&utm_medium=referral
+
+   ConstraintLayout特有的属性详解：
+
+   实现RelativeLayout的效果的效果
+    宽高属性 有3种：
+    wrap_content、固定宽高、0dp(match_contraint)
+
+    相对位置属性：当前属性的左侧在谁的右侧，当我们希望控件A在控件B的右侧时
+    app:layout_constraintLeft_toRightOf="@id/tv1"
+    app:layout_constraintRight_toRightOf="parent"
+
+    以上两种就完全可以实现RelativeLayout的效果，但有一点需要注意：
+    当使用类似于app:layout_constraintLeft_toRightOf时，宽高要注意使用match_contraint(0)，而不要使用wrap_content
+
+
+   实现控件的高为整个屏幕16：6的效果
+    app:layout_constraintDimensionRatio="H,16:6" //设置高占整个屏幕的9/16
+    app:layout_constraintDimensionRatio="W,16:6"
+    app:layout_constraintDimensionRatio="16:6"   //设置宽和高占整个屏幕的9/16
+    此时要设置宽或高都为0dp
+
+
+   实现LinearLayout和weight的效果
+    1.给3个控件设置两两约束app:layout_constraintLeft_toRightOf
+    2.宽度或者高度设置为0
+    3.给每一个控件设置app:layout_constraintHorizontal_weight值 比如2 2 1
+
+
+   链的效果Chains效果
+    1.给3个控件设置两两约束app:layout_constraintLeft_toRightOf
+    2.宽度或者高度设置为warp_content
+    2.链头设置layout_constraintHorizontal_chainStyle/layout_constraintVertical_chainStyle属性
+    3.值有三种 分别为：spread元素将被展开（默认样式，元素平分间隙让多个 Views 布局到剩余空间），spread_inside（中间元素被展开，链的端点不会扩展）和 packed（链元素挨在一起）
+
+    Chain 链的链接模式（chain mode），链接模式决定了 Chain 链如何分配组件之间的剩余空间
+
+    还可以值是packed时，配合Bias使用，达到偏移的效果
+
+
+   增加浮动按钮 倾向（Bias）
+    app:layout_constraintHorizontal_bias="0.9"
+    app:layout_constraintVertical_bias="0.9"
+    设置水平/竖直方向上向右偏移至90%。
+
+
+   Guideline 辅助线
+   主要用于辅助布局，即类似为辅助线，横向的、纵向的。该布局是不会显示到界面上的。
+   <android.support.constraint.Guideline
+        android:id="@+id/guideline_h"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.8" />
+
+   <TextView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:background="#612"
+        app:layout_constraintLeft_toRightOf="@id/guideline_w"
+        app:layout_constraintTop_toBottomOf="@id/guideline_h" />
+
+
+   有3个取值
+   layout_constraintGuide_begin="30dp"  顶部或左间距30dp
+   layout_constraintGuide_end="30dp"    尾部或右间距30dp
+   layout_constraintGuide_percent="0.8" 距离顶部或左80%
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+

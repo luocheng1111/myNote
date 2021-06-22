@@ -1,0 +1,104 @@
+
+
+Android 四大组件相关
+ 1.Activity的生命周期。
+    启动Activity：onCreate() -> onStart() -> onResume() 进入运行状态
+    锁屏或者被其他Activity覆盖时：onPause()
+    回到Activity：onResume()
+    按Home键：onPause() -> onStop() 进入停滞状态
+    回到Activity：onRestart() -> onStart() -> onResume()
+    回退键：onPause() -> onStop() -> onDestory() 进入死亡状态
+
+
+2.横竖屏切换时候 activity 的生命周期
+   1.当android:configChanges 不设置或设置值为orientation时， 横竖屏切换时都会销毁原有生命周期后再重调一次生命周期
+
+   2.当android:configChanges="orientation|keyboardHidden"时，横竖屏切换时都会调用一次onConfigurationChanged()方法
+
+   3.如果设置了android:screenOrientation="xxx",则会使android:configChanges设置的失效
+
+复用Activity情况下的生命周期
+onNewIntent，在Activity启动模式为SingleTop/SingleTask时，复用Activity时，会回调onNewIntent方法
+
+Activity异常销毁时的生命周期
+系统会先调用 onSaveInstanceState()，然后再使 Activity 变得易于销毁。系统会向该方法传递一个 Bundle，您可以在其中使用 putString() 和 putInt() 等方法以名称-值对形式保存有关 Activity 状态的信息。然后，如果系统终止您的应用进程，并且用户返回您的 Activity，则系统会重建该 Activity，并将 Bundle 同时传递给 onCreate() 和 onRestoreInstanceState()。您可以使用上述任一方法从 Bundle 提取您保存的状态并恢复该 Activity 状态。如果没有状态信息需要恢复，则传递给您的 Bundle 是空值（如果是首次创建该 Activity，就会出现这种情况）。
+
+3.Activity的启动模式
+   standard       默认启动模式，每次启动都会创建一个新的Activity，并放入任务栈中。
+   singleTop      栈中有Activity，如果不在栈顶，就会创建一个新的Activity，如果在栈顶，就直接调用。不会创建新的
+   singleTask     栈中存在就调用，不存在就新建，调用时，会把他上面的实例都移出栈
+   singleIntance  任何程序调用这个，都会是这一个。 例子：调用浏览器
+
+
+5.Android 系统的架构
+  Android系统分为5层,从上到下依次是：
+  应用层:     系统内置的应用和程序开发的应用
+  应用框架层: 为开发人员提供开发程序所需要的API
+  系统运行库层:分为C++程序库和Android运行时库
+  HAL(硬件抽象层):硬件与系统内核的接口，方便使用及移植
+  Linux内核:Android 的核心系统服务基于Linux 内核，在此基础上添加了部分Android专用的驱动
+
+
+6.在 android 中 mvc 的具体体现
+
+
+
+7.Get与Post的区别
+
+
+
+8.Http与Https的区别
+  超文本传输协议HTTP协议被用于在Web浏览器和网站服务器之间传递信息，HTTP协议以明文方式发送内容，不提供任何方式的数据加密，
+  因此，HTTP协议不适合传输一些敏感信息，比如：信用卡号、密码等支付信息。
+  HTTPS在HTTP的基础上加入了SSL协议，SSL依靠证书来验证服务器的身份，并为浏览器和服务器之间的通信加密。使数据传输更安全
+
+
+
+9.如何将 SQLite 数据库 (dictionary.db 文件 ) 与 apk 文件一起发布 ?
+   可以将 dictionary.db 文件复制到 Eclipse Android 工程中的 res aw 目录中。
+   所有在 res aw 目录中的文件不会被压缩，这样可以直接提取该目录中的文件。可以将 dictionary.db 文件复制到 res aw 目录中
+
+
+10.如何将打开 res aw 目录中的数据库文件 ?
+   在 Android 中不能直接打开 res aw 目录中的数据库文件，而需要在程序第一次启动时将该文件复制到手机内存或 SD 卡的某个目录中，然后再打开该数据库文件。复制的基本方法是使用 getResources().openRawResource 方法获得 res aw 目录中资源的 InputStream 对象，然后将该 InputStream 对象中的数据写入其他的目录中相应文件中。在 Android SDK 中可以使用 SQLiteDatabase.openOrCreateDatabase 方法来打开任意目录中的 SQLite 数据库文件。
+
+
+
+12.设计模式
+   建造者模式、单例模式、工厂模式、原型模式、适配器模式。
+
+
+
+13.Android NDK，Android SDK， Android ADT。
+   Android ADT: Android Development Tools 安卓开发工具插件，
+             作用:  ecplise 里的插件,布置开发环境时为了方便在ecplise里开发android程序而装的插件。
+
+   Android SDK: Software Development Kit Android软件开发工具包
+	     作用:  辅助Android操作系统软件开发，是开发Android软件、文档、范例、工具的一个集合。
+
+   Android NDK: Native Development Kit  一系列工具的集合
+             作用:  Android刚发布时，限定应用程序开发都使用Java语言进行编写，
+	     后来为方便C/C++开发者开发，就推出NDK，使得C/C++也可以编写Android程序。
+
+
+14.View的工作原理/绘制流程
+
+
+15.自定义View的具体过程
+
+
+16.onMeasure的具体过程，先measure子view还是自己
+
+
+17.onDraw的具体过程，先draw子view还是自己
+
+
+15.View的事件拦截(分发)机制
+
+
+16.Window-View-Activity三者的关系
+
+
+
+
+

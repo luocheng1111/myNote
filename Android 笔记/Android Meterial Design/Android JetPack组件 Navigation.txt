@@ -1,0 +1,41 @@
+
+
+Jetpack
+----------------------------------------------------------------------------------------------------------------------------------
+※ 介绍
+  Jetpack是谷歌推出的，它的作用是帮助开发者更轻松的构建出出色Android应用程序，它为开发者的一些列辅助Android开发的工具，其中提供了很多类，有
+   Data Binding(数据绑定)：可以实现xml文件与数据的绑定，让数据变化时，View的界面也可以跟着变化
+   ViewModel：以生命周期感知的方式存储和管理与UI相关的数据。
+   LiveData：是一个可观察的数据持有者类。与常规observable不同，LiveData是有生命周期感知的。
+   Lifecycles：管理 Activity 和 Fragment 生命周期
+   Room：帮助开发者更友好、流畅的访问SQLite数据库。
+   等等....
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Navigation
+----------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  Navigation用于Fragment的管理，让Fragment类似iOS开发里的StoryBoard，可以可视化的编辑App页面的导航关系。带没有StoryBoard那么强大
+
+
+※ 环境
+   1.需要Android Studio版本3.3以上
+   2.build.gradle中
+     // Navigation
+     implementation "android.arch.navigation:navigation-fragment:1.0.0-alpha05"
+     implementation "android.arch.navigation:navigation-ui:1.0.0-alpha05"
+
+
+※ 使用
+   见：https://www.loongwind.com/archives/366.html
+      https://www.jianshu.com/p/d37f5132db3c
+      https://blog.csdn.net/cekiasoo/article/details/80739805
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+

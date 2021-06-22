@@ -1,0 +1,94 @@
+
+
+
+
+二维码解析
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    ZXing: Google推荐, https://code.google.com/p/zxing/ 缺点:包太大，识别速度太慢，复杂的样式难以修改
+    Barcodescanner:    https://github.com/dm77/barcodescanner 简化了ZXing的集成和二次定制难度.方便快速集成和开发，并且扫描性能和结果比较稳定, 但样式很难定制
+    BGAQRCode-Android: https://github.com/bingoogolapple/BGAQRCode-Android 在Barcodescanner基础上修改, 修改幅度较大，可提供ZXing和ZBar两个依赖进行选择。
+    
+    BGAQRCode-Android支持的功能:
+     ZXing 生成可自定义颜色、带 logo 的二维码
+     ZXing 扫描二维码
+     ZXing 识别图库中的二维码图片
+     可以设置用前置摄像头扫描
+     可以控制闪光灯，方便夜间使用
+     可以定制各式各样的扫描框
+     可定制全屏扫描或只识别扫描框区域内的二维码
+     ZBar 扫描二维码「扫描中文会有乱码，如果对中文有要求，请使用 ZXing
+
+
+ ※ 二维码扫描实现思路 具体代码看Demo (Demo有Gif展示图)
+    1.在grandle中添加依赖库：(需要哪个添加哪个)
+       // BGAQRCode
+       implementation 'cn.bingoogolapple:bga-qrcode-zxing:1.2.1'
+       implementation 'cn.bingoogolapple:bga-qrcode-zbar:1.2.1' 
+
+    2.添加照相机权限:(注意, Android6.0 权限动态申请的问题)
+      <uses-permission android:name="android.permission.VIBRATE" />
+      <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    
+
+    3.布局文件中增加控件 ZXingView (很多定制需要,改变属性就可以实现,具体属性详情,可以看up主的github)
+      <cn.bingoogolapple.qrcode.zxing.ZXingView
+       android:id="@+id/zxingview"
+       style="@style/MatchMatch"
+       app:qrcv_animTime="1000"
+       app:qrcv_borderColor="@android:color/white"
+       app:qrcv_borderSize="1dp"
+       app:qrcv_cornerColor="@color/colorPrimaryDark"
+       app:qrcv_cornerLength="20dp"
+       app:qrcv_cornerSize="3dp"
+       app:qrcv_maskColor="#33FFFFFF"
+       app:qrcv_rectWidth="200dp"
+       app:qrcv_scanLineColor="@color/colorPrimaryDark"
+       app:qrcv_scanLineSize="1dp"
+       app:qrcv_topOffset="90dp" />
+
+     4.在Activity中添加一个代码(很简单就可以实现, 具体代码可以看demo)
+
+
+ ※ 选取本地图片识别二维码(这里选用作者的图片选择器库,所以需要导入作者的库,这里也可以自己实现,作者只是加图片选择器,而并没有从相册中选取图片)
+    1.在grandle中添加依赖库：(如果有,则不用重复添加, 另外注意版本号都要和v7包一致)
+      compile 'com.android.support:appcompat-v7:25.3.1'
+      compile 'com.android.support:recyclerview-v7:25.3.1'
+      compile 'pub.devrel:easypermissions:1.0.0'
+      compile 'cn.bingoogolapple:bga-photopicker:1.2.3@aar'
+      compile 'cn.bingoogolapple:bga-adapter:1.2.0@aar'
+      compile 'com.github.bumptech.glide:glide:3.7.0'
+
+    2.在manifestt.xml文件中添加
+      1.manifest属性中添加 xmlns:tools="http://schemas.android.com/tools"
+      2.在下面添加 <uses-sdk tools:overrideLibrary="cn.bingoogolapple.photopicker,cn.bingoogolapple.androidcommon.adapter" />
+
+    3.调用代码(这一步跳转的是作者写好的图片选择器)
+      startActivityForResult(BGAPhotoPickerActivity.newIntent(this, null, 1, null, false), 666);
+    
+    4.添加回调监听 (具体看代码)
+      onActivityResult...
+
+
+ ※ 生成二维码
+    //参数分别对应 图片大小 二维码颜色 背景颜色 二维码中间的一张小图片
+    //注意:生产二维码比较耗时, 要异步生产
+    QRCodeEncoder.syncEncodeQRCode("bingoogolapple", BGAQRCodeUtil.dp2px(TestGeneratectivity.this, 150), Color.BLACK, Color.WHITE, logoBitmap);
+
+
+ ※ 参考
+    作者写的博客 http://m.blog.csdn.net/fanxudonggreat/article/details/76595587 (根据文章来看,作者是开发摩拜单车的)
+    二维码GitHub https://github.com/bingoogolapple/BGAQRCode-Android
+    有Activity代码,可以参考 https://www.cnblogs.com/george-cw/p/6430560.html
+
+
+ ※ Demo
+    位置:/Demo/Android 二维码Demo.zip
+    项目介绍
+    zxingdemo: 官方Demo演示, 包含扫码,生成码,相册选择扫码,条形码,等一些功能的展示,很齐全.代码很有参考价值
+    qrcodedemo:自己写的Demo, 包含扫码,生成码,相册选择扫码功能.
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+

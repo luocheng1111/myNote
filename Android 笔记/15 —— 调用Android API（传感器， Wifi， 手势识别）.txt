@@ -1,0 +1,149 @@
+
+
+Wifi
+----------------------------------------------------------------------------------------------------------------------------------
+ 什么是WIFI
+  WIFI是一种无线的传输协议，可以连接到无线路由器上，可以用无线路由器连接无线网！无线联网的技术。
+ WIFI网卡的状态 返回值为常量
+  WIFI_STATE_DISABLED:  WIFI网卡不可用
+  WIFI_STATE_DISABLING: WIFI正在关闭
+  WIFI_STATE_ENABLED:   WIFI网卡可用
+  WIFI_STATE_ENABLING:  WIFI网卡正在打开
+  WIFI_STATE_UNKNOWN:   未知网卡状态
+ 一些操作权限
+  CHANGE_NETWORK_STATE
+  CHANGE_WIFI_STATE
+  ACCESS_NETWORK_STATE
+  ACCESS_WIFI_STATE
+ 改变WIFI网卡的状态
+  获得对象 WifiManager wifiManager = (WifiManager)Context.getSystemService(Service.WIFI_SERVICE);
+  打开WIFI网卡 wifiManager.setWifiEnable(true)
+  关闭WIFI网卡 wifiManager.setWifiEnable(false)
+  获取网卡当前的状态 wifiManager.getWifiState();
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+手势识别：
+----------------------------------------------------------------------------------------------------------------------------------
+  1.导入android/android-sdk-windows/samples/android-7/GestureBuilder
+  2.运行此项目 建立手势库，手势库文件在/mnt/sdcard/里面
+  3.把手势库导入到需要的项目/raw/下面
+  main.xml里面
+   <android.gesture.GestureOverlayView  //此处如果不这样写会报错
+	android:id="@+id/gesture"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+   />
+  主要方法：导入手势库 GestureLibrary gestureLibrary =GestureLibraries.fromRawResource(this, R.raw.gestures);
+                       gestureLibrary.load();必须这一步
+            实例化GestureOverlayView，监听：addOnGesturePerformListener
+	    监听里面: 
+		取得匹配的手势:ArrayList<Prediction> predictions =gestureLibrary.recognize(gesture/arg2);
+		相似度：Prediction prediction = predictions.get(0);
+		        prediction.score;
+		匹配名字："zhang".equals(prediction.name)
+  多个手势识别：
+     相比单个手势识别:mainActivity里面多了 android:gestureStrokeType="multiple"
+     监听调用的是addOnGestureListener    Gesture gesture = overlayView.getGesture();
+                    
+ 关闭一个activity
+   finish();这样会调用onDestory();
+   然后方法里面 android.os.Process.killProcess(android.os.Process.myPid());
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+蓝牙（BuleTooth）
+----------------------------------------------------------------------------------------------------------------------------------
+ 扫描已经配对过的设备，以及开启蓝牙：
+  权限: android:permission.BLUETOOTH
+  得到蓝牙设备：BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+  提示用户开启蓝牙设备：Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+  获取已配对的蓝牙适配器对象：Set<BluetoothDevice> device = adapter.getBondedDevices();
+  迭代输出   if(device.size()>0){
+		for(Iterator iterator = devices.iterator(); iterator.hansNext();){
+		BluetoothDevice bbb = itrtator.next();
+		sysou(bbb.getAddree());}
+  步骤：1.得到蓝牙设备 2.判断本机是否有蓝牙设备 3.判断蓝牙设备是否开启 （记得要给权限）
+ 设置蓝牙设备可被检测到：
+  权限：android.permisson.BLUETOOTH_ADMIN 此权限你可以对蓝牙进行管理
+        Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+	intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION,300); //后面数表示可被检测的时长，范围为1-300，超过300也会被改为300，默认为120
+        startActivity(intent);
+ 扫描周围可被检测到的蓝牙
+      1.bluetoothAdapter.startDiscovery(); 就开始检测，这是异步操作，若检测到设备，就会发送广播
+      2.在本来注册一个广播 IntentFilter intentFilter = new IntentFilter(BluetoothDevice..ACTION_FOUND);
+      3.在广播里面 BluetoothDevice bd = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                   sysou(bd.getAddress());
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Socket编程
+----------------------------------------------------------------------------------------------------------------------------------
+   什么是Socket:用于描述IP地址和端口。
+   TCP协议：可靠一些，需要得到目的地回复 速度会没TCP快
+   UDP协议：把数据打成数据包，包有地址，然后发出去，不能保证是否能到目的地
+   
+   TCP客户端:
+	得到插座： Socket socket = new Socket("192.168.1.104",4567);
+	传递数据  OutputStream os = socket.getOutputStream();
+   TCP服务端: 
+	监听端口号：ServerSocket serverSocket = new ServerSocket(4567);
+        得到请求： Socket socket = serverSocket.accept();这是个阻塞状态,
+	得到InputStream socket.getInputStream();
+    UDP客户端：
+        得到插座：DatagramSocket socket = new DatagramSocket(4567);
+	创建一个InetAddress
+	           InetAddress serverAddress = InetAddress.getByName("192.168.1.104");
+        创建数据包，发送数据
+		   DatagramPacket packet = new DatagramPacket(data, data.length, serverAddress,4567);
+		   socket.send(packet);
+   UDP服务端：
+	得到端口号：DatagramSocket socket = new DatagramSocket(4567);
+	创建一个空的包接收传过来的包：
+		byte data[] = new byte[1024];
+		DatagramPacket packet = new DatagramPacket(data,data.length);
+	使用receive方法接收数据
+		socket.receive(packet);也是阻塞的方法
+	得到数据： String result = new String(package.getData(), packet.getOffset(). packet.getLength());
+ ----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+传感器：方向，重力，距离，温度等。
+----------------------------------------------------------------------------------------------------------------------------------
+  方向传感器：Sensor.TYPE_ORIENTATION
+  加速度(重力)传感器：Sensor.TYPE_ACCELEROMETER
+  光线传感器：Sensor.TYPE_LIGHT
+  磁场传感器：Sensor.TYPE_MAGNETIC_FIELD
+  距离传感器：Sensor.TYPE_PROXIMITY
+  温度传感器：Sensor.TYPE_TEMPERATURE
+   1.获取某种类型的传感器：
+     Sensoe sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+   2.注册监听，获取传感器的变化值
+      sensorManager.registerListener(listener,msensor,SensorManager.SENSOR_DELAY_GAME);
+   上面第三个参数为采样率：最快.游戏.普通.用户界面
+      最快：SensorManager.SENSOR_DELAY_FASTEST
+      最低延迟,一般不是特别敏感的处理不推荐使用，这种模式可能造成电量大量消耗。
+      游戏：SensorManager.SENSOR_DELAY_GAME
+      游戏延迟，一般绝大多数的实用性较高的游戏都使用该级别。
+      普通：SensorManager.SENSOR_DELAY_NORMAL
+      标准延迟，对于一般的益智类或EASY级别的游戏可以使用。
+      用户界面：SensorManager.SENSOR_DELAY_UI
+      一般对于屏幕方向的自动旋转使用，相对节电。一般游戏开发中不使用。
+
+   1.SensorManager manager = (SensorManager)this.getSystemService(Context.SENSOR_SERVICE);
+   2.Sensor sensor = manager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+   3.manager.registerListener(new A(), sensor,SensorManager.SENSOR_DELAY_GAME);
+   4.在监听的onSensorChanged(SensorEvent event)方法里面
+     int type = event.sensor.getType();
+     float degress = event.values[0];
+     然后在用动画实现选择
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+向服务器传递内容；
+----------------------------------------------------------------------------------------------------------------------------------
+ 如果传递参数有中文，则解决的步骤为：
+   1.URLEncoder.encode("要传递的值", "UTF-8");
+   2.String a = new String(title.getBytes("ISO8859-1"),"UTF-8");
+----------------------------------------------------------------------------------------------------------------------------------

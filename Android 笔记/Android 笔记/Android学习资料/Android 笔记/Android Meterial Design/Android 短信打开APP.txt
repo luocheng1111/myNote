@@ -1,0 +1,50 @@
+
+
+Android 短信打开APP
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+   点击短信里的Url(短信连接)打开APP, 有两种实现方式，1.通过先跳浏览器中转，然后再打开我们的APP  2.Android6.0以上可以通过Android提供的DEEP-LINK来直接打开App
+   通过DEEP-LINK来直接打开App会有2个问题 1.手机版本的问题 有的手机是6.0以下  2.各个厂商的问题，有的厂商手机通过DEEP-LINK打不开APP
+   由于DEEP-LINK的一些问题，如果要一个完全解决的方案，还是需要通过浏览器中转，然后打开我们的APP
+
+
+ ※ 代码实现
+   1.mainifest.xml
+   <!--  浏览器打开APP会先跳转此界面, 浏览器里通过调用app://card.pmstar.cn/xxxx 就可以跳转SchemeOpenAppActivity页面-->
+   <activity
+       android:name="com.vcredit.gfb.main.launch.SchemeOpenAppActivity"
+       android:theme="@android:style/Theme.Translucent">
+       <intent-filter>
+           <data
+               android:scheme="app"
+               android:host="card.pmstar.cn" />
+
+           <action android:name="android.intent.action.VIEW" />
+           <category android:name="android.intent.category.DEFAULT" />
+           <category android:name="android.intent.category.BROWSABLE" />
+       </intent-filter>
+   </activity>
+
+
+  2.SchemeOpenAppActivity //此界面是个透明的中转界面，接受通过浏览器传过来的值，然后调用接口，最后通过接口返回的值跳转界面
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Uri uri = getIntent().getData();
+        String path = uri.getPath();
+        LogUtils.e(path+","+ StringUtils.getLastPart(path));
+        //调用接口，然后跳转
+        .....
+    }
+
+
+
+ ※ 一些注意的点
+   1.如果浏览器打开我们APP时，需要调用接口，把短链转成长链，则我们可以用一个透明的Activity做中转页面
+   2.浏览器里无法在oncreate时，直接调用app://card.pmstar.cn/xxxx，此时是没有效果的，应该是浏览器做了一些保护，可以通过弹一个提示框，
+     然后用户点击打开APP，我们再打开APP
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,192 @@
+
+
+
+验证码倒计时
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 使用
+    1.倒计时类
+    class PhoneCodeCountDowan extends CountDownTimer {
+        private static final int TIME_TASCK = 1000;
+        private TextView tvSendphonecode;
+
+        public PhoneCodeCountDowan(long millisInFuture, TextView view) {
+            //millisInFuture倒计时总时间
+            super(millisInFuture, TIME_TASCK);
+            tvSendphonecode = view;
+        }
+
+
+        @Override
+        public void onFinish() {// 计时完毕
+            tvSendphonecode.setText("获取验证码");
+            tvSendphonecode.setClickable(true);
+            tvSendphonecode.setEnabled(true);
+            tvSendphonecode.setTextColor(Color.parseColor("#525252"));
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {// 计时过程
+            tvSendphonecode.setClickable(false);
+            tvSendphonecode.setEnabled(false);
+            tvSendphonecode.setTextColor(Color.parseColor("#EB4A81"));
+            tvSendphonecode.setText((millisUntilFinished / TIME_TASCK) + "");
+        }
+    }
+
+    2.计时开始
+      if(phoneCodeCountDowan==null){
+           phoneCodeCountDowan = new PhoneCodeCountDowan(60*1000, tvSendphonecode);
+      }
+      phoneCodeCountDowan.start();
+
+    3.计时取消
+      phoneCodeCountDowan.cancel();
+      phoneCodeCountDowan.onFinish();
+
+    4.结束时
+      @Override
+      public void onDestroy() {
+          super.onDestroy();
+          if (phoneCodeCountDowan != null) {
+              phoneCodeCountDowan.cancel();
+          }
+      }
+
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+AlarmManager
+----------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     http://blog.csdn.net/feng88724/article/details/6989227
+
+ ※ AlarmManager类介绍
+     用于触发应用程序 某事件或动作，甚至在某应用程序关闭后，并且可以用来唤醒设备；
+     但是，所有的Alarm在设备重启时都会被取消。
+
+ ※ 实现一个AlarmManager
+    AlarmManager alarmManager = context.getSystemService(Context.ALARM_SERVICE);
+    Intent i = new Intent("ACTION_ALARM_11");
+    PendingIntent pendingIntent=PendingIntent.getBroadcast(this, 0, i, 0);
+    alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, 10000, pendingIntent);
+
+
+ ※ 闹钟启动的3种方式
+    1. public void set(int type, long triggerAtTime, PendingIntent operation)
+       设置Alarm，但是只提醒一次
+
+    2. public void setRepeating (int type, long triggerAtTime, long interval, PendingIntent operation)
+       设置Alarm，可以精确重复提醒多次，时间间隔由interval确定。
+
+    3. public void setInexactRepeating (int type, long triggerAtTime, long interval, PendingIntent operation)
+       设置Alarm，可以重复提醒很多次，时间间隔由interval确定，但是这种重复提醒是不精确的
+
+
+ ※ Alarm状态值
+    RTC
+     当系统进入睡眠状态时，这种类型的闹钟不会唤醒系统。直到系统下次被唤醒才传递它，
+     该闹钟所用的时间是 绝对时间，用时间是UTC时间，可以通过System.currentTimeMillis()获得。
+
+    RTC_WAKEUP
+     能唤醒系统，用法同RTC类型
+
+    ELAPSED_REALTIME
+     当系统进入睡眠状态时，这种类型的闹铃不会唤醒系统。直到系统下次被唤醒才传递它，
+     该闹钟所用的的时间是 相对时间，是从系统启动后开始计时的，包括睡眠时间，可以通过SystemClock.elapsedRealtime()获得
+
+    ELAPSED_REALTIME_WAKEUP
+     能唤醒系统，用法同ELAPSED_REALTIME。
+
+    POWER_OFF_WAKEUP
+     能唤醒系统，它是一种关机闹铃，就是说设备在关机状态下也可以唤醒系统，所以我们把它称之为关机闹铃。
+     使用方法同RTC类型
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Timer
+----------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     http://www.2cto.com/kf/201205/131776.html
+     http://www.eoeandroid.com/thread-97490-1-1.html
+
+ ※ 作用
+     延时或循环执行某任务
+
+
+ ※ 实现一个Timer
+    TimerTask task = new TimerTask(){
+	public void run(){
+		Message message = new Message();
+		message.what = 1;
+		handler.sendMessage(message);
+	}
+    }
+    Timer timer = new Timer();
+    timer.schedule(task, 2000, 1000); //延时2秒后执行一次，之后1秒执行一次
+
+
+ ※ Timer的其他方法介绍
+    1. schedule(TimerTask task, Date when)
+       在固定时间执行某任务
+
+    2. schedule(TimerTask task, Date when, long period)
+       在固定时间开始重复执行某任务，重复时间间隔可控
+
+    3. schedule(TimerTask task, long delay)
+       在延迟多久后重复执行某任务，重复时间间隔可控
+
+    4. schedule(TimerTask task, long delay, long period)
+       在延迟多久后重复执行某任务，重复时间间隔可控
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+ScheduledExecutorService
+----------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     http://blog.csdn.net/tianxiangshan/article/details/8599337
+
+ ※ 作用
+     执行周期性或定时任务
+
+ ※ 实现一个ScheduledExecutorService
+    ScheduledExecutorService service=Executors.newScheduledThreadPool(2); //对象的线程池大小 newScheduledThreadPool是其实现类
+    service.scheduleAtFixedRate(new Runnable() {
+            public void run() {
+                System.out.println(format.format(new Date()));
+            }
+    }, 1000, 5000, TimeUnit.MILLISECONDS);
+
+ ※ 方法介绍
+    1. schedule(Runnable command, long delay, TimeUnit unit) //例如delay为1秒，则在1秒后执行
+       安排所提交的Callable或Runnable任务在initDelay指定的时间后执行。
+
+    2. scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnitunit)：
+       //例如initialDelay=1000，period=2000，则第一次为1秒后执行，后面为周期性2秒执行
+       安排所提交的Runnable任务按指定的间隔重复执行
+
+    3. scheduleWithFixedDelay(Runnable command, long initialDelay, long period, TimeUnitunit)
+       //例如initialDelay=1000，period=2000，则第一次为1秒后执行，后面则为执行完runnable后，再2秒后周期执行
+       安排所提交的Runnable任务在每次执行完后，等待delay所指定的时间后重复执行。
+
+
+    介绍：1.schedule为单次执行，scheduleAtFixedRate和scheduleWithFixedDelay为周期性重复执行
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Timer和ScheduledExecutorService的区别
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 区别
+    Timer里面的任务如果执行时间太长，会独占Timer对象，使得后面的任务无法执行
+    ScheduledExecutorService不会出现Timer的问题(除非你只搞一个单线程池的任务区)
+
+ ※ 结论
+    Timer的缺陷 用ScheduledExecutorService替代
+
+----------------------------------------------------------------------------------------------------------------------------------

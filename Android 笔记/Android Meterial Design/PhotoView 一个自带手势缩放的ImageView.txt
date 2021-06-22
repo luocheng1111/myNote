@@ -1,0 +1,92 @@
+
+
+PhotoView 一个自带手势缩放的ImageView
+----------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+   PhotoView是一个自带手势缩放的ImageView
+   Github: https://github.com/chrisbanes/PhotoView
+   
+
+※ 使用
+    1.Project's build.gradle 添加：
+      allprojects {
+	repositories {
+          maven { url "https://jitpack.io" }
+        }
+      }
+
+    2.Module's build.gradle 添加：
+      dependencies {
+        implementation 'com.github.chrisbanes:PhotoView:2.0.0'
+      }
+
+    3.布局中使用
+      <com.github.chrisbanes.photoview.PhotoView
+        android:id="@+id/photo_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    4.代码中使用
+      PhotoView photoView = (PhotoView) findViewById(R.id.photo_view);
+      photoView.setImageResource(R.drawable.image);
+
+
+※ 支持的功能
+   1.设置是否支持手势缩放
+     mPhotoView.setZoomable(!mPhotoView.isZoomEnabled());
+
+   2.监听,自带很多手势监听
+     //单击图片监听
+     mPhotoView.setOnPhotoTapListener(new PhotoTapListener());
+     //图片缩放监听
+     mPhotoView.setOnMatrixChangeListener(new MatrixChangeListener());
+     ...
+
+   3.图片旋转
+     photo.setRotationBy(10);
+     photo.setRotationBy(-10);
+     photo.setRotationTo(90);
+ 
+   4.支持Picasso、Glide
+     Picasso.with(this)
+                .load("http://img2.imgtn.bdimg.com/it/u=3588772980,2454248748&fm=27&gp=0.jpg")
+                .into(photoView);
+
+   5.图片从原位置跳转Activit放大到全屏
+     if (Build.VERSION.SDK_INT < 21) {
+         Toast.makeText(ActivityTransitionActivity.this, "21+ only, keep out", Toast.LENGTH_SHORT).show();
+     } else {
+         Intent intent = new Intent(ActivityTransitionActivity.this, ActivityTransitionToActivity.class);
+         ActivityOptionsCompat options = ActivityOptionsCompat.
+                    makeSceneTransitionAnimation(ActivityTransitionActivity.this, view, getString(R.string.transition_test));
+         startActivity(intent, options.toBundle());
+     }
+
+
+
+※ 注意点
+   1.PhotoView与ViewPager配合使用时，会出现监听的问题，解决方式
+     把ViewPager替换成此ViewPager就可以了
+     public class HackyViewPager extends ViewPager {
+	
+       public HackyViewPager(Context context) {
+          super(context);
+       }
+
+       public HackyViewPager(Context context, AttributeSet attrs) {
+          super(context, attrs);
+       }
+
+       @Override
+       public boolean onInterceptTouchEvent(MotionEvent ev) {
+	  try {
+		return super.onInterceptTouchEvent(ev);
+	  } catch (IllegalArgumentException e) {
+		return false;
+	  }
+       }
+     }
+
+
+----------------------------------------------------------------------------------------------------------------------------------

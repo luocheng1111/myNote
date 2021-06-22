@@ -1,0 +1,124 @@
+ 
+
+
+Android 社会化分享
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ ShareSDK
+     介绍：ShareSDK一键分享已经帮我们写好了分享界面和分享流程，我们要做的仅仅是按他的要求配置一下，
+           然后去各个分享平台注册应用，最好代码调用就行了
+     集成文档 http://wiki.mob.com/sdk-share-android-3-0-0/
+     
+     
+      1).准备工作
+        1.需要先申请Mob的appkey与appsecret Mob官网->进入后台->添加应用->填写应用名称后即可获得
+        
+      2).接入SDK
+        1.接入并配置项目
+	  1.工程的build.gradle,在repositories中添加
+	    maven {
+	       url "http://mvn.mob.com/android"
+	    }
+	  2.工程的build.gradle,在dependencies中添加
+	    classpath 'com.mob.sdk:MobSDK:+'
+	  3.模块的build.gradle,在文件顶部添加引用
+	    apply plugin: ‘com.mob.sdk’
+          4.模块的build.gradle,添加MobSDK
+	    MobSDK {
+	       appKey "d580ad56b4b5"  //自己账号的appKey
+	       appSecret "7fcae59a62342e7e2759e9e397c82bdd" //自己账号的需要先申请Mob的appkey与appsecret
+
+		//平台配置信息,需要分享到什么平台，在这里配置就可以了
+	       ShareSDK {
+	          devInfo {
+		     Wechat { //微信
+		        id 1      
+		        sortId 1 //这个指九宫格的排列顺序
+		        appId "wx4868b35061f87885"
+		        appSecret "64020361b8ec4c99936c0e3999a9f249"
+		        userName "gh_afb25ac019c9"
+		        path "pages/index/index.html?id=1"
+		        bypassApproval false 
+		        enable true
+		     }
+
+		     WechatMoments { //朋友圈
+		        id 2
+		        sortId 2
+		        appId "wx4868b35061f87885"
+		        appSecret "64020361b8ec4c99936c0e3999a9f249"
+		        bypassApproval false
+		        enable true
+		     }
+		     QQ { //QQ
+		        id 3
+		        sortId 3
+		        appId "100371282"
+		        appKey "aed9b0303e3ed1e27bae87c33761161d"
+		        shareByAppClient true
+		        bypassApproval false
+		        enable true
+		     }
+		     QZone { //QQ空间
+		        id 4
+		        sortId 4
+		        appId "100371282"
+		        appKey "aed9b0303e3ed1e27bae87c33761161d"
+		        shareByAppClient true
+		        bypassApproval false
+		        enable true
+		     }
+	             ...
+	          }
+	       }
+	    }
+
+	    说明：
+	      sortId：指这个分享在九宫格的排列顺序
+	      bypassApproval：是绕过审核的标记，设置为true后AppId将被忽略，故不经过
+                              审核的应用也可以执行分享，但是仅限于分享文字和图片，不能分享其他类型，默认值为false。
+
+            注：第3/4这里推荐按照Demo中的方式导入.
+	        1.新建Project级别的MobSDK.gradle.把第3/4步写入到MobSDK.gradle中
+	        2.然后在模块的build.gradle顶部引入
+	          apply from: '../MobSDK.gradle'
+
+          5.如果您 没有在AndroidManifest中设置appliaction的类名，MobSDK会将这个设置为com.mob.MobApplication，
+	    如果您 设置了，请在您自己的Application类中调用：
+	    MobSDK.init(this);
+	    且在Manifest文件中配置
+	    <application
+	       android:name = ".MyApplication"
+	       tools:replace="android:name">
+
+     3).代码中一键分享
+          OnekeyShare oks = new OnekeyShare();
+          //关闭sso授权
+          oks.disableSSOWhenAuthorize();
+
+          // title标题，微信、QQ和QQ空间等平台使用
+          oks.setTitle("我是标题");
+          // titleUrl QQ和QQ空间跳转链接
+          oks.setTitleUrl("http://sharesdk.cn");
+          // text是分享文本，所有平台都需要这个字段
+          oks.setText("我是分享文本");
+          // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
+          oks.setImagePath("/sdcard/test.jpg");//确保SDcard下面存在此张图片
+          // url在微信、微博，Facebook等平台中使用
+          oks.setUrl("http://sharesdk.cn");
+          // comment是我对这条分享的评论，仅在人人网使用
+          oks.setComment("我是测试评论文本");
+          // 启动分享GUI
+          oks.show(this);
+     
+     其他：
+     不同平台分享内容的详细说明 http://wiki.mob.com/%e4%b8%8d%e5%90%8c%e5%b9%b3%e5%8f%b0%e5%88%86%e4%ba%ab%e5%86%85%e5%ae%b9%e7%9a%84%e8%af%a6%e7%bb%86%e8%af%b4%e6%98%8e/
+     应用信息注册地址列表  http://wiki.mob.com/%e5%a4%87%e6%b3%a8%e4%ba%8c%ef%bc%9a%e5%ba%94%e7%94%a8%e4%bf%a1%e6%81%af%e6%b3%a8%e5%86%8c%e5%9c%b0%e5%9d%80%e5%88%97%e8%a1%a8/
+  
+
+     
+※ Demo: /Demo/社会化分享ShareSDK 自己写的实例.zip
+
+ 
+----------------------------------------------------------------------------------------------------------------------------------------
+

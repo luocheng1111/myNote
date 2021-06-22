@@ -1,0 +1,204 @@
+
+
+
+Android 定位
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    Android定位一般有三类方式，这三类方式分别是：GPS定位，Network定位，AGPS定位, 其中Network定位包含基站定位和Wifi定位
+    开发者常用到的三种定位方式。它们分别 自己封装的定位(根据设置选择最优模式,然后进行定位), 百度和高德定位
+
+    GPS定位： 根据设备GPS芯片和GPS卫星实现定位，GPS定位在室内是不可以使用的。GPS定位精度和芯片本身以及实际使用环境有关，一般情况下，GPS定位精度在10m左右。
+    基站定位：根据设备获取的基站信息实现定位，基站定位精度一般不受使用环境影响，主要和基站的覆盖半径有关。基站定位服务精度目前在200m左右。信号强度对这个数据很重要，
+    WIFI定位：根据一个固定的WifiMAC地址，通过收集到的该Wifi热点的位置，然后访问网络上的定位服务以获得经纬度坐标。它和基站定位其实都需要使用网络，所以在Android也统称为Network方式。
+              Wi-Fi定位精度目前在20m左右。
+    AGPS定位：AssistedGPS(辅助全球卫星定位系统),是结合GSM或GPRS与传统卫星定位，利用基地台代送辅助卫星信息，以缩减GPS芯片获取卫星信号的延迟时间，
+              受遮盖的室内也能借基地台讯号弥补，减轻GPS芯片对卫星的依赖度。和纯GPS、基地台三角定位比较，AGPS能提供范围更广、更省电、速度更快的定位服务，理想误差范围在10公尺以内，
+	      堪称目前定位精度最高的一种定位技术,他的硬件要求很高，造价自然高。AGPS的定位原理和GPS原理差不多, 所以代码其实也是用GPS的定位方式就OK了。
+    
+    定位对比
+     GPS定位：定位慢，准确度高，受环境影响大。
+     Network定位：定位快，准确度低，受环境影响小。
+     AGPS定位：定位快，准确度最高， 受环境影响小。但硬件要求高，造价高。
+ 
+   
+※ 自己封装的思路(??自己还需在想一想)
+    定位选择:如果对项目对定位要求很高，GPS定位使用系统定位方式，基站定位使用百度定位，GPS连接成功使用系统定位接口，GPS断开切换到百度基站定位。
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+高德定位
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍(SDK版本3.7)
+    高德定位SDK 通过GPS+基站定位+WiFi的混合定位模式进行定位，不论在室外、室内还是在高楼林立的城市峡谷，都可以实现精准的定位。
+    高德定位API 包含全球定位，同时支持室内定位功能。不仅可以获取定位结果、逆地理编码（地址文字描述）、还包含地理围栏、坐标转换、判断位置所在区域(是否在大陆以及港、澳地区)等功能。
+
+
+ ※ 具体使用
+     1.在高德控制台申请Key
+     2.Android Studio配置
+       1).build.gradle文件添加定位依赖
+          compile 'com.amap.api:location:3.7.0'
+       2).manifest.xml添加 权限/Service/高德key
+	  1.添加权限(有很多权限,具体见demo或高德定位API)
+	    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+	    ...
+	  2.添加Service         
+            <service android:name="com.amap.api.location.APSService" />
+	  3.添加高德key,添加位置在application里,与Service同级
+            <meta-data
+               android:name="com.amap.api.v2.apikey"
+               android:value="高德申请的Key"/>
+     3.代码编写
+        //初始化
+	AMapLocationClient locationClient = new AMapLocationClient(this.getApplicationContext());
+        //设置定位的一些参数
+        AMapLocationClientOption mOption = new AMapLocationClientOption();
+	mOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy)
+	.....
+	//将参数添加到LocationClient
+	locationClient.setLocationOption(getDefaultOption(mOption));
+	//设置定位监听
+        locationClient.setLocationListener(locationListener);
+	//启动定位
+	locationClient.startLocation();
+	
+     4.定位结果监听
+       //监听的编写
+       AMapLocationListener locationListener = new AMapLocationListener() {
+          @Override
+        public void onLocationChanged(AMapLocation location) {
+          if (null != location) {
+                //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
+                if(location.getErrorCode() == 0){
+                    Log.i("经度", location.getLongitude());
+		    Log.i("纬度", location.getLatitude());
+		    .....
+         ...
+       }
+     
+     5.停止定位(看需求)
+       locationClient.stopLocation();//停止定位后，本地定位服务并不会被销毁
+
+
+     6.销毁定位客户端,在onDestroy里添加
+       locationClient.onDestroy();
+
+
+ ※ 定位参数详解
+    1.定位场景-SDK3.7后推出, SDK会根据选择的场景自行定制option参数的值，当然开发者也可以在基础上进行自行设置。实际按最后一次设置的参数值生效。
+      目前支持三种场景（签到、出行、运动，默认无场景）
+      mLocationOption.setLocationPurpose(AMapLocationClientOption.AMapLocationPurpose.SignIn);
+      if(null != locationClient){
+        locationClient.setLocationOption(mLocationOption);
+        //设置场景模式后最好调用一次stop，再调用start以保证场景模式生效
+        locationClient.stopLocation();
+        locationClient.startLocation();
+      };
+
+   2.定位模式-目前有三种定位模式（高精度/低功耗/仅用设备定位模式）
+     高精度定位模式：会同时使用网络定位和GPS定位，优先返回最高精度的定位结果，以及对应的地址描述信息。
+     低功耗定位模式：不会使用GPS和其他传感器，只会使用网络定位（Wi-Fi和基站定位）；
+     仅用设备定位模式：不需要连接网络，只使用GPS进行定位，这种模式下不支持室内环境的定位,建议选前两种
+     mLocationOption.setLocationMode(AMapLocationMode.Hight_Accuracy);
+
+   3.只定位一次还是多次定位
+     //获取一次定位结果：该方法默认为false。
+     mLocationOption.setOnceLocation(true);
+     //获取最近3s内精度最高的一次定位结果，如果设置其为true，setOnceLocation也会被设置为true，反之不会，默认为false。
+     mLocationOption.setOnceLocationLatest(true);
+
+     //设置连续定位时间间隔, SDK默认采用连续定位模式，最低1000ms。
+     mLocationOption.setInterval(1000);
+
+   4.其他参数
+     //是否返回地址信息（默认返回地址信息）
+     mLocationOption.setNeedAddress(true);
+     //是否允许模拟位置,默认为true，允许模拟位置
+     mLocationOption.setMockEnable(true);
+     //设置定位请求超时时间，默认为30000毫秒(30秒)，建议超时时间不要低于8000毫秒。
+     mLocationOption.setHttpTimeOut(30000);
+     //是否开启定位缓存机制,默认开启,开启后,高精度/低功耗模式的网络定位结果会本地缓存,GPS定位结果不会被缓存。
+     mLocationOption.setLocationCacheEnable(true);
+
+
+ ※ 注意事项:
+    1.手机设备在长时间黑屏或锁屏时CPU会休眠，这导致定位SDK不能正常进行位置更新。
+      若您有锁屏状态下获取位置的需求，您可以应用alarmManager实现1个可叫醒CPU的Timer，定时请求定位。
+    2.使用定位SDK务必要注册GPS和网络的使用权限。
+    3.在使用定位SDK时，请尽量保证网络畅通，如获取网络定位，地址信息等都需要设备可以正常接入网络。
+    4.定位SDK在国内返回高德类型坐标，海外定位将返回GPS坐标
+
+
+ ※ Deme位置:/Demo/Gaode_location (仅仅实现了定位流程,代码没有封装,具体使用还需要封装封装,还需固定几个模式下的参数选择,或者参考高德的定位Demo)
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+Android LBS(待整理)
+----------------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     
+
+ ※ 什么叫LBS？
+     基于位置的服务简称LBS
+
+
+ ※ 找到自己的位置(主要借助LocationManager类)
+    1.获取LocationManager类
+      LocationManager locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+
+    2.位置提供器，有三种
+      GPS_PROVIDER、NETWORK_PROVIDER和 PASSIVE_PROVIDER
+      其中前两张使用的比较多，分别是GPS定位和使用网络定位
+      GPS定位：定位精确度比较高，但是非常耗电
+      网络定位：精确度稍差，耗电量比较少
+      当位置精度要求非常高的时候，最好使用GPS_PROVIDER,一般情况下，使用网络定位更加划算
+
+    3.获取当前位置经纬度
+      String provider = LocationManager.NETWORK_PROVIDER;
+      Location location = locationManager.getLastKnownLocation(provider);
+      location.getLatitude(); //经度
+      location.getLongitude() //纬度
+
+    4.知道哪些位置提供器可用
+      List<String> providerList = locationManager.getProviders(true); //true表示只有启用的位置提供器才会被返回
+
+    5.位置移动监听
+      locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 10, locationlistener);
+      第二个参数：5000是指5秒，监听位置变化的时间间隔，毫秒为单位
+      第三个参数：10代表10米， 监听位置变化的距离间隔，以米为单位
+    
+    6.根据经纬度 获取自己的地理位置(访问超时，不可用)
+      http://maps.googleapis.com/maps/api/geocode/json?latlng=40.714224,-73.961452&sensor=true_or_false
+      根据这个网址就可以得到地址位置，
+      1.json可以变为xml，即返回的是xml格式结果
+      2.sensor 通常指定false即可
+
+
+ ※ 实例代码(目前可以得到经纬度，但获取不到地理位置，被墙)，Demo见 LocationDemo
+      LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+      // 获取所有可用的位置提供器
+      List<String> providerList = locationManager.getProviders(true);
+      if (providerList.contains(LocationManager.GPS_PROVIDER)) {
+	     provider = LocationManager.GPS_PROVIDER;
+      } else if (providerList.contains(LocationManager.NETWORK_PROVIDER)) {
+	     provider = LocationManager.NETWORK_PROVIDER;
+      } else {
+	     // 当没有可用的位置提供器时，弹出Toast提示用户
+	     Toast.makeText(this, "No location provider to use",Toast.LENGTH_SHORT).show();
+	     return;
+      }
+      Location location = locationManager.getLastKnownLocation(provider);
+      if (location != null) {
+	     // 显示当前设备的位置信息
+	     showLocation(location);
+      }
+      locationManager.requestLocationUpdates(provider, 5000, 1, locationListener);
+
+----------------------------------------------------------------------------------------------------------------------------------------
+    

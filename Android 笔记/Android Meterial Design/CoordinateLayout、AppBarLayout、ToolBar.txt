@@ -1,0 +1,311 @@
+
+
+
+Toolbar
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    Toobar主要是用来替换ActionBar的，Toobar包含了ActionBar的所有功能，同时还可以实现更多的效果
+    相对于ActionBar
+    1.ActionBar能做的，Toolbar都能做
+    2.ActionBar是固定在顶部，且里面的文字及图表位置不能移动和改变，而ToolBar则可以随意摆放
+    3.可以把ToolBar当成ViewGroup使用，我们可以在里面添加控件来定制自己的标题栏
+    4.Toolbar可以配合AppBarLayout、CoordinateLayout 实现拖动变换标题栏的效果
+
+    Toolbar中包含 左侧button的图标 app:navigationIcon
+                  左侧APP的图标    app:logo
+		  左侧主标题       app:title
+		  左侧副标题       app:subtitle
+		  右侧Menu        Menu Items (最多只能显示三个，如果超过三个第三个会变成更多的选项)
+                                  (Menu的设置在menu/menu_main.xml中声明，然后复写onCreateOptionsMenu和onOptionsItemSelected即可)
+
+
+ ※ 使用
+     1.替换ActionBar 既然是替换ActionBar，首先得把ActionBar给隐藏掉
+       (建议)将AppTheme的parent设置为Theme.AppCompat.Light.NoActionBar
+       或者
+       在AppTheme中加入下面两行
+         <item name="windowActionBar">false</item>
+         <item name="windowNoTitle">true</item>
+
+
+     2.将Toolbar放入到布局文件
+       <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+	android:layout_height="?android:attr/actionBarSize"
+	android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:background="?attr/colorPrimary"
+         />
+
+
+     3.将Toobar作为“ActionBar”来用
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("这里是Title");
+        toolbar.setSubtitle("这里是子标题");
+        toolbar.setLogo(R.drawable.icon);
+        setSupportActionBar(toolbar);
+
+
+
+ ※ 增加 返回按钮
+    Toolbar toolbar = (Toolbar) findViewById(R.id.child_toolbar);
+    setSupportActionBar(toolbar);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    //也可以替换系统的返回按钮
+    //getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_lock_power_off);
+
+    返回按钮监听
+    方式1.可以在manifest文件中通过android:parentActivityName属性为Activity配置parent activity
+    方式2.通过meun监听.监听android.R.id.home按钮
+    (推荐)方式3.直接监听
+          toolbar.setNavigationOnClickListener(new View.OnClickListener(){
+		public void onClick(View view){
+			finish();
+	        ...
+	  }
+
+
+
+ ※ 主题改为白色(默认为黑灰色) 设置后，其返回按钮 标题颜色都会变为白色
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+      ...
+       android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+       android:background="@color/colorPrimary"
+       android:elevation="2dp"
+       app:contentInsetLeft="0dp"
+       app:contentInsetStart="0dp"
+       app:title=" ">
+
+
+
+ ※ 注意点
+    1.往Toolbar里面填充View的时候，外面最好不要有其他的ViewGroup，如LinearLayout，因为如果外面再包一层的话，Title就不会居中了，那样不太符合我们的设计;
+    2.app:contentInsetLeft="0dp" app:contentInsetStart="0dp"这两个是设置Toolbar左右间隔的，如果不设置的话，默认有个默认值
+
+
+ ※ 学习
+    https://www.jianshu.com/p/d159f0176576
+    https://blog.csdn.net/lmj623565791/article/details/45303349
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+CoordinateLayout、AppBarLayout、CollapsingToolbarLayout、NestedScrollView 实际案例及属性介绍
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 相应控件介绍
+    CoordinateLayout 是用来协调它的子View的。可以实现一个控件移动，另一个控件做出相应变化的效果
+     而Android封装好了一系列控件来配合CoordinateLayout使用
+     比如CoordinateLayout结合AppBarLayout、CollapsingToolbarLayout、NestedScrollView 实现当某个ScrollView发生滚动时，你可以定制你的“顶部栏”应该执行哪些动作（如跟着一起滚动、保持不动等等）
+     如果需要定制更多的需求，见下方笔记
+
+    AppBarLayout:
+     AppBarLayout继承自LinearLayout，方向为垂直方向。我们可以把它当成垂直布局的LinearLayout来使用。大多数情况下AppBarLayout与NestedScrollView配合使用
+     作用: 当NestedScrollView滚动时，AppBarLayout的内部控件做出相应动作
+           上面这句话可以理解为当某个ScrollView发生滚动时，你可以定制你的“顶部栏”应该执行哪些动作（如跟着一起滚动、保持不动等等）
+
+    NestedScrollView:
+     一般配合AppBarLayout和CoordinateLayout使用，内部封装了滚动时的操作，充当了AppBarLayout那个ScrollView是角色
+
+    CollapsingToolbarLayout
+     CollapsingToolbarLayout是对Toolbar进行再次包装的ViewGroup，主要是应用于折叠（看起来像伸缩~）的App Bar效果。
+     它需要放在AppBarLayout布局里面，并且作为AppBarLayout的直接子View,
+
+
+ ※ 案例：当某个ScrollView发生滚动时，定制“顶部栏”执行一些动作（如跟着一起滚动、保持不动等等）
+    <?xml version="1.0" encoding="utf-8"?>
+      <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent" >
+
+      <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
+            <ImageView
+                android:id="@+id/main.backdrop"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/ic_launcher"
+                app:layout_collapseMode="parallax" />
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?android:attr/actionBarSize"
+                app:layout_collapseMode="pin"  />
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+      </android.support.design.widget.AppBarLayout>
+
+      <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <TextView
+            android:id="@+id/tv_"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="我是内容"
+            android:textSize="20sp" />
+
+      </android.support.v4.widget.NestedScrollView>
+
+    </android.support.design.widget.CoordinatorLayout>
+
+
+ ※ 属性说明
+    AppBarLayout 子控件属性：
+     app:layout_scrollFlags 设置执行的动作 (效果图与对应的代码 https://www.jianshu.com/p/7caa5f4f49bd)
+     scroll: 值设为scroll的View会跟随滚动事件一起发生移动。
+     scroll|enterAlways: 值设为enterAlways的View,当ScrollView往下滚动时，该View会直接往下滚动。而不用考虑ScrollView是否在滚动。
+     scroll|exitUntilCollapsed：值设为exitUntilCollapsed的View，当这个View要往上逐渐“消逝”时，会一直往上滑动，直到剩下的的高度达到它的最小高度后，再响应ScrollView的内部滑动事件。
+     scroll|enterAlwaysCollapsed：是enterAlways的附加选项，一般跟enterAlways一起使用，它是指，View在往下“出现”的时候，首先是enterAlways效果，当View的高度达到最小高度时，View就暂时不去往下滚动，直到ScrollView滑动到顶部不再滑动时，View再继续往下滑动，直到滑到View的顶部结束。
+
+
+    CollapsingToolbarLayout 属性介绍：
+     标题相关：
+     app:title="Title" 如果标题可用的话 显示的标题文字
+     app:titleEnabled="true" 是否显示标题
+
+     折叠后：
+     app:contentScrim="#ff5252"        折叠时的背景色
+     app:collapsedTitleGravity="left"  折叠时标题的位置
+     app:statusBarScrim="#123456"      折叠时状态栏颜色
+
+     展开后：
+     app:expandedTitleGravity="left|bottom" 展开时 标题位置
+
+     设置边界距离：
+     app:expandedTitleMargin="16dp"
+     app:expandedTitleMarginBottom="16dp"
+
+
+
+ ※ 设置标题从下往上拖动时有渐变效果
+     CollapsingToolbarLayout ctl = (CollapsingToolbarLayout)findViewById(R.id.ctl);
+     ctl.setExpandedTitleColor(Color.parseColor("#00FFFFFF"));
+
+
+ ※ 设置状态栏透明
+     1.在CollapsingToolbarLayout中加 app:statusBarScrim="@android:color/transparent"，
+     2.在onCreate中调用getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS) 将状态栏设置为透明
+
+
+ ※ 自定义折叠展开效果
+    1.编写AppBarStateChangeListener
+    public abstract class AppBarStateChangeListener implements AppBarLayout.OnOffsetChangedListener {
+
+    public enum AppBarState {
+        EXPANDED,
+        COLLAPSED,
+        IDLE
+    }
+
+    private AppBarState mCurrentState = AppBarState.IDLE;
+
+    @Override
+    public final void onOffsetChanged(AppBarLayout appBarLayout, int i) {
+        if (i == 0) {
+            if (mCurrentState != AppBarState.EXPANDED) {
+                onStateChanged(appBarLayout, AppBarState.EXPANDED);
+            }
+            mCurrentState = AppBarState.EXPANDED;
+        } else if (Math.abs(i) >= appBarLayout.getTotalScrollRange()) {
+            if (mCurrentState != AppBarState.COLLAPSED) {
+                onStateChanged(appBarLayout, AppBarState.COLLAPSED);
+            }
+            mCurrentState = AppBarState.COLLAPSED;
+        } else {
+            if (mCurrentState != AppBarState.IDLE) {
+                onStateChanged(appBarLayout, AppBarState.IDLE);
+            }
+            mCurrentState = AppBarState.IDLE;
+        }
+    }
+
+    public abstract void onStateChanged(AppBarLayout appBarLayout, AppBarState state);
+   }
+
+
+   2.直接使用
+     getToolbar().setVisibility(View.INVISIBLE);
+     appbar.addOnOffsetChangedListener(new AppBarStateChangeListener() {
+            @Override
+            public void onStateChanged(AppBarLayout appBarLayout, AppBarStateChangeListener.AppBarState state) {
+                Log.d("STATE", state.name());
+                if( state == AppBarState.EXPANDED ) {
+                    //展开状态
+                    getToolbar().setVisibility(View.INVISIBLE);
+
+                }else if(state == AppBarState.COLLAPSED){
+                    //折叠状态
+                    getToolbar().setVisibility(View.VISIBLE);
+
+                }else {
+                    //中间状态
+                    getToolbar().setVisibility(View.INVISIBLE);
+                }
+            }
+     });
+
+
+
+ ※ 注意点：
+    1.记得引用包
+      compile 'com.android.support:design:25.3.0' (后面数字要对应)
+    2.NestedScrollView
+      android:layout_height 为match_parent时，即使内容不能撑满整屏，也可以起到滑动效果
+
+
+ ※ 参考
+    https://www.jianshu.com/p/d159f0176576
+
+
+ ※ Demo位置 /Demo/CoordinateLayout AppBarLayout例子.zip
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+CoordinateLayout的使用与介绍
+----------------------------------------------------------------------------------------------------------------------------------------
+ ※ 介绍:
+     CoordinateLayout 是用来协调它的子View的。可以实现一个控件移动，另一个控件做出相应变化的效果
+     而Android封装好了一系列控件来配合CoordinateLayout使用
+     比如CoordinateLayout结合AppBarLayout、CollapsingToolbarLayout、NestedScrollView 实现了 当某个ScrollView发生滚动时，你可以定制你的“顶部栏”应该执行哪些动作（如跟着一起滚动、保持不动等等）
+     (此效果的案例见下方笔记)
+
+     但往往系统封装好的效果满足不了我们真是的需求，比如我们拖动时，还想隐藏底部栏，比如我们拖动时，还想做其他操作，比如我们拖动时，自己定义顶部标题栏的变换效果
+
+
+ ※ 自定义CoordinateLayout的Behavior:
+    介绍：自定义CoordinateLayout有两种方式，
+          第一种是自定义CoordinateLayout的Behavior，这种应用于两个控件是CoordinateLayout的子控件的情况，常见的有跟随移动View, 自定义顶部标题栏的变换效果
+          第二种是直接自定义CoordinateLayout，监听CoordinateLayout里面滚动的View，根据滚动View的位置来改变其他控件的位置(其他控件可以不是CoordinateLayout的子控件)，比如实现拖动时，隐藏底部栏的效果
+
+    1.自定义CoordinateLayout的Behavior
+      https://blog.csdn.net/huachao1001/article/details/51554608
+      https://blog.csdn.net/gdutxiaoxu/article/details/53453958
+
+    2.直接自定义CoordinateLayout
+      见项目KingTv
+
+
+ ※ Demo位置：/Demo/CoordinateLayout AppBarLayout例子.zip
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+

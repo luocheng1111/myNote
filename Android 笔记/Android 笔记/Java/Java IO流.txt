@@ -1,0 +1,121 @@
+
+
+Java File类
+----------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     http://www.codeceo.com/article/java-file-class.html
+     http://caoruntao.iteye.com/blog/847926
+
+
+ ※ 介绍
+     File类基本包含对文件的所有操作，除了文件的访问读写
+
+
+ ※ 路径写法注意点
+     Windows：   C:\\temp\\myNote.txt 或 C:/temp/myNote.txt
+     Linux/Unix：/tmp/myNote.txt
+     File提供一种安全写法："C:"+File.separator+"temp"+File.separator+"myNote.txt"
+
+
+ ※ File类 基本方法
+     file.mkdir() 创建目录
+     file.mkdirs() 创建多级目录
+     file.createNewFile() 创建文件
+
+     file.delete() 删除文件或文件夹 //如果目录下面有文件，删除目录则返回false，且目录未被删除，要一层一层删才行
+
+     file.isDirectory() 是否是一个目录 //如果目录不存在 则返回false
+     file.isFile() 是否是一个文件
+
+
+
+ ※ File类 getPath()和getAbsolutePath()的区别
+     getPath()：得到根据当前目录位置的相对路径
+     getAbsolutePath()：得到绝对路径
+     getCanonicalPath()：得到标准路径，将统一平台间的路径写法差异
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+Java IO流 输入流->读  输入流->写
+----------------------------------------------------------------------------------------------------------------------------------
+ ◆ 牛人笔记
+     http://blog.csdn.net/yczz/article/details/38761237
+     http://www.2cto.com/kf/201312/262036.html
+
+
+ ※ 流的分类
+     根据流的流向：分输入流、输出流，输入流->读取信息，输出流->写入信息(站在文件角度分辨)
+     根据流的处理：分字节流、字符流，字节流可以处理所有数据，而字符流只能处理字符数据。
+
+
+ ※ 字节流、字符流的对比
+     1.读写的单位：字节流以字节(8bit)为单位，字符流以字符为单位，一次可读多个字节
+     2.处理的对象：字节流能处理所有类型的数据(如图片、avi等)，而字符流只能处理字符类型的数据
+     3.字节流操作本身不会用到缓冲区，是文件本身直接操作，而字符流在操作时会用到缓冲区，通过缓冲区来操作文件。
+
+
+ ※ 编码问题
+     GBK：  中文占2个字节，英文占1个字节
+     UTF-8：中文占3个字节，英文占1个字节
+     UTF-16be：中文占2个字节，英文占2个字节
+     字节转字符串时，需要和字节的编码相同，否则会出现乱码
+     String a = new String(a, "utf-8");
+
+
+ ※ 输入流、输出流基本方法
+    输入流：
+     int b = in.read(); 读取一个字节无符号填充到int低八位。-1是End 读到-1就读到结尾
+     in.read(byte[] buf);
+     in.read(byte[] buf, int start, int size);
+    输出流：
+     out.write(int b) 写出一个byte到流，b的低8位
+     out.write(byte[] buf) 将buf字节数组都写入到流
+     out.write(byte[] buf, int start, int size) 
+     
+
+ ※ FileInputStream/FileOutputStream
+     实现了在文件上读取数据和
+     实现了向文件中写出byte数据的方法
+
+
+ ※ DataInputStream/DataOutputStream 
+     对"流"的扩展，可以更加方便的读取int，long， 字符等类型数据
+     DataOutputStream 
+       writeInt()/writeDouble()/writeUTF()/
+     DataInputStream
+       readInt()/readDouble()/readUTF()/
+ 
+
+ ※ BufferedInputStream/BufferedOutputStream 
+     这两个流类为IO提供了带缓冲区的操作，一般打开文件进行写入或读取操作时，都会加上缓冲，这种模式提高了IO的性能
+     FileOutputStream-->write()相当于把一滴一滴把水“转移”过去
+     DataOutputStream-->writeXXX()相当于一瓢一瓢把水转移过去
+     BufferedOutputStream-->write,相当于一瓢一瓢把水先放入桶中，在把桶倒入过去
+     int b;
+     while((b= bis.read())!=-1){
+	bos.write(b);
+	bos.flush();
+     }
+     bos.close();
+
+ ※ 字符流(Reader Writer)
+     字符的处理，一次处理一个字符
+     字符的底层任然是基本的字节序列
+
+     字符流的基本实现
+      InputStreamReader 完成byte流解析为char流，按照编码解析
+      OutputStreamWriter 提供char流到byte流，按照编码处理
+      和InputStream对比 读的是字符
+
+     FileReader 对文件的一些读取操作
+     FileWriter 对文件的写入操作
+     可追加内容
+
+     BufferedReader --->readLine 一次读一行
+     BufferedWriter/PaintWriter --->writeLine 一次写一行
+     可以读一行/可以写一行
+     但BufferedWriter不能换行，需要添加bw.newLine();
+     PaintWriter.println(str)直接可以写出内容且换行
+     
+----------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,38 @@
+ios学习      http://iphone.apkbus.com/
+Android黑马  http://www.apkbus.com/heima/
+老罗Android开发 http://luo.apkbus.com/
+mars视频    http://mars.apkbus.com/
+MLDN李兴华  http://pan.baidu.com/share/link?shareid=1770798922&uk=3758134886
+
+
+
+ 过滤文件类型
+ ----------------------------------------------------------------------------------------------------------------------------------
+  File home = new File("/sdcard/")
+  if(home.listFiles(new MusicFilter()).length>0){
+      for(File file : home.lisyFiles(new MusicFilter()))
+      {
+	   musicList.add(file.getName());
+      }
+  }
+
+  class MusicFilter implement FilenameFilter{
+	public boolean accept(File dir, String name){
+		return(name.endsWith(".mp3"));
+	}
+  }
+ 
+----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+

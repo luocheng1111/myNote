@@ -1,0 +1,379 @@
+
+
+Android 推送
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 消息推送的本质
+    消息推送的本质是：App将服务器更新的信息推送给用户，即App获取服务器信息，再推送给用户
+
+
+ ※ 推送系统的级别分类
+    系统级别：任何时候都可以推送给用户，且不会被系统杀死
+    普通级别：......
+
+
+ ※ Andrid推送的方式
+    App从服务器获取最新消息的基本方式（原理）有3种：Push、Pull 和 SMS
+    Pull:客户主动获取, 客户端固定时间向服务器获取信息,若有更新信息,则发送到客户端, 也称之为轮询
+    Push:客户端被动接受, 当服务器有更新信息时,主动发送到客户端
+    SMS:信令推送, 服务器有新内容时,发送一条类似短信的信令给客户端,客户端收到后,像服务器获取信息
+
+    对比:Push方式比Pull方式好,Pull需要不断监听服务器变化,更费客户端的资源,比如CPU 网络流量 系统电量
+
+
+ ※ 解决方案:
+    Android中实现消息推送的有7种主流解决方案
+
+    C2DM:
+     1.Google提供
+     2.提供简单 轻量级的服务
+     3.应用程序直接与服务器进行通信
+     4.依赖Google官方C2MD服务器
+     缺点:1.依赖Google的C2DM服务器,国内使用需要翻墙，成本较大；
+          2.需要用户手机安装Google服务，成本较大。
+
+    MQTT协议:
+     1.使用TCP/IP网络连接
+     2.更加简约 轻量,而且易用
+     缺点:1.带宽低 网络延迟高 网络通信不稳定
+
+    XMPP协议:
+      1.基于扩展标记语言(XML)的协议
+      2.开源
+      3.采用C/S模式通信模式
+      4.XML的数据传输格式
+      5.客户端的操作非常简单
+      6.分布式网络特点
+      缺点:1.如果将消息从服务器上推送出去，则不管消息是否成功到达客户端手机上。
+
+
+    使用第三方平台:
+      1.手机厂商类：小米推送、华为推送。
+      2.第三方平台类：友盟推送、极光推送、云巴（基于MQTT）
+      3.BAT的平台推送：阿里云移动推送、腾讯信鸽推送、百度云推送
+
+
+    一般来说，个人建议使用第三方平台推送，成本低+抵达率高
+
+
+
+ ※ 第三方平台推送的选择
+    见下文
+
+
+ ◆ 学习
+     史上最全解析Android消息推送解决方案 http://www.jianshu.com/p/b61a49e0279f
+     第三方消息推送平台详细解析(含详解,含解决方案) https://www.jianshu.com/p/d77eaca4e52a
+     集成第三方推送最佳实践(含调研,含分析) http://www.jianshu.com/p/d650d02a1c7a
+
+     使用极光/友盟推送，APP进程杀死后为什么收不到推送 http://www.cnblogs.com/yangwujun/p/5789969.html
+     手把手教你集成小米推送 https://www.jianshu.com/p/b1134bebc2d4
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+第三方消息推送平台 对比分析
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 主流的第三方推送平台分类
+    手机厂商类：小米推送、华为推送。
+    第三方平台类：友盟推送、极光推送、云巴（基于MQTT）
+    BAT大厂的平台推送：阿里云移动推送、腾讯信鸽推送、百度云推送
+
+
+ ※ 优劣势
+    相对于其他的解决方案,第三方推送方式的特点分别是:
+    优点:成本低, 消息到达率高
+    缺点:安全性低,服务会被杀死
+
+
+ ※ 第三方推送平台各自的特点
+
+    手机厂商类
+       潜规则：操作系统是不会杀死属于自己品牌的推送服务。
+               比如Android原生系统是不会杀死C2DM消息推送服务，MIUI系统是不会杀死小米的推送服务。
+       选择规则:
+         1.看市场份额: 目前最高的是MIUI系统,即小米
+         从侧面证明: 腾讯新闻使用的小米推送，没有使用自己家的信鸽推送
+                     淘宝使用了自家的阿里云推送，同时还集成了小米推送
+                     百度视频和爱奇艺使用的是小米推送，没有用自家的百度推送
+
+    第三方平台类:
+       规则：推送系统会共享一条推送渠道,意味着你接入了友盟推送，而恰好今日头条也接入了友盟。
+             有一天你的App被杀死了，但这时用户启动了今日头条，那么推送系统也就会通过共享的推送通道顺便把你推送消息送达到手机上，
+	     然后还可能把你的进程也唤醒（被“保活”了）。
+       选择规则:
+         1.看平台的规模效: 所以要看他们的平台的规模效应, 那如何得知他们的规模和市场份额呢？
+                           1.问内部的朋友。
+			   2.看推送平台的合作客户里有哪些大的app - 参考对应官网的合作案例
+
+    BAT大厂类:
+       1.BAT大厂其实并没有什么优势，同时谨记,
+         不要以为用了腾讯信鸽推送，就能占上微信的光保证你的App永远内部被杀死。
+         说个题外话，手机淘宝除了自家的阿里云的移动推送，同时也使用其它的第三方推送
+
+
+ ※ 推送解决方案
+    主要从用户类别+实现成本+渠道来选择不同的使用场景
+    1.如果用户群体精准（使用小米手机或华为手机居多），可以考虑只集成对应手机厂商的推送；
+      注意：单一的手机厂商也能工作，比如小米推送在非小米手机上当然也能工作，只不过不是系统级别的服务了，容易被杀死。
+    2.如果用户群体广泛、希望实现成本低，可以考虑只使用单一第三方平台类的推送（友盟、极光等，选一个规模效应最大的）
+    3.如果用户群体广泛、不在意实现成本，个人建议：
+      对于小米手机，使用小米推送；
+      对于华为手机，使用华为推送；
+      对于其他手机，只使用单一第三方平台类的推送（友盟、极光等，选一个规模效应最大的）
+
+    总之,要实现最大的保活率,希望进一步提高推送的效果，其实可以集成多个手机厂商的推送服务
+         比如小米渠道用小米推送，华为渠道用华为推送，再加个第三方推送, 这样是最高的,
+	 但这样的实现成本会大一些
+
+
+ ※ 推送消息类别的选择
+    推送消息类型分为:通知栏消息和透传消息.
+    通知栏消息:该类消息在被送达用户的设备后，直接以系统通知栏的形式展示给用户 不会继续被传递到App
+    透传消息:该类消息在被送达用户的设备后，还会继续传递到App
+             1.通过回调App的某个BroadcastReceiver的形式将消息传递到App内部。然后由App决定如何处理和显示这个消息。
+	     2.所以透传消息不一定会以系统通知栏的形式进行推送，由程序猿自定义
+
+
+    区别和对比:
+    区别: 透传消息在整个消息传递过程中比通知栏消息多了一步-传递到App
+
+    通知栏消息
+    优点:送达率高,因为透传消息多了一步-传递到App，因此透传消息就增加一些被系统限制的概率，给系统杀死的概率就高一些.
+    缺点:App如果仅仅通过通知栏消息，是无法接触到消息数据本身的。
+
+    透传消息
+    优点:1.对消息操作程度高 & 自定义程度高
+         2.可以自定义通知提醒的样式
+    缺点:被系统杀死的几率大
+
+
+ ◆ 学习
+     史上最全解析Android消息推送解决方案 https://www.jianshu.com/p/d77eaca4e52a
+     集成推送(极光+小米+华为)总结 https://blog.csdn.net/qq_35779879/article/details/78738829
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+需要了解的
+ 1.Android推送的方式 3'
+ 2.Android推送的解决方案 及 使用场景(5-4)'
+ 3.第三方推送的分类 3'
+ 4.各自平台的优劣势 2'
+ 5.推送方案的选择 3'
+
+
+
+友盟推送 学习 (v4.1.0)
+----------------------------------------------------------------------------------------------------------------------------------------
+ ※ 介绍
+    友盟推送目前来说是第三方推送中最好的推送，他目前还集成了小米/华为/魅族的系统级推送
+
+    自己对推送的理解：
+    推送消息的展现形式: 推送有2种形式，一种是推送通知，一种是推送消息，推送通知的话，消息会直接在通知栏展示，推送消息的话，消息会到程序里面，后续操作由代码处理，
+                    就2种形式而言，推送消息会更灵活一些，他可以根据消息类型，再选择将消息展示在通知栏或者展示前台或者进行其他操作，所以大多数情况下，都是推送消息，后续由代码处理
+    推送的种类: 推送的类型有2种，一种是1对多，一条消息推送给对多个用户/手机(Tag,Alias版本,渠道,省份....)，一种1对1，是一条消息推送给某个特定用户(Device Token, Alias)，
+              对于1对多, 我们需要现在手机端绑定Tag或者“增加“Alias，然后在通过推送Tag/Alias来实现推送
+              对于1对1,  我们可以直接给某个特定用户(Device Token)来推送或 者 先在手机端“设置”Alias，然后在通过推送Alias来实现推送
+              总结来说，1对多一般通过绑定Tag或Alias实现，1对1一般通过Device Token或Alias实现，Alias可以实现1对多的效果(mPushAgent.addAlias)，也可以实现1对1对效果(mPushAgent.setAlias)
+
+    友盟后台网址  http://message.umeng.com/list/apps
+    Android集成步骤文档 http://dev.umeng.com/sdk_integate/android_sdk/android_push_doc#2_1
+    服务器端集成步骤文档  http://dev.umeng.com/sdk_integate/android_push_apidoc#1_1
+
+
+ ※ 具体集成步骤(这里以约享停App为例)
+    1.在友盟后台(http://push.umeng.com/list/apps)添加应用 获得Appkey和Secret
+      Appkey：5ae982e1f43e4825d700006f
+      Secretd：37555fe4fa42004bc6ecf1353e87045
+
+    2.导入PushSDK
+      有自动(添加依赖)和手动(导入包)两种方式
+      自动导入：
+      //U-Push
+      compile 'com.umeng.sdk:common:1.5.0'
+      compile 'com.umeng.sdk:utdid:1.1.5.3'
+      compile 'com.umeng.sdk:push:4.1.0'
+
+      Project.build文件下
+      allprojects {
+        repositories {
+           mavenCentral()
+        }
+      }
+
+
+    3.初始化PushSDK,配置Appkey和Secret(必须在工程的自定义Application类的onCreate()中调用此函数)
+      /**
+       * @param context    上下文
+       * @param appkey     应用注册获得的appkey
+       * @param channel    用于标识App的推广渠道，作为推送消息时给用户分组的一个维度
+       * @param deviceType 设备类型
+       * @param pushSecret 应用注册获得的Umeng Message Secret
+       */
+      UMConfigure.init(this, "5ae982e1f43e4825d700006f", "chan", UMConfigure.DEVICE_TYPE_PHONE,"d37555fe4fa42004bc6ecf1353e87045");
+
+
+    4.注册推送服务
+      需要在Application类的onCreate() 方法中注册推送服务，无论推送是否开启都需要调用此方法，写在UMConfigure.init后面
+      PushAgent mPushAgent = PushAgent.getInstance(this);
+      //注册推送服务，每次调用register方法都会回调该接口
+      mPushAgent.register(new IUmengRegisterCallback() {
+         @Override
+         public void onSuccess(String deviceToken) {
+            //注册成功会返回device token
+            Log.e(TAG, "device token: " + deviceToken);
+         }
+         @Override
+         public void onFailure(String s, String s1) {
+            ToastUtils.showShort("Push注册失败");
+         }
+      });
+
+    5.推送消息处理 代码可写在第四步下面
+      //消息处理
+      UmengMessageHandler messageHandler = new UmengMessageHandler() {
+          /**
+            * 自定义消息的回调方法
+            */
+          @Override
+          public void dealWithCustomMessage(final Context context, final UMessage msg) {
+              Log.e(TAG, "dealWithCustomMessage:"+msg.custom);
+              final JPushMsg jPushMsg = new Gson().fromJson(msg.custom, JPushMsg.class);
+
+              handler.post(new Runnable() {
+                  public void run() {
+                      Log.e(TAG, "是否运行到前台: "+AppUtils.isAppForeground());
+                      Toast.makeText(context, "推送: "+jPushMsg.getMsg_title(), Toast.LENGTH_LONG).show();
+                      //.. 处理消息
+                  }
+              });
+
+          }
+
+          /**
+           * 通知的回调方法（通知送达时会回调）
+           */
+          @Override
+          public void dealWithNotificationMessage(Context context, UMessage msg) {
+              //调用super，会展示通知，不调用super，则不展示通知。
+              super.dealWithNotificationMessage(context, msg);
+              Log.e(TAG, "dealWithNotificationMessage");
+          }
+          /**
+            * 自定义通知栏样式的回调方法
+            */
+          @Override
+          public Notification getNotification(Context context, UMessage msg) {
+              Log.e(TAG, "getNotification");
+            }
+        };
+        mPushAgent.setMessageHandler(messageHandler);
+
+
+    6.统计应用启动数据(必须添加)
+      1.必须要调用此方法，如果不调用，会导致按照”几天不活跃”条件来推送失效，还将导致广播发送不成功以及设备描述红色等问题发生。
+      2.另外，此方法与统计分析sdk中统计日活的方法无关！请务必调用此方法！
+
+      在所有的Activity的onCreate()或在应用的BaseActivity的onCreate()中添加：
+      PushAgent.getInstance(context).onAppStart();
+
+
+ ※ 注意点
+   1.如果用到比较复杂的通知栏通知，则建议自定义通知栏View，这样可以避免机型不一致或系统版本差异导致的界面显示不一样的问题
+   2.目前每个用户tag限制在1024个， 每个tag 最大128字符。tag名称请不要加入URL Encode等变换处理，请使用原生字符串。
+   3.新增一种 加权标签(Weighted Tag)，加权标签是给标签增加了一个权值，
+     例如点击了“财经”栏目，就给该用户“财经”标签增加相应权值。推送消息时，可以选择“财经”标签权值大于某个值的用户来进行推送。
+   4.目前Alias不推荐使用中文，可以使用数字和英文字母
+   5.设置用户别名（Alias)时，1对多和一对1区别是add和set
+     //设置用户id和device_token的一对多的映射关系：
+     mPushAgent.addAlias("zhangsan@sina.com", ALIAS_TYPE.SINA_WEIBO, new UTrack.ICallBack() {
+        @Override
+        public void onMessage(boolean isSuccess, String message) {}
+     });
+     //设置用户id和device_token的一一映射关系，确保同一个alias只对应一台设备：
+     mPushAgent.setAlias("zhangsan@sina.com", ALIAS_TYPE.SINA_WEIBO, new UTrack.ICallBack() {
+        @Override
+        public void onMessage(boolean isSuccess, String message) {}
+     });
+
+
+
+ ※ 推送相关问题解决方案
+   1.当应用在前台，有推送消息时，要求消息弹框通知，当应用在后台时，要求消息通知栏通知
+     解决思路：推送消息来时，如果App运行在前台，则跳转一个透明背景且什么都没有的Acitivity，然后在此Activity中弹Dialog，如果App运行在前台，则通知栏通知
+     if(AppUtils.isAppForeground()){
+          JPushDialogActivity.startActivity(context, jPushMsg);
+     }else {
+          Intent broadcastIntent = new Intent(context, UmPushNotificationReceiver.class);
+          broadcastIntent.putExtra("jPushMsg", jPushMsg);
+          PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+          new NotificationUtils(context).sendNotification(R.mipmap.ic_launcher, jPushMsg.getMsg_title(), jPushMsg.getMsg_text(), pendingIntent);
+     }
+
+   2.点击通知跳转指定界面，如果此时App在前台运行，则刷新界面，如果在后台运行，则重新开始运行App，运行后跳到指定界面
+     解决思路：点击通知后跳转BroadcastReceiver，如果App运行在前台，则跳转指定Acitity，如果App运行在后台，则带值跳转指定StartAcitity，
+     if(AppUtils.isAppForeground()){
+          ventBus.getDefault().post((JPushMsg)intent.getSerializableExtra("jPushMsg"));
+     }else {
+          Intent i = new Intent(context, StartActivity.class);
+          i.putExtra("jPushMsg", intent.getSerializableExtra("jPushMsg"));
+          i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+          context.startActivity(i);
+     }
+
+   3.在后台杀死App，此时有推送消息时，App则收不到消息，当App打开时，一下收到多条推送消息
+     解决思路：如果是新打开App，则此时收到的推送消息全部不处理
+     List<Activity> activityList = ActivityUtils.getActivityList();
+     if(activityList.size()==0 || (activityList.size()>0&&activityList.get(0) instanceof StartActivity)){
+          return;
+     }
+
+   4.1对1DeviceToken推送情况下，当前登录用户为07，退出登录，登入用户08，此时08操作一条数据，正常处理时推送一条消息给07，而结果08收到了推送消息
+     原因：07和08都是同一个DeviceToken，服务器是按照DeviceToken推送的，自然08收到啦推送
+     解决方式：服务器推送消息时加一个推送给谁的字段，当收到推送消息后，判断推送给谁与当前登录的用户不匹配，则这条消息不做处理
+     if(!StringUtils.isEmpty(userCd)&&!userCd.equals(jPushMsg.getMsg_to())){
+          return;
+     }
+
+
+
+ ※ 友盟中集成小米/华为/魅族推送
+
+
+
+ ※ 友盟推送集成的常见问题
+   https://blog.csdn.net/u013823101/article/details/53540968
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+小米推送 学习
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+极光推送 学习
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+

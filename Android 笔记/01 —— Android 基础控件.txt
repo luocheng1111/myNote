@@ -1,0 +1,957 @@
+
+
+TextView 文本标签
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    TextView 文本标签，用来显示文字
+
+
+ ※ HTML格式的TextView
+     方式一:
+     String html = "<font color='red' size='24' >I love android</font><br>";
+     html+ = "<font color='#0000ff'><big><i>I love android</i></big></font><p>";
+     html+ = "<big><a href='http://www.baidu.com'>百度</a></big>";
+     CharSequence charSequence = Html.fromHtml(html);
+     text.setText(charSequence);
+     text.setMovementMethod(LinkMovementMethod.getInstance());//点击时产生超链接,必须加上这句话
+
+     方式二:
+     String text="我的URL: http://www.sina.com\n";
+     text+ = "我的emil: abcd@163.com\n";
+     text+ ="我的电话: + 86 010-412213123";
+     text2.setText(text);
+     text2.setMovementMethod(LinkMovementMethod.getInstance());//点击时产生超链接
+     注: 2种方法效果一样，方式二加了android:autoLink="all"。
+        （android:autoLink="all" 匹配所以的链接， 如果文本的格式是某种格式，就会有链接，例如e-mail,电话）
+
+
+ ※ TextView跑马灯效果
+    android:singleLine="true"     （必须）            //设置只能有一行
+　　 android:ellipsize="marquee"  （必须）           //设置以跑马灯形式显示 marquee代表跑马灯,"start"省略号显示在开头;"end”省略号显示在结尾;"middle"省略号显示在中间;
+　　 android:marqueeRepeatLimit="marquee_forever"  //设置跑马灯显示的次数
+　　 android:focusable="true"     （必须）         //设置聚焦
+　　 android:focusableInTouchMode="true" （必须）   //
+    android:scrollHorizontally="true" （必须）     //
+　　 android:linksClickable="true"                //在跑马灯中设置了超链接时，设置了此属性才能产生链接效果
+
+
+ ※ 代码控制跑马灯效果
+    1.界面中所有TextView同时跑马灯
+      1.xml中见上面设置 且android:focusable="true"
+      2.代码中所有的TextView tv.setSelected(true);
+    2.代码控制跑马灯效果开还是关
+      1.设置其他的TxtView的focusable为false，选中的那个为true
+        tv1.setFocusable(false);
+        tv2.setFocusable(true);
+      2.设置其他的TxtView的selected为false，选中的那个为true
+        tv1.setSelected(false);
+        tv2.setSelected(true);
+
+ ※ 注意点
+   1.TextView.setText("");里面的值是String，有时候传值的时候注意下
+
+
+ ※ 使用Spannable设置部分文字属性
+     SpannableString spanString = new SpannableString("字体测试");
+     //设置字体大小（绝对值,单位：像素） 取前不取后
+     spanString.setSpan(new AbsoluteSizeSpan(20), 0, 2, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+     //第二个参数true，表示字体位为dip， 取前不取后
+     spanString.setSpan(new AbsoluteSizeSpan(20,true), 2, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+     textView.setText(spanString);
+
+
+ ※ 使用Spannable插入图片
+     String sss = "easy";
+     final SpannableString spanString = new SpannableString(sss);
+     //得到drawable对象，即所要插入的图片
+     Drawable d = getResources().getDrawable(R.drawable.sample_footer_loading);
+     d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+     //用这个drawable对象代替字符串easy
+     ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_BASELINE);
+     //包括0但是不包括"easy".length()即：4。[0,4)。值得注意的是当我们复制这个图片的时候，实际是复制了"easy"这个字符串。
+     spanString.setSpan(span, sss.length()-1, sss.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+     tv.setText(spanString);
+
+
+
+ ※ 根据文字多少调整TextView的行数(高度)
+    public void adjustLines(TextView tv){
+        tv.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                //这个回调会调用多次，获取完行数记得注销监听
+                tv.getViewTreeObserver().removeOnPreDrawListener(this);
+                tv.setLines(tv.getLineCount());
+                LogUtils.e(tv.getText().toString()+", TextView 行数：" + tv.getLineCount());
+                return true;
+            }
+        });
+    }
+
+
+
+ ※ 有时候有些手机会给TextView加默认的padding,要去除此值,需重写TextView控件。
+   具体写法见Base框架中的 ./view/TextViewWithoutPaddings.jave
+   参考：https://blog.csdn.net/lilealyh/article/details/77468083
+
+
+ ◆ 参考
+     http://www.cnblogs.com/menlsh/archive/2012/11/24/2786604.html
+     HTML标签 http://www.w3school.com.cn/tags/tag_font.asp
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ImageView
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    ImageView 展示图片的控件
+
+
+ ※ android:scaleType属性
+     CENTER：       图片按原size居中显示，如果图片小于View，那么就会有空白区域，如果图片大，那么便会被裁减
+　   CENTER_CROP：  图片先居中显示，然后等比缩小或放大，使图片的短边大于等于View的宽/高，图片会被截取，不会留白
+　　 CENTER_INSIDE：图片先居中显示，如果图片小于View，则原图显示，否则等比缩放，使图片的长边小于等于View的宽/高，图像完整显示，会留白
+　   FIT_CENTER：   图片先居中显示，然后等比缩放，直到一个方向已经适应
+　　 FIT_END：      图片显示在View的右下角，然后等比缩放，直到一个方向已经适应
+　　 FIT_START：    图片显示在View的左上角，然后等比缩放，直到一个方向已经适应
+　　 FIT_XY：       不按比例缩放图片，目标是把图片塞满整个View
+
+ ※ 注意问题
+     1.对于尺寸较大的图，ImageView会加载不出来，此时修改原图的尺寸 等比缩小
+
+ ※ ImageView设置选中图和非选中图
+     1.xml中的src为selector 状态为state_selected
+     2.代码中的onClick中可以直接iv.setSelected(isOpen);
+     3.最终可以通过代码中的onClick中可以直接iv.isSelected()获取状态
+
+
+ ◆ 参考
+     ImageView详解 http://blog.csdn.net/cankingapp/article/details/8117008
+     ScaleType 属性图文详解 http://blog.csdn.net/ytjd926/article/details/10073425
+     ScaleType 别人理解总结 http://www.tuicool.com/articles/eEriaa
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+EditText 文本输入框
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ EditText介绍
+    EditText 文本输入框 可以显示单行，也可以显示多行
+
+
+ ※ EditText的一些常用属性
+     //基本属性
+     android:hint="默认文字" 输入内容前默认显示在输入框中的文字
+     android:textColorHint="#FF0000" 设置文字内容颜色
+     android:enabled="false" 设置输入框不能被编辑
+     android:ellipsize="start" 设置当文字过长时,该控件的显示方式。还可以设置marquee跑马灯方式
+     android:inputType="none" 设置文本的类型，键盘的类型
+     android:maxLength="4"    设置最大输入字符个数
+
+     //多行文本
+     android:inputType="textMultiLine"//可以显示多行
+     android:gravity="left|top"//输入时光标左上角
+     android:minLines="6" //最小显示6行
+
+     //输入限制类
+     android:digits="1234567890.+-*/%\n()" 限制输入框中只能输入自己定义的这些字符串 如果输入其它将不予以显示
+     android:phoneNumber="true" 输入框中只能输入手机号码
+     android:inputType="number" 输入框只能输入数字
+     android:password="true"    输入框中输入的任何内容将以"*"符号来显示
+
+     //进入Activity时不自动弹出软键盘
+     android:windowSoftInputMode="stateHidden|stateUnchanged"
+
+     //设置键盘Enter键 学习：https://blog.csdn.net/u010399316/article/details/50569506
+     android:imeOptions="" 常用参数有以下一些：normal(常规)、actionSend(发送)、actionNext(下一个)、actionSearch(搜索)、actionDone等；
+     android:inputType=""  单独只设置android:imeOptions这个属性，随便设置一个才会起作用
+     但此时Edittext只会显示一行，如果想要显示多行，需要用到自定义控件，自定义控件在demo的 MyEditText里面
+
+     etSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+
+                if(actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    //隐藏软键盘
+                    InputMethodManager imm = (InputMethodManager)view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if(imm.isActive()){
+                        imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
+                    }
+                    String searchKey = etSearch.getText().toString().trim();
+                    //做些处理...
+                    return true;
+                }
+                return  false;
+            }
+      });
+
+     //设置EditText光标显示位置(需光标显示在此编辑框时才有效，否则无效)
+     Editable etext = usernameEt.getText();
+     Selection.setSelection(etext, etext.length());
+
+
+ ※  设置EditText明暗文显示
+     //显示明文
+     passwordEt.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+     //显示密文
+     passwordEt.setTransformationMethod(PasswordTransformationMethod.getInstance());
+     注：一般设置后光标位置会变成第一个，此后需调用光标显示位置
+
+
+※  EditText的限制
+    1.输入长度限制 android:maxLength="10"
+    2.输入字符限制 android:digits="0123456789qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJH“
+
+    eg:身份证的输入框
+    android:maxLength="18"
+    android:digits="0123456789xX“
+
+
+ ※  EditText中插入图片
+      Bitmap bitmap = BitmapFactory.decodeResource(getResoueces(), R.drawable.aa);
+      ImageSpan imageSpan = new ImageSpan(this, bitmap);
+      SpannableString spannableString = new SpannableString("face");
+      spannableString.setSpan(imageSpan,0,4,Spannabl.SPAN_EXCLUSIVE_EXCLUSIVE);
+      editText1.appen(spannableString);
+
+
+ ※  软键盘 键盘内容的修改（注：需要android:inputType属性才会有效果）
+    android:imeOptions="flagNoExtractUi"  //使软键盘不全屏显示，只占用一部分屏幕
+    android:imeOptions="actionNone"       //输入框右侧不带任何提示
+    android:imeOptions="actionGo"         //右下角按键内容为'开始'
+    android:imeOptions="actionSearch"     //右下角按键为放大镜图片，搜索
+    android:imeOptions="actionSend"       //右下角按键内容为'发送'
+    android:imeOptions="actionNext"       //右下角按键内容为'下一步'
+    android:imeOptions="actionDone"       //右下角按键内容为'完成'
+
+    <EditText
+      android:id="@+id/text1"
+      android:layout_width="150dip"
+      android:layout_height="wrap_content"
+      android:imeOptions="flagNoExtractUi"
+      android:inputType="text"/>
+
+
+    按钮的监听事件
+    editText.setOnEditorActionListener(new OnEditorActionListener() {
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            Toast.makeText(MainActivity.this, "响应了配置后的按键", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+    });
+
+
+
+
+※  进入界面时EditText不获取焦点
+      设置其父布局
+      android:focusable="true"
+      android:focusableInTouchMode="true"
+
+
+※  进入界面时EditText获取焦点 不弹出软键盘
+    @Override
+    protected void onResume() {
+        super.onResume();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //让输入框获取焦点
+                etMsgcontent.requestFocus();
+            }
+        }, 100);
+    }
+
+
+※  进入界面后，点击其他控件，让EditText失去焦点
+      etNickname.clearFocus();
+
+
+※  EditText多行显示
+      android:inputType="textMultiLine"
+      android:minLines="3"
+      android:gravity="left|center_vertical"
+
+
+※  当EditText多行，且在ScrolView下 EditText与ScrolView有滑动冲突的问题
+      解决方法：（https://www.cnblogs.com/niupi/p/5881325.html）
+      etIntroduction.setOnTouchListener(new View.OnTouchListener() {....};
+
+
+
+◆ 参考
+     http://www.cnblogs.com/menlsh/archive/2012/12/16/2820684.html
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+TextInputLayout、TextInputEditText
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    TextInputLayout：主要是作为EditText的容器，从而为EditText生成一个浮动的Label，当用户点击EditText的时候，EditText中的hint字符串会自动移到EditText的左上角。
+    TextInputEditText：继承EditText，与EditText无异，只是配合TextInputLayout使用
+
+
+ ※ 基本用法
+     <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_marginTop="20dp"
+        android:layout_height="wrap_content">
+        <android.support.design.widget.TextInputEditText
+            android:layout_width="match_parent"
+            android:hint="请输入用户名"
+            android:layout_height="wrap_content" />
+    </android.support.design.widget.TextInputLayout>
+
+   效果：点击EditText时，提示文字会浮动到EditText上方
+
+
+
+ ※  设置输入字符长度限制
+     <android.support.design.widget.TextInputLayout
+        ....
+        app:counterMaxLength="5" //设置最大字符数为5
+        app:counterEnabled="true" //设置为true才能显字符数
+        app:counterOverflowTextAppearance="@style/HintError" > //设置超出字符数后提示文字的颜色，如果不设置默认为@color/colorAccent的颜色
+
+        <android.support.design.widget.TextInputEditText
+            ... />
+     </android.support.design.widget.TextInputLayout>
+
+     //超出限制后的文字颜色
+     <style name="HintError" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/colorRed</item>
+     </style>
+
+     说明：
+     app:counterEnabled="true"时，EditText右下角会显示0/5 最大字符数
+
+
+
+ ※  设置错误提示文字
+    <android.support.design.widget.TextInputLayout
+        ....
+        app:errorEnabled="true" > //设置为true
+
+        <android.support.design.widget.TextInputEditText
+            ... />
+     </android.support.design.widget.TextInputLayout>
+
+     editText_email.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(!RegexUtils.isEmail(charSequence)){
+                    textInputLayout.setError("邮箱格式错误");
+                    textInputLayout.setErrorEnabled(true);
+                }else {
+                    textInputLayout.setErrorEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+
+
+ ※  设置密码是否可见
+     <android.support.design.widget.TextInputLayout
+        ....
+        app:passwordToggleEnabled="true"//设置为true >
+
+        <android.support.design.widget.TextInputEditText
+            android:inputType="textPassword"
+            ... />
+     </android.support.design.widget.TextInputLayout>
+
+
+    效果：EditText最右边会显示个眼睛, 点击切换密码是明文还是暗文
+
+
+
+ ※  修改TextinputLayout的标签和edittext下划线的颜色
+     1.更改底线颜色，在应用程序主题中使用：
+        <item name="colorControlNormal">#D8D8D8</item>
+        <item name="colorControlActivated">@color/colorPrimary</item>
+        注：如没效果 APP卸载后再运行一次
+
+     2.更改浮动标签颜色
+        <style name="TextAppearence.App.TextInputLayout" parent="@android:style/TextAppearance">
+            <item name="android:textColor">@color/main_color</item>
+
+        使用：
+        <android.support.design.widget.TextInputLayout
+             ...
+             app:hintTextAppearance="@style/TextAppearence.App.TextInputLayout"
+             android:textColorHint="#c1c2c4">
+
+
+
+◆ 参考
+     https://www.jianshu.com/p/4c99e4c0fe90
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+Button 按钮
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ Button 介绍
+    Button 按钮 继承自TextView
+
+
+ ※ Button 点击事件
+    1.xml中实现
+      android:onClick="onClick"
+      public void onClick(View v){ //方法修饰符public 返回值void 只有一个参数View
+        switch (v.getId()){
+            case R.id.btn_click_two:
+                Toast.makeText(MainActivity.this,"Button点击事件2",Toast.LENGTH_LONG).show();
+                break;
+        }
+    }
+
+    2.代码设置点击事件
+      findViewById(R.id.btn_click_one).setOnClickListener(onClickListener);
+      private View.OnClickListener onClickListener=new View.OnClickListener() {
+        @Override
+        public void onClick(View v){
+            Toast.makeText(MainActivity.this,"Button点击事件1",Toast.LENGTH_LONG).show();
+        }
+      };
+
+
+ ◆ 参考
+     https://www.cnblogs.com/yishaochu/p/5783605.html
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+RadioGroup RadioButton 单选按钮
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    RadioGroup 单选按钮
+
+ ※ 使用
+    <RadioGroup
+        android:id="@+id/radio_doc"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/btn_receive"
+            style="@style/common_radio_group"
+            android:checked="true"
+            android:textColor="@drawable/text_color_selector"
+            android:text="收文"/>
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:background="@color/short_blue"/>
+
+        <RadioButton
+            android:id="@+id/btn_send"
+            style="@style/common_radio_group"
+            android:checked="true"
+            android:textColor="@drawable/text_color_selector"
+            android:text="发文"/>
+
+    </RadioGroup>
+
+
+ ※ RadioGroup 属性
+     android:orientation="horizontal" 设置布局方向 横/竖行显示
+     android:button="@null" 去掉单选按钮原本样式
+     android:drawableLeft="@drawable/search_radio_1" 自定义左侧图片
+     android:checkedButton="@+id/radio_doc" 设置 默认选中的RadioButton
+
+     选中事件: RadioGroup.setOnCheckChangeListener
+
+
+ ※ RadioGroup 其他方法
+   1.清除所有的选中状态  radiogroup.clearCheck();
+
+
+ ※ 自定义 RadioGroup
+     1.仅自定义选择框图片
+        android:button="@drawable/checkbox_style"
+     2.自定义其他方向的选择框图片
+        android:button="@null" 去掉单选按钮原本样式
+        android:drawableLeft="@drawable/search_radio_1" 自定义左侧图片
+     3.完全自定义 自定义背景选中效果
+       android:button="@null"
+       android:background="@drawable/checkbox_style"
+       android:textColor="@drawable/main_bottomtab_textcolor_sel"
+
+
+    注意：RadioGroup的Selector是checked
+    <item android:drawable="@drawable/bg_btn_press" android:state_checked="true"/>
+    <item android:drawable="@drawable/bg_btn"/>
+
+
+ ※ 自定义 RadioGroup 选中时背景替换，去掉左侧选择
+    android:background="@null"
+    android:button="@null"
+    android:textColor="@drawable/main_bottomtab_textcolor_sel"
+
+     1.仅自定义选择框
+       1.自定义选择框图片
+         android:button="@drawable/checkbox_style"
+       2.自定义其他方向的选择框图片
+         android:button="@null" 去掉单选按钮原本样式
+         android:drawableLeft="@drawable/search_radio_1" 自定义左侧图片
+
+
+ ※ RadioGrou只显示图片，解决图片居中问题
+    <RadioButton
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:background="@null"
+        android:button="@null"
+        android:drawablePadding="-20dp"
+        android:drawableTop="@drawable/main_bottomtab_home_sel" />
+
+
+ ※ 自定义 RadioGroup 里可以嵌套LinearLayout Relaalayout 非常灵活
+
+
+ ※ 定义文字
+    <item android:state_checked="true" android:color="#FFFFFF" />
+    <item android:color="#909090" />
+
+ ※ 按钮变换后不能立即改变
+    1.按钮变换后10秒内点击不让其在改变
+      难点：变换后进入监听事件，监听事件要控制其不变换，则必须调用setOncheck方法，此时
+            会继续进入监听事件，进入无限死循环，而且执行完后，第一次监听事件还要往下继续执行
+      案例代码见demo：/Demo/RadioGroup按钮变换后10秒内点击不让其在改变.rar
+
+ ◆ 参考
+     https://www.cnblogs.com/wt616/archive/2011/06/20/2085531.html
+     自定义样式 http://gundumw100.iteye.com/blog/1146527
+	        http://gundumw100.iteye.com/blog/1084377
+     多行RadioGroup：见KingTv充值界面
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+CheckBox 多选框
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    CheckBox 多选框
+
+ ※ 使用
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+       style="@style/MatchMatch.Vertical" >
+
+      <CheckBox
+         android:id="@+id/beijing"
+         style="@style/WrapWrap"
+         android:text="北京"   />
+      <CheckBox
+         android:id="@+id/shanghai"
+         style="@style/WrapWrap"
+         android:text="上海"   />
+      <CheckBox
+         android:id="@+id/shenzhen"
+         style="@style/WrapWrap"
+         android:text="深圳"    />
+    </LinearLayout>
+
+
+ ※ 自定义 CheckBox
+     1.仅自定义选择框图片
+        android:button="@drawable/checkbox_style"
+     2.自定义其他方向的选择框图片
+        android:button="@null" 去掉单选按钮原本样式
+        android:drawableLeft="@drawable/search_radio_1" 自定义左侧图片
+     3.完全自定义 自定义背景选中效果
+       android:button="@null"
+       android:background="@drawable/checkbox_style"
+       android:textColor="@drawable/main_bottomtab_textcolor_sel"
+       android:background="@drawable/checkbox_style"
+
+
+ ◆ 参考
+     自定义CheckBox https://www.cnblogs.com/lihualuo/p/3665847.html
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+SwitchButton 开关控件
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    仿IOS开关控件 GitHub: https://github.com/zcweng/SwitchButton
+
+ ※ 使用
+    1.Perjecet的build.gradle
+      repositories {
+    	mavenCentral()
+    	jcenter()
+	  }
+
+    2.Moudle的build.gradle
+      dependencies {
+    		compile 'com.github.zcweng:switch-button:0.0.3@aar'
+	  }
+
+
+    3.
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical">
+
+   		 <com.suke.widget.SwitchButton
+    		android:layout_width="52dp"
+    		android:layout_height="30dp"
+    		app:sb_show_indicator="false"
+    		app:sb_checked="true"/>
+
+	</LinearLayout>
+
+
+ ※ 说明
+     默认是带指示器(开启时有条竖线，关闭时有个圆圈)  app:sb_show_indicator="false”可以关闭指示器 效果效果图三
+     默认开启时是绿色 关闭时是白色 app:sb_checked_color="#fdc951”可修改开启时的颜色
+
+     app:sb_checked="true"   设置默认选中还是不选中
+     app:sb_enable_effect="false" 是否开启滑动时的动画效果 默认打开
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+Spinner 下拉列表框
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    Spinner 下拉列表框
+
+
+ ※ 例子
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <Spinner
+            android:id="@+id/spinner1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/languages"
+          />
+    </LinearLayout>
+
+
+ ※ 属性说明
+     android:entries="@array/city"   //引用数组
+     android:prompt="@string/prompt" //提示文字
+
+
+ ※ 自定义样式
+     1)设置开始的选择框背景；
+	 方式一：在Spinner属性中 android:background="@drawable/droplist"
+	 方式二：在Spinner属性中 android:background="@null" 在设置字体样式中设置背景
+		 如果直接在字体样式中设置的话，会出现一种效果，脑补
+
+     2)设置选择框文字属性
+	 Spinner mySpinner = (Spinner) findViewById(R.id.myspinner);
+	 ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.drop_list_ys, daytime);
+	 mySpinner.setAdapter(adapter);
+
+     3)设置弹出框显示的文字属性
+	 在adapter中加入：adapter.setDropDownViewResource(R.layout.drop_list_hover);
+
+
+ ◆ 参考
+     http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0105/2264.html
+     自定义样式  http://blog.sina.com.cn/s/blog_3e333c4a010151cj.html
+		 http://snmoney.blog.163.com/blog/static/44005820119994335498/
+     自定义样式Demo http://download.csdn.net/detail/u012524598/8041881
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ProgressBar 进度条
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    ProgressBar 进度条 可以实现直线进度条、环形进度条、自定义样式的进度条
+    默认的是小环形进度条
+
+
+ ※ 使用
+    <ProgressBar
+      android:id="@+id/bar"
+      android:layout_width="200dp"
+      android:layout_height="wrap_content"
+      style="?android:attr/progressBarStyleHorizontal"//设置ProgressBar的样式
+      android:max="100"//设置ProgressBar总共有多少格 一般设置为100
+    />
+
+
+ ※ 进度条样式(每个版本的样式都有些区别)
+     条形进度条   style="?android:attr/progressBarStyleHorizontal"
+     小环形进度条 style="?android:attr/progressBarStyleSmall"
+     环形进度条   style="?android:attr/progressBarStyle" (默认样式)
+     大环形进度条 style="?android:attr/progressBarStyleLarge
+     若要环形进度条转向为反，则在环形进度条后面加Inverse
+     对应的效果图 http://www.2cto.com/kf/201108/101521.html
+
+
+ ※ 属性说明
+     android:background="@drawable/progress_bg"  //设置背景
+     android:progressDrawable="@drawable/progress_vertical"  //设置进度条样式
+
+     android：indeterminate="true"     该属性为true，设置进度条不精确显示进度
+     android：indeterminateDrawable    设置绘制不显示进度的进度条的Drawable对象
+
+
+ ※ 自定义条形进度条样式(参考：https://blog.csdn.net/yechaoa/article/details/82388637)
+    1.xml文件里
+      <ProgressBar
+        android:id="@+id/item_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="@dimen/dp_70"
+        android:layout_height="@dimen/dp_10"
+        android:max="100"
+        android:progress="50"
+        android:progressDrawable="@drawable/progress_bar"/>
+
+    2.@drawable/progress_bar
+      <?xml version="1.0" encoding="utf-8"?>
+      <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+        <item android:id="@android:id/background">
+            <shape>
+                <corners android:radius="5dip" />
+                <solid android:color="@color/white" />
+                <stroke
+                    android:width="1px"
+                    android:color="@color/black" />
+            </shape>
+        </item>
+        <item android:id="@android:id/progress">
+            <clip>
+                <shape>
+                    <corners android:radius="5dp" />
+                    <solid android:color="@color/red" />
+                </shape>
+            </clip>
+        </item>
+    </layer-list>
+
+
+ ◆ 参考
+     自定义 环形 进度条样式 http://www.cnblogs.com/xingfuzzhd/archive/2013/12/28/3495941.html
+     自定义 条形 进度条样式 http://www.cnblogs.com/bvin/archive/2012/08/08/2628856.html
+     自定义 特殊 进度条样式 http://blog.csdn.net/fuuckwtu/article/details/7070368
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+SeekBar 拖动条
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    SeekBar 拖动条
+
+
+ ※ 使用
+    <SeekBar
+        android:id="@+id/id_seekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="50"
+     />
+
+
+ ※ 属性说明
+     android:max="100"  //设置取值范围是0-100,共101个值
+     android:progress="10"   //默认值初始值
+     android:progressDrawable="@drawable/bg_bar"  //设置SeekBar的背景图片
+     android:thumb="@drawable/thumb_bar"   //设置SeekBar的滑块图片
+
+     监听:setOnSeekBarChangeListener()其他和进图条相似
+
+
+ ※ 自定义进度条样式
+    <SeekBar
+        android:id="@+id/mSeekBarDayan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:maxHeight="2.0dip" //设置底部条高度
+        android:minHeight="2.0dip" //设置底部条高度
+        android:max="5"
+        android:progressDrawable="@drawable/seekbar_progress_drawable" //底部条样式
+        android:thumb="@drawable/play_seekbar_icon" //拖动框图片
+    />
+
+   <!-- seekbar_progress_drawable.xml -->
+   <?xml version="1.0" encoding="utf-8"?>
+    <layer-list
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 底线背景 -->
+    <item android:id="@android:id/background">
+        <shape>
+            <corners android:radius="2dp" />
+            <solid android:color="#FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- 拖动后的背景 -->
+    <item android:id="@android:id/secondaryProgress">
+        <clip>
+            <shape>
+                <corners android:radius="2dp" />
+                <solid android:color="#F66F21" />
+            </shape>
+        </clip>
+    </item>
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <corners android:radius="2dp" />
+                <solid android:color="#F66F21" />
+            </shape>
+        </clip>
+    </item>
+    </layer-list>
+
+
+ ◆ 参考
+     自定义样式 http://blog.sina.com.cn/s/blog_7dbac12501016b2h.html
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+WebView 网页视图
+----------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    WebView 一个基于webkit引擎、展现web页面的控件
+
+
+ ※ 使用
+     加载Url：webView.loadUrl("http://www.51cto.com/");
+     加载assets中的文件：webView.loadURL("file:///android_asset/index.html");
+     支持缩放：webView.getSettings().setBuiltInZoomControls(true);
+
+     WebView与javascript交互：
+     webView.getSettings().setJavaScriptEnabled(true);
+     webView.addJavascriptInterface(new PersonService(webView), "personService");
+
+
+ ※ 在APP里面显示 及 错误处理
+    webView.setWebViewClient(new WebViewClient() {
+	@Override
+	public boolean shouldOverrideUrlLoading(WebView view, String url) {
+		view.loadUrl(url);
+		return true;
+	}
+
+	@Override
+	public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+		super.onReceivedError(view, errorCode, description, failingUrl);
+		view.loadUrl("file:///android_asset/error.html");
+	}
+   });
+
+
+ ※ 显示网页标题
+    webView.setWebChromeClient(new WebChromeClient(){
+	@Override
+	public void onReceivedTitle(WebView view, String title) {
+		titleTv.setText(title);
+		super.onReceivedTitle(view, title);
+	}
+    });
+
+
+ ※ 加载Html源代码 eg:Html源代码，Html中有个按钮点击后跳转支付宝
+    //source为标准的Html格式 如果不是，试着这样改一下Html.fromHtml(source).toString();
+    mWebView.loadDataWithBaseURL(null, source, "text/html;charset=utf-8","utf-8", null);
+    mWebView.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView webView, String url) {
+                    try{
+                        if(url.startsWith("alipays://")){
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            startActivity(intent);
+                            return true;
+                        }
+                    }catch (Exception e){
+                        return false;
+                    }
+                    webView.loadUrl(url);
+                    return true;
+                }
+            });
+
+
+ ◆ 参考
+     http://www.jianshu.com/p/3c94ae673e2a
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+自动补全：AutoCompleteTextView
+----------------------------------------------------------------------------------------------------------------------------------------
+   android:completionThreshold=”1” 设置至少输入几个字符 开始自动提示
+   记得在activity里 .setAdapter();
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+多段自动补全: MultiAutoCompleteTextView
+----------------------------------------------------------------------------------------------------------------------------------------
+   比自动补全多了一行：teacherAutoComplete.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+
+----------------------------------------------------------------------------------------------------------------------------------------
