@@ -1,0 +1,42 @@
+
+怎么知道是机械硬盘还是固态硬盘
+https://zhidao.baidu.com/question/417462262.html
+
+
+
+用固态硬盘需要注意什么？ SSD速度优化
+http://jingyan.baidu.com/article/ceb9fb10039aee8cad2ba0fa.html
+https://zhidao.baidu.com/question/1894144507420723180.html
+
+改AHCI模式后蓝屏解决方法
+http://jingyan.baidu.com/article/c1465413512fe00bfcfc4c3e.html
+用这个方法电脑从开机15s提升为开机10s
+
+
+SSD的朋友来说，如何安装系统，
+http://itbbs.pconline.com.cn/diy/14793240.html
+
+
+笔记本使用固态硬盘有什么好处
+http://product.pconline.com.cn/itbk/bjbzj/notebook/1305/3301583.html
+
+
+电脑弄好SSD后第一步需要做什么？
+http://jingyan.baidu.com/article/466506583a4b5df549e5f884.html
+
+
+4K对齐选择2048还是4096？
+http://www.pc841.com/article/20160912-72217_all.html
+
+
+固态硬盘玩游戏好吗 固态硬盘玩游戏的好处
+http://www.pc841.com/wenda/7659.html
+
+
+固态硬盘SATA和mSATA有什么区别
+https://zhidao.baidu.com/question/754765227221408324.html
+
+
+mSATA的固态硬盘缺点
+MSATA的固态硬盘和 SATA接口不共用 意思就是 你这个MSATA固态硬盘 以后不在这台电脑上用了 不能装在台式电脑上 不能做移动硬盘 不能装在没有MSATA接口的笔记本上 用处比普通的SATA接口的固态硬盘小很多
+http://bbs.zol.com.cn/nbbbs/d160_146556.html
