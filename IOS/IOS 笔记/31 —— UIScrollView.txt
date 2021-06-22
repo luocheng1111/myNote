@@ -1,0 +1,40 @@
+
+
+UIScrollView
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UIScrollView介绍
+   UIScrollView 滚动视图 用于显示更多的内容
+   有两个子类一个是UITableView，另一个是UITextView
+ 
+
+※ UIScrollView 的使用
+
+     UIScrollView *scrollView = [[UIScrollView] alloc] init];
+     
+     //设置大小
+     scrollView.frame = CGRectMake(10,10,300,550);
+    
+     //设置内容大小
+     scrollView.contentSize = CGSizeMake(320, 460*10);
+
+     //是否有弹簧效果
+     scrollView.bounces=YES;
+     //开启横向反弹效果 当bounces为YES时才有效果
+     scrollView.alwaysBounceHorizontal=YES;
+     //开启纵向反弹效果 当bounces为YES时才有效果
+     scrollView.alwaysBounceVertical=YES;
+
+     //是否分页显示
+     scrollView.pagingEnabled=YES;
+     
+     //是否显示横向滚动条
+     scrollView.showsHorizontalScrollIndicator=YES;
+     //是否显示纵向滚动条
+     scrollView.showsVerticalScrollIndicator=YES;
+
+     //设置UIScrollView内容的初始偏移量
+     self.scrollView.contentOffset = CGPointMake(0, -100);
+ 
+
+----------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,52 @@
+ 
+
+IOS 跳转
+---------------------------------------------------------------------------------------------------
+ ※ 介绍：
+    跳转可以通过stroyboard拖动实现，可以通过代码实现
+    介绍当前界面则需要写一个监听方法
+    Demo见 ./Demo/界面跳转.zip
+
+
+
+ ※ 界面跳转
+    1.stroyboard拖动实现跳转
+    2.代码实现跳转
+      self.performSegueWithIdentifier("Goto", sender:sender!)
+      //Goto 对应跳转线的Identifier
+      //sender 对应的控件 AnyObject类型
+
+
+
+
+※ 界面跳转传递值
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?){
+        if(segue.identifier == "Goto"){
+		var secondController = segue.destinationViewController as! SecondController
+		secondController.with = "I'm One" //with是跳转Controller的一个熟悉
+	}
+    }
+
+    segue.destinationViewController as! ViewController 把目标Controller转换成需要跳转的Controller，方便传值
+ 
+
+
+
+※ 界面结束及传递值
+   1.在需要返回的界面新增一个方法：
+     @IBAction func close(segue:UIStoryboardSegue){ //方法名可任意取，但参数必须是这样
+	var vc = segue.destinationViewController as! ViewController
+        print(vc.label.text)
+        
+        var vc2 = segue.sourceViewController as! SecondController
+        print(vc2.with)
+        label.text = "CCC"
+     }
+   2.然后托送需要返回的按钮，拖动到界面最上面的最右边一个图标Exit，然后选中这个方法
+ 
+   segue.sourceViewController as! SecondController 把源Controller转换成需要跳转的Controller，方便传值
+   segue.destinationViewController as! ViewController 把目标Controller转换成需要跳转的Controller，方便传值
+   
+---------------------------------------------------------------------------------------------------
+
+

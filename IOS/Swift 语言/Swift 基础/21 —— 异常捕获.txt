@@ -1,0 +1,107 @@
+
+
+
+Swift 异常捕获 介绍
+---------------------------------------------------------------------------------------------------
+
+※ Swift提供了如下4种错误处理方法：
+    1.将错误传播给调用该函数的代码
+    2.使用do-catch捕获、处理错误
+    3.将错误转换成可选值
+    4.使错误失效。
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+抛出异常 throw、throws
+---------------------------------------------------------------------------------------------------
+ 
+※ Swift的方式
+    enum AgeError : ErrorType{
+	case TooOld
+	case TooYoung(age:Int)
+    }
+    
+    func processAge(age:Int) throws -> Int{
+        guard age >= 10 else{
+            throw AgeError.TooYoung(age: age)
+        }
+        guard age <= 80 else{
+            throw AgeError.TooOld
+        }
+        return 1
+    }
+   1.定义一个枚举类基础ErrorType
+   2.用枚举类的值throw 异常
+   3.方法加上throws
+
+    
+
+※ Object-C的方式
+    func processAge(age:Int) throws -> Int{
+        guard age >= 10 else{
+            throw AgeError.TooYoung(age: age)
+        }
+        guard age <= 80 else{
+            throw NSError(domain: "年龄太大", code: -1, userInfo: nil)
+        }
+        return 1
+    }
+    1.直接用NSError抛出异常
+    2.方法加上throws
+
+
+
+※ 推荐使用Object-C的方式，更简便，更直观
+    
+---------------------------------------------------------------------------------------------------
+
+
+
+
+捕获异常 try、try?、try!
+---------------------------------------------------------------------------------------------------
+ 
+※ try 配合 do..catch
+   方式一：
+    do{
+        try processAge(90)  
+    } 
+    catch {
+       print(error)
+       print(error.domain)
+       print(error.userInfo)
+       print(error.description)
+    }   
+
+   方式二：
+    do{
+        try processAge(90)  
+    } 
+    catch let error as NSError{
+       print(error.code)
+       print(error.domain)
+       print(error.userInfo)
+       print(error.description)
+    }   
+    
+
+
+※ try? 将错误转换成可选值
+    如果正常，则可得到返回值
+    如果异常，则会返回nil
+    let reult = try? processAge(6)
+    print(reult)
+    
+
+
+※ try! 使错误失效
+    如果正常，则可得到返回值
+    如果异常，则程序将会直接出错
+    let reult = try! processAge(6)
+    print(reult)
+
+    
+---------------------------------------------------------------------------------------------------

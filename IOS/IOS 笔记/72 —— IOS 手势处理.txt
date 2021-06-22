@@ -1,0 +1,72 @@
+
+
+
+IOS 手势
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ IOS 手势
+   IOS UIGesture 手势分为
+    UITapGestureRecognizer       单击、双击、多击手势
+    UIPinchGestureRecognizer     捏合手势
+    UIRotationGestureRecognizer  旋转手势
+    UIPanGestureRecognizer       平移手势
+    UISwipeGestureRecognizer     滑动手势
+    UILongPressGestureRecognizer 长按手势
+
+
+※ 注意点
+   有的控件默认是关闭手势的，需要手动打开，想要使用，就得先打开。
+   比如UIImageView就默认关闭了手势
+
+
+
+※ 使用  Demo见：\Demo\UIGesture_study01
+   1).将手势添加到控件上
+      //先实例化手势，然后通过控件addGestureRecognizer添加手势
+      //UIImageView默认关闭手势，打开支持需要imageView.userInteractionEnabled = YES;
+      UITapGestureRecognizer *tapOneGes = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapOneAct:)];
+      [imageView addGestureRecognizer:tapOneGes];
+
+
+   2).单击、双击、多击手势都为UITapGestureRecognizer类，只是设置不同
+      //手势识别事件：几次点击时触发
+      tapGes.numberOfTapsRequired = 2;
+      //几个手指点击时触发此事件
+      tapGes.numberOfTouchesRequired = 1;
+   
+
+   3).捏合手势-实现图片根据手势同时放大缩小
+      UIImageView *imageView = (UIImageView*)pinch.view;
+      /**
+        transform：表示变换矩阵
+        p1: 原来的矩阵
+        p2/p3:x／y方向的缩放比例
+        返回新的缩放后的矩阵
+      */
+      imageView.transform = CGAffineTransformScale(imageView.transform, pinch.scale, pinch.scale);
+      //将缩放值归位为单位值
+      pinch.scale = 1;
+
+
+   4).旋转手势-实现图片根据手势同时旋转
+      UIImageView *imageView = (UIImageView*)rot.view;
+      /**
+        返回新的缩放后的矩阵
+      */
+      imageView.transform = CGAffineTransformRotate(imageView.transform, rot.rotation);
+      //将角度清零
+      rot.rotation = 0;
+   
+
+   5).同时支持捏合手势和旋转手势
+      1.类需要实现<UIGestureRecognizerDelegate>
+      2.pinchGes.delegate = self;
+        rotGes.delegate = self;
+      3.实现此方法
+        //是否可以同时相应两个手势
+        - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+           return YES;
+        }
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

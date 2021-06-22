@@ -1,0 +1,58 @@
+
+
+
+IOS 定位与地图结合 (Demo见 ./IOS高德(苹果)地图使用Demo.zip )
+---------------------------------------------------------------------------------------------------
+ ※ 地图API
+     在IOS中，我们使用MapKit API开发地图，其核心是MKMapView类。 
+     网络大神笔记：http://www.hangge.com/blog/cache/detail_787.html
+
+ ※ 具体实现步骤 (Demo见 ./IOS高德(苹果)地图使用Demo.zip )
+     1.导入MapKit.framework
+     2.ViewController里面 import MapKit
+     3...见Demo
+
+
+ ※ 地图类型
+     MKMapType.Standard  标准地图类型 默认为此
+     MKMapType.Satellite 卫星地图类型 在此类型中没有街道名称等信息
+     MKMapType.Hybrid    混合地图类型 此类型数载卫星地图上标街道等信息
+     代码使用eg：mapView.mapType = MKMapType.Standard
+
+
+ ※ 地图类型地图位置和缩放比例
+     //调整地图位置和缩放比例，后两个是地图的范围，跨度，单位是米，越小越精确
+     let viewRegion = MKCoordinateRegionMakeWithDistance((placemark.location?.coordinate)!, 10000, 10000)
+     //设置显示区域
+     self.mapView.setRegion(viewRegion, animated: true)
+
+
+ ※ 设置点击大头针后显示信息
+     let annotation = MKPointAnnotation()
+     annotation.coordinate = (placemark.location?.coordinate)!
+     //设置点击大头针之后显示的标题
+     annotation.title = "标题"
+     //设置点击大头针之后显示的描述
+     annotation.subtitle = "上海大学"
+                
+      //添加大头针
+      self.mapView.addAnnotation(annotation)
+
+ ※ 改变大头针样式
+    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView?{
+        var annotationView = self.mapView.dequeueReusableAnnotationViewWithIdentifier("PIN_ANNOTATION") as? MKPinAnnotationView
+        if annotationView == nil {
+            annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "PIN_ANNOTATION")
+        }
+        //设置大头针颜色, 默认红色
+        annotationView?.pinColor = MKPinAnnotationColor.Green
+        //设置大头针的动画效果, 默认关闭
+        annotationView?.animatesDrop = true
+        //设置点击大头针后是否显示信息, 默认开启
+        annotationView?.canShowCallout = true
+        return annotationView!
+    }
+
+
+---------------------------------------------------------------------------------------------------
+

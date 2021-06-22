@@ -1,0 +1,37 @@
+
+
+
+NSRange 范围
+---------------------------------------------------------------------------------------------------
+ ※ 介绍
+    NSRange是Foundation框架中定义的1个结构体
+    typedef struct _NSRange {
+	NSUInteger location;
+        NSUInteger length;
+    } NSRange;
+
+    这个结构体用来表示一段范围
+
+
+
+ ※ 初始化方法
+    1).最原始的方式
+       NSRange range;
+       range.location = 3;
+       range.length = 4;
+     
+    2).NSRange range = {3, 7};
+    
+    3).Foundation框架定义了1个函数，快速创建NSRange
+       NSRange range = NSMakeRange(3, 7);
+
+       //输出location和length
+       NSLog(@"loc = %lu, len = %lu", range.location, range.length);
+       
+       //将NSRange转换成NSString
+       NSLog(@"%@", NSStringFromRange(range)); //{3, 7}
+
+
+---------------------------------------------------------------------------------------------------
+
+

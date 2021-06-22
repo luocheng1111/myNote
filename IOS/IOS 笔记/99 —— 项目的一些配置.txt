@@ -1,0 +1,29 @@
+
+
+
+项目配置
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 设置项目名称
+   项目->info.plist->增加 Bundle display name->设置项目名称即可
+
+
+※ 设置项目图标 启动页面
+   http://www.maiziedu.com/course/795-11523/ (视频演示，一看就会)
+
+
+
+※ 启动时隐藏状态栏，到主界面时状态栏显示为白色/黑色
+   1. 项目 -> General -> Deployment Info -> Status Bar Style -> Default改成Light 默认为黑色
+    (实则在info.plist增加了一个Status bar style=UIStatusBarStyleLightContent属性)
+
+   2. 并勾选 Hide status bar 
+      (实则在info.plist增加了一个Status bar is Initially hidden=YES属性)
+
+   3. 项目 -> Info.plist -> 增加View controller-based...=NO
+  
+ 
+   4. 在AppDelegate.h中加上
+      [application setStatusBarHidden:NO withAnimation:UIStatusBarAnimationFade];
+
+----------------------------------------------------------------------------------------------------------------------------------------

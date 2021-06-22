@@ -1,0 +1,85 @@
+
+
+
+界面跳转
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ IOS界面间跳转的几种方法
+   1.storyboard的segues方式
+     点击按钮button然后按住control键拖拽到SVC页面，在弹出的segue页面中选择跳转模式即可
+
+   2.导航控制器 UINavigationController
+     //跳转到newController
+     [self.navigationController pushViewController:newC animated:YES];
+     //返回上一页面
+     [self.navigationController popViewControllerAnimated:YES];
+     //返回根控制器
+     [self.navigationController popToRootViewControllerAnimated: YES];
+
+   3.利用Modal形式展示控制器
+     //跳转到newController
+     [self presentViewController:SVC animated: YES completion:nil];
+     //返回到上一页面
+     [self dismissViewControllerAnimated: YES completion: nil];
+
+   4.直接更改UIWindow的rootViewController
+
+
+※ 总结：
+   storyboard方式适合个人开发小程序时使用,有团队合作或者项目较大时不建议使用
+   推荐使用UINavigationController和Modal,无明显缺点,而且目前大部分程序都使用这两种方式,只是看是否需要导航控制器而确定使用哪种方案
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+界面传值
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 界面传值的几种方式 \Demo\GotoNextPageWithValue
+   1.storyboard的segues方式
+   2.属性传值
+     DetailViewControllerOne *dVC = [[DetailViewControllerOne alloc] init];
+     dVC.textString = self.textField.text;  //@property (nonatomic , strong) NSString *textString;
+     [self.navigationController pushViewController:dVC animated:NO];
+   3.Block传值 没有太懂
+   4.代理传值   没有太懂
+   5.单例传值   没有太懂
+   6.通知传值
+     //FirstController 注册和回收通知
+     -(void)viewWillAppear:(BOOL)animated {
+          [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(labelTextChange:) name:@"labelChange" object:nil];
+     }
+
+     -(void)dealloc {
+          [[NSNotificationCenter defaultCenter] removeObserver:self];
+     }
+
+
+     -(void)labelTextChange:(NSNotification *)sender {
+          //NSLog(@"收到通知");
+          NSDictionary *dic = sender.userInfo;
+          self.label.text = dic[@"info"];
+     }
+
+     //DetailViewController 中发送通知
+     [[NSNotificationCenter defaultCenter] postNotificationName:@"labelChange" object:self userInfo:@{@"info":_textField.text}];
+
+
+
+※ 总结
+   1.属性传值相对比较简单，主要用于简单的正向传值，不能进行反向传值，也不能进行跨页面传值
+   2.单例传值 可以实现 正向反向跨页面传值，但是他需要一个单例类，需要创建一个单例对象
+   3.代理传值 是最经典、最常用的传值方式，主要用于反向传值，而且是1对1的，两个页面建立代理关系，才可以传值
+   4.block传值 是苹果近两年主推的一种方式，他无法取代代理传值，但他和代理传值拥有着相似的功能，代理能做的，block也可以做，他也是1对1的，两个页面必须指定之后才可以传值
+   5.通知传值，比较强大，可以进行跨页面传值，他是多对多的传值方式，发送方发送的通知，任何一方都可以接受，
+     接收方接受的通知可以来自于任何一方
+
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

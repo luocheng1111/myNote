@@ -1,0 +1,145 @@
+
+
+
+Array 数组
+---------------------------------------------------------------------------------------------------
+※ 数组的声明 数组是有序的
+   var array1 = ["A", "B", "C"]
+   var array2:[String] = ["A", "B", "C"]
+   var array3:Array<String> = ["A", "B", "C"]
+   var array3:Array = ["A", "B", "C"]   // -->["A", "B", "C"] 如果元素都是相同类型，带有初始化，可以省略类型
+
+
+※ 声明一个空数组
+   var array:[Int] = []
+   var array:Array<Int> = []
+   var array = [Int]() 
+   var array = Array<Int>()
+
+
+※ 数组的遍历
+   1.取得numbers数组中的所有值
+   for number in numbers{
+	print("\(number)");
+   }
+
+   2.取得值和索引
+   for (index, value) in numbers.enumerate(){
+	print("\(index+1):\(value)");
+   }
+  
+
+※ 方法
+   是否为空 array.isEmpty 
+   数组总数 array.count
+   添加元素 array.append("G")
+            array +=["G"]
+	    array +=["I", "J", "K"]
+   某位置添加元素 
+            array.insert("hello", atIndex:0)
+   删除某位置元素
+            array.removeAtIndex(0)
+   数组合并 var array3 = array1 + array2
+   删除最后一个元素 array.removeLast()
+   修改或获取
+            array[0] -->获取
+	    array[0] = "A" -->修改
+	    array[2...5] = ["C", "D", "E", "F"] 或 ["C"] 
+
+---------------------------------------------------------------------------------------------------
+
+
+
+Dictionary 字典
+---------------------------------------------------------------------------------------------------
+※ 字典的声明 字典是无序的
+   var dictionary = [1:"A", 2:"B", 3:"C"]
+   var dictionary:[Int:String] = [1:"A", 2:"B", 3:"C"]
+   var dictionary:Dictionary<String, String> = ["A":"zhangsan", "B":"lisi", "C":"wangwu"]  
+   var dictionary:Dictionary = ["A":"zhangsan", "B":"lisi", "C":"wangwu"] // 如果元素都是相同类型，带有初始化，可以省略类型
+
+
+※ 声明一个空字典  
+   var dict = Dictionary<Int, String>()
+   var dict = [Int:String]()
+   var dict:Dictionary<String, String> = [:]
+   var dict:[String:String] = [:]
+
+
+※ 字典的遍历
+   遍历所有键值
+    for (key, value) in dict{
+      print("\(key)-->\(value)")
+    }
+   遍历所有键
+    for key in dict.keys{
+      print("\(key)")
+    }
+   遍历所有值
+    for value in dict.values{
+      print("\(value)")
+    }
+
+
+※ 方法
+   是否为空 dict.isEmpty 
+   字典总数 dict.count
+   删除 dict["A"] = nil 或 dict.removeValueTokey("A") 
+   增加或修改 dict["B"] = "zhaoliu" 或 dict.updateValue("B", forKay:"zhaoliu")  如果有值，则修改，没有，则增加
+   
+   获取所有键、值 dict.keys  dict.values
+   键、值强转数组 Array(dict.keys)   [Int](dict.keys)
+    
+
+---------------------------------------------------------------------------------------------------
+
+
+
+Set 集合
+---------------------------------------------------------------------------------------------------
+※ 集合的声明 集合是无序
+   var setA = Set<String>()
+   var setA:Set<Int> = [2,3,4]  -->{2,3,4} 
+   var setA:Set = [2,3,4] -->{2,3,4} // 如果元素都是相同类型，带有初始化，可以省略类型
+   var setA = Set<Int>([2,3])  -->{2,3}
+
+
+※ 声明一个空集合
+   var emptySet:Set<Int> = []
+   var emptySet = Set<Int>()
+
+
+※ 集合的介绍：
+    集合拥有数据唯一性，无序的特点，与数组很相似，只是声明方式有点不同 
+
+
+※ 数组与集合的对比
+    1.集合是无序的，数组是有序的，这样对取值效率不同
+    2.集合包含一些特殊的操作，比如并集，交集，或和非，而数组没有且实现起来很麻烦
+    3.集合中的数据是唯一的
+
+
+※ 数组转为集合
+    var vowels = Set(["A","E","I","O","U","U"]) 
+    var vowels = Set<String>(["A","E","I","O","U","U"])  --> {"O","I","A","U","E"} //集合无序唯一的特点
+
+
+※ 方法
+   是否包含 aSet.contains("c")
+   加入值   aSet.insert("c")
+   移除值   aSet.remove("b")
+   求两集合交集、并集 aSet.interset(bSet)、aSet.union(bSet)
+   求两集合包含、被包含 aSet.isSubsetof(bSet) aSet是否是bSet的子集
+   求两集是否相离  aSet.isDisjointWith(bSet)
+
+
+---------------------------------------------------------------------------------------------------
+
+
+Array数组 与 Set集合区别
+---------------------------------------------------------------------------------------------------
+Array数组，[], 有序，擅长数据的存储
+Set集合，  {}, 无序，每个元素只能出现一次，擅长数据的对比及筛选
+
+
+---------------------------------------------------------------------------------------------------

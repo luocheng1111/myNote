@@ -1,0 +1,106 @@
+
+
+
+NSArray NSMutableArray OC数组
+---------------------------------------------------------------------------------------------------
+
+ ※ OC数组介绍
+    OC的数组可以存储不同类型的对象，OC的数组只能存储对象
+    数组是有序的，可以存储不同类型
+
+
+ ※ NSArray的使用
+     
+     //创建一个空数组
+     NSArray *arr1 = [NSArray array];
+
+     //创建数组,有多个元素
+     NSArray *array = [[NSArray alloc] initWithObjects:@"1",@"2",@"3",@"4",@"5",nil]
+     
+     //简化方式创建数组
+     NSArray *arr = @[@"1",@"one",@"3",@4,@"ONE"];
+
+     //数组的长度
+     int count = (int)array.count; // 5
+
+     //判断数组中是否包含对应的对象
+     BOOL isHave = [array containsObject:@"2"]; 
+     NSLog(@"%d", count);
+     
+     //取得数据中首个元素
+     NSString *firstStr = [array firstObject]; // 1
+
+     //取得数据中最后一个元素
+     NSString *lastStr = [array lastObject]; // 5
+
+     //取得数据中下标为3的元素
+     NSString *str = [array objectAtIndex:3]; // 4
+
+     //打印元素对应的下标(如果元素不存在则打印-1)
+     int index = (int)[array indexOfObject:@"b"]; // -1
+
+
+
+ ※ 数组的遍历
+    
+    NSArray *array = [[NSArray alloc] initWithObjects:@"1",@"2",@"3",@"4",@"5",nil]
+
+    //1.for循环 (注意元素类型不一致的问题)
+    for(int i=0; i<array.count; i++){
+	NSString *str = [array objectAtIndex:i]; // 1
+	NSLog(@"str = %@", str);
+    }
+ 
+
+    //2.for..in 快速枚举
+    for(NSString *str in array){
+	NSLog(@"str = %@", str);
+    }
+    //当迭代类型不一致的时候，建议使用id类型
+    for(id item in array){
+	NSLog(@"str = %@", str);
+    }
+
+    //3.使用block遍历
+
+
+
+※ NSMutableArray 的使用 
+   
+   Person *p1 = [[Person alloc] initWithName:@"张三"];
+   Person *p2 = [[Person alloc] initWithName:@"李四"];
+   Person *p3 = [[Person alloc] initWithName:@"王五"];
+
+   NSArray *personArray = [[NSArray alloc] initWithObjects:p2,p3,nil]
+
+   //NSMutableArray的创建
+   NSMutableArray *array = [[NSMutableArray alloc] init];
+
+   /*
+     1.添加对象
+     如果 是 [array addObject:personArray];
+     则是把整个数组添加进来，则此时NSMutableArray只有1个元素
+   */
+   [array addObject:p1];
+
+   //2.添加数组元素到此数组
+   [array addObjectFromArray:personArray];
+
+
+   //删除所有元素
+   [array removeAllObjects];
+
+   //删除最好一个元素
+   [array removeLastObjects];
+
+   //删除指定元素
+   [array removeObject:p2];
+
+   //删除指定元素(注意下标问题会导致崩溃)
+   [array removeObjectAtIndex:2];
+   
+   //交换元素的位置
+   [array exchangeObjectAtIndex:0 withObjectAtIndex:1];
+   
+---------------------------------------------------------------------------------------------------
+

@@ -1,0 +1,259 @@
+
+
+
+@property 属性历史
+--------------------------------------------------------------------------------------------------------
+
+ ※ @property 属性
+    当在 @interface类中写1个 @property属性时
+    @property NSString *name;
+
+    编译器会自动
+    1).自动生成私有属性 NSString *_name;
+    2).生成getter setter的声明
+    3).生成getter setter的实现
+
+
+ ※ 使用注意
+    1.如果我们重写了setter，编译器会自动生成getter
+      如果我们重写了getter，编译器会自动生成setter
+      如果我们重写了setter、getter 那么就不会自动生成私有属性了。???
+
+    2. @property生成是互相是私有属性，如果子类想访问，则可以通过setter、getter
+       来访问
+
+
+--------------------------------------------------------------------------------------------------------
+
+
+
+@property 历史 (4.4 Xcode版本之前)
+--------------------------------------------------------------------------------------------------------
+
+ ※ @property 属性(4.4 Xcode之前)
+
+    当在 @interface类中写1个 @property属性时
+    @property NSString *name;
+
+    编译器会自动
+    1).生成其属性setter getter的声明
+
+
+ ※ @property 使用注意(4.4 Xcode之前)
+    1. @property只是生成getter和setter的声明，属性还是要自己定义、实现还是要自己来
+    2. @property声明要和属性的名称一致  去掉下划线 否则生成的方法名就不符合规范的
+
+
+
+
+ ※ @synthesize
+
+    当在 @implemention类中写1个 @synthesize 修饰符时
+    @synthesize name = _name;
+
+    编译器会自动
+    1).生成其属性setter getter的实现
+
+
+ ※ @synthesize 使用注意
+    1. 如果写
+       @synthesize name  那么会生成其私有属性 和 setter getter的实现
+    2. 如果写
+       @synthesize name=_name  那么会生成其属性setter getter的实现
+
+--------------------------------------------------------------------------------------------------------
+
+
+
+
+属性参数
+-------------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+    @property可以带参数的.
+    格式： @property(参数1,参数2,参数3.....)数据类型 名称;
+
+    参数的分类
+    a. 与多线程相关的两个参数。
+       atomic、nonatomic
+
+    b. 与生成的getter setter方法名字相关的参数。
+       setter、getter
+
+    c. 与生成只读、读写相关的参数。
+       readonly、readwrite
+
+    d. 与生成的setter方法的实现相关的参数。
+       assign、retain
+
+    e. 声明属性是强指针类型还是弱指针类型
+       strong、weak
+
+    f. 拷贝相关
+       copy、mutableCopy
+
+
+
+ ※ atomic与nonatomic 多线程相关的参数：
+    atomic：默认值. 如果写atomic,这个时候生成的setter方法的代码就会被加上一把线程安全锁。
+            特点：安全、效率低下.
+    nonatomic：如果写了nonatomic,这个时候生成的setter方法的代码就不会加线程安全锁。
+            特点：不安全、但是效率高.
+
+    建议：要效率. 选择使用nonatomic 在没有讲解多线程的知识之前 统统使用nonatomic
+
+
+
+ ※ getter与setter 生成setter、getter方法名称相关的参数
+    默认情况下. @property生成的getter setter方法的名字都是最标准的名字，
+    其实我们可以通过参数来指定 @property生成的方法的名字。
+
+    语法：
+     @property(nonatomic,assign,getter=xxx,setter=ooo:) int age;
+     getter = getter方法名字 用来指定 @property生成的getter方法的名字。
+     setter = setter方法名字 用来指定 @property生成的setter方法的名字。注意。setter方法是带参数的 所以要加1个冒号。
+     记住：如果使用getter setter修改了生成的方法的名字。在使用点语法的时候。编译器会转换为调用修改后的名字的代码。
+
+    建议：
+     1). 无论什么情况都不要改setter方法的名字。因为默认情况下生成的名字就已经是最标准的了。
+     2). 什么时候修改getter方法的名字。当属性的类似是1个BOOL类型的时候。就修改这个getter的名字以is开头 提高代码的阅读性。
+         Person *p1 = [Person new];
+         p1.goodMan = YES;
+         BOOL flag = p1.isGoodMan
+
+
+
+ ※ readwrite与readonly 生成只读、读写的封装相关参数：
+    readwrite：默认值，代表同时生成getter setter
+    readonly： 只会生成getter 不会生成setter
+
+
+ ※ retain与assign 生成setter方法的实现相关参数：
+    assign：默认值 生成的setter方法的实现就是直接赋值。
+    retain：生成的setter方法的实现就是标准的MRC内存管理代码。
+            也就是. 先判断新旧对象是否为同1个对象 如果不是 release旧的 retain新的。
+
+    当属性的类型是 OC对象时，  使用retain
+    当属性的类型是 非OC对象时，使用assign
+
+    千万注意：
+    retain参数.只是生成标准的setter方法为标准的MRC内存管理代码 不会自动的再dealloc中生成relase的代码.
+    所以,我们还是自动手动的在dealloc中release
+
+
+ ※ strong与weak 声明属性是强指针类型还是弱指针类型
+    strong：默认值 strong和retain相似,只要有一个strong指针指向对象，该对象就不会被销毁
+    weak：  声明为weak的指针，weak指针指向的对象一旦被释放，weak的指针都将被赋值为nil；
+
+    写法：
+    @property(nonatomic,strong)Car *car;
+    @property(nonatomic,weak)Car *car;
+
+    使用建议。
+    1).在ARC机制下，如果属性的类型是OC对象类型的，绝大多数场景下使用strong
+    2).在ARC机制下。如果属性的类型不是OC对象类型的，使用assign
+    3).在ARC机制下，将MRC下的reatin换为strong
+    4).在ARC机制下，NSString类型，建议用copy
+
+
+
+ ※ copy、mutableCopy
+    浅拷贝：没有产生新对象，而是直接将对象本身的地址返回，地址拷贝
+    深拷贝：有产生1个新对象，内容拷贝
+    建议参考另一章节-浅拷贝 深拷贝 copy属性
+
+
+
+※ @property参数总结
+    1.开发程序分为ARC和MRC
+
+    2.与多线程相关的参数
+      atomic:默认值 安全，但是效率底下
+      nonatomic:不安全，但是效率高
+      无论在ARC还是MRC都可以使用。
+      使用建议：无论在ARC还是MRC 都使用nonatomic
+
+    3.retain、assign、strong、copy
+      retain：只能用在MRC的模式下，代表生成的setter方法是标准的内存管理代码
+      在ARC下，非OC对象使用saaign、OC对象使用strong、NSString使用copy
+      在ARC机制下，当两个对象相互引用的时候，如果两边都使用strong 那么就会出现内存泄漏、这个时候应该1端strong 1端weak
+      在ARC机制下，原来使用retain的用strong
+
+
+    4.readonly readwrite
+      无论在ARC还是MRC都可以使用。
+
+    5. settrt getter 无论在ARC下还是在MRC下都可以改。
+
+    6. NSString/NSArray NSDictionary：通常都使用copy，以得到新的内存分配，而不只是原来的引用。
+
+    7. 对于IOS控件，从storyboard/xib上创建的控件，用weak就可以了，因为父类view已经strong了
+       而对于自己定义的控件，则需要使用strong
+
+
+    出现循环引用的时候。 MRC：1边retain 1边assign ARC：1边strong 1边weak
+
+
+
+※ 一些疑惑
+   1.xib/storybard连接的对象为什么可以使用weak
+     @property (nonatomic, weak) IBOutlet UIButton *button;
+     像上面这行代码一样，在连接时自动生成为weak。因为这个button已经放到view上了，因此只要这个View不被释放，
+     这个button的引用计数都不会为0，因此这里可以使用weak引用。
+
+   2.如果我们不使用xib/storyboard，而是使用纯代码创建呢？
+     使用weak时，由于button在创建时，没有任何强引用，因此就有可能提前释放。
+     Xcode编译器会告诉我们，这里不能使用weak。因此我们需要记住，只要我们在创建以后需要使用它，
+     我们必须保证至少有一个强引用，否则引用计数为0，就会被释放掉。
+     在这里，我们需要这样写
+     @property (nonatomic, strong) UIButton *button;
+
+   3.ARC模式下getter、setter的写法与MRC的不同
+     @property (nonatomic, strong) NSMutableArray *array;
+
+     - (void)setArray:(NSMutableArray *)array {
+        if (_array != array) {
+            _array = nil;
+            _array = array;
+        }
+     }
+
+
+
+※ IOS下、正确使用方式
+   @property (nonatomic, assign) int number;
+   @property (nonatomic, assign) BOOL folded;
+   @property (nonatomic, assign) CGPoint originalPoint;
+   @property (nonatomic, assign) CGFloat offsetX; //CGFloat只是对float typedef的定义
+   @property (nonatomic, assign) NSInteger pageCount; //NSInteger为long或int的typedef，
+
+   @property (nonatomic, copy) NSString *searchStr;
+
+   @property (nonatomic, strong) UserInfo *userInfo;
+
+   @property (nonatomic, strong) UIWindow *window;
+   @property (nonatomic, weak) IBOutlet UIView *container;
+
+   @property (nonatomic, weak) IBOutlet UITableView *tableView;
+   @property (nonatomic, weak) IBOutlet UIScrollView *scrollView;
+   @property (nonatomic, weak) IBOutletCollection(UITextField) NSArray *textFields;
+
+   @property (nonatomic, weak) IBOutlet UIButton *helloBtn;
+   @property (nonatomic, weak) IBOutlet UITextField *field;
+   @property (nonatomic, weak) IBOutlet UIImageView *headImageView;
+   @property (nonatomic, weak) IBOutlet UITextView *textView;
+   @property (nonatomic, weak) IBOutlet UILabel  *nameLabel;
+
+   结论:对于IOS控件，从storyboard/xib上创建的控件，用weak就可以了，因为父类view已经strong了
+        而对于自己定义的控件，则需要使用strong
+    @property (nonatomic,weak) IBOutlet UIButton *btn;
+    @property (nonatomic,strong) UIButton *btn;
+
+   学习：https://www.zhihu.com/question/29927614?sort=created
+
+
+学习：
+ http://blog.csdn.net/woaifen3344/article/details/50219177
+ http://www.jianshu.com/p/30c562f842cc
+
+-------------------------------------------------------------------------------------------------------

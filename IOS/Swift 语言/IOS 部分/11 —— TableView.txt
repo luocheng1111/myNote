@@ -1,0 +1,149 @@
+ 
+
+TableView 表视图 
+---------------------------------------------------------------------------------------------------
+
+ ※ 介绍
+     TableView和Android的ListView效果类似。
+     IOS中表视图主要分为普通表视图和分组表视图
+     Demo见 ./TableView 样例.zip
+     分组及索引Demo见  ./TableVie分组&索引.zip
+
+
+ ※ TableView的一些重要方法
+     tableView.reloadData()  //刷新TableView
+     tableView.dequeueReusableCellWithIdentifier("tableViewCell") as! UITableViewCell! //根据Identifier获取Cell
+     tableView:heightForRowAtIndexPath:-> CGFloat { return 80 } 设置TableViewCell的高
+
+
+
+ ※ 自定义TableView
+      1.stroyboard中表现出TableView及tableViewCell控件
+      2.tableViewCell的Identifier设置一个名字
+      3.ViewControl实现UITableViewDataSource,UITableViewDelegate
+      4.重新方法
+          tableView:cellForRowAtIndexPath:-> UITableViewCell 为表视图单元格提供数据，
+	  tableView:numberOfRowsInSection:-> Int             返回行总数
+
+      func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell{
+        
+	var todo:TodoModel = todos[indexPath.row] as TodoModel
+        
+	//方式一: 利用tag获取控件，然后赋值 "tableViewCell"对应TableViewCell的Identifier名字
+        let cell = tableView.dequeueReusableCellWithIdentifier("tableViewCell") as! UITableViewCell!
+        let image = cell.viewWithTag(101) as! UIImageView
+        var title = cell.viewWithTag(102) as! UILabel
+        var date = cell.viewWithTag(103) as! UILabel
+	image.image = UIImage(named: todo.image)
+        title.text = todo.title
+        date.text = self.toLocal(todo.date)
+
+        // //方式二: 自定义CustomCell，然后赋值
+        // let cell = tableView.dequeueReusableCellWithIdentifier("tableViewCell") as! CustomCell!
+        // cell.icon.image = UIImage(named: todo.image)
+        // cell.title.text = todo.title
+        // cell.date.text = self.toLocal(todo.date)
+
+        return cell
+    }
+
+          
+
+ ※ TableView添加滑动删除
+     tableView:commitEditingStyle:forRowAtIndexPath:-> Void 为删除或修改提供数据
+
+     public func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath){
+        //当是删除的时候，删除对应真是数据,有增加的时候，所以这里要判断
+        if(editingStyle == UITableViewCellEditingStyle.Delete){
+            print(indexPath.row)
+            todos.removeAtIndex(indexPath.row)
+	    //给删除提供动画效果
+            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
+        }
+
+        //加了这一行后就没有删除动画效果
+        //tableView.reloadData()
+    }
+
+
+
+
+ ※ TableView 进入编辑模式
+    override func setEditing(editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: editing)
+        print("edit")
+        self.tableView.setEditing(editing, animated: editing)
+    }
+
+    附加功能一：与左头部联动
+     navigationItem.leftBarButtonItem = editButtonItem()
+
+    附加功能二：编辑模式下，列表可以拖动改变显示顺序
+     需要实现2个方法:
+     tableView:canMoveRowAtIndexPath:->Bool{
+        //这里true表示可移动单元格，false表示不可移动,只会在编辑模式下才会有拖动效果
+        return true
+     }
+
+     tableView:moveRowAtIndexPath:toIndexPath:->无{  //编辑模式下添加改变顺序拖动效果
+	let todo = todos.removeAtIndex(sourceIndexPath.row)
+	todos.insert(todo, atIndex:destinationIndexPath.row)
+	self.tableView.reloadData()
+     }
+    
+
+
+
+ ※ TableView 增加搜索框
+     1.storyboard增加Search Bar控件，位于TableView下，与TableViewCell同级
+     2.controller实现UISearchDisplayDelegate协议
+     3.重写搜索方法
+       searchDisplayController:shouldReloadTableForSearchString:->Bool{
+	 filteredTodos = todos.filter(){
+		$0.title.rangeOfString(searchString!) != nil
+	 }
+	 return true
+       }
+     4.改变这两个方法的写法，具体可参考例子哦
+        tableView:cellForRowAtIndexPath:-> UITableViewCell 为表视图单元格提供数据，
+        tableView:numberOfRowsInSection:-> Int             返回行总数
+
+
+
+ ※ 分组表视图且增加索引
+      重写 numberOfSectionsInTableView：-> Int{ return keyArray.count } 分成几组
+      然后以下两个方法的写法要改变
+	tableView:numberOfRowsInSection -> Int   获得TableView总数
+	tableView:cellForRowAtIndexPath -> UITableViewCell  编写Cell
+      Demo见 ./TableVie分组&索引.zip
+
+
+ ※ 增加索引
+      重写 sectionIndexTitlesForTableView -> [String]? 索引的具体值
+      索引监听：
+         tableView:sectionForSectionIndexTitle:atIndex-> Int 可以得到触发的索引值，返回索引的租位置
+
+
+ ※ 下拉刷新
+      Demo见 ./TableView下拉刷新.zip
+        var refreshControl = UIRefreshControl()
+        refreshControl.attributedTitle = NSAttributedString(string: "下拉加载..")
+        refreshControl.addTarget(self, action: "refreshTableView", forControlEvents: UIControlEvents.ValueChanged)
+        self.refreshControl = refreshControl
+     
+        func refreshTableView(){
+         if(self.refreshControl?.refreshing == true) {
+            self.refreshControl?.attributedTitle = NSAttributedString(string: "加载中")
+            //µ
+            self.data.append("New Lable")
+            //ˢ
+            self.refreshControl?.endRefreshing()
+            
+            self.refreshControl?.attributedTitle = NSAttributedString(string: "下拉加载..")
+            self.tableView.reloadData()
+         }
+       }
+---------------------------------------------------------------------------------------------------
+
+
+

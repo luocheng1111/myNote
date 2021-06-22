@@ -1,0 +1,39 @@
+
+
+UIPickView
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UIPickView介绍
+   UIPickView 选择器控件
+ 
+
+※ UIPickView 的使用 Demo见：\Demo\UIPickView_study01
+
+    UIPickerView *pickerView = [UIPickerView new];
+    pickerView.frame = CGRectMake(50, 50, 200, 400);
+    
+    pickerView.dataSource = self;
+    pickerView.delegate = self;
+    
+    [self.view addSubview:pickerView];
+
+
+    //视图的组数
+    - (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView{
+       return 1;
+    } 
+
+    //每组多少个元素
+    -(NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component{
+      return 5;
+    }
+
+    //每个元素的内容
+    - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component{
+      NSString *str = [NSString stringWithFormat:@"%ld组%ld行",component+1, row+1];
+      return str;
+    }
+
+ 
+
+----------------------------------------------------------------------------------------------------------------------------------------

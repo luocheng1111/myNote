@@ -1,0 +1,53 @@
+
+
+
+第一个MRC程序
+--------------------------------------------------------------------------------------------------------
+
+ ※ MRC原理
+    当对象的引用计数器变为0的时候，系统会自动回收对象。
+    当系统回收对象的时候，会自动调用对象的dealloc方法。
+
+
+
+ ※ 第一个MRC程序
+    IOS5开始。Xcode4.2开始就支持ARC。Xcode7 默认支持ARC开发。
+    默认使用的开发方式就是ARC的模式
+    
+    1.关闭ARC开启MRC
+      项目->Build Settings->Objective-C ARC yes换成no
+    
+    2.重写dealloc方法,只要这个方法被执行，就代表当前这个对象被回收了。
+      - (void)dealloc
+      {
+         NSLog(@"名字叫做 %@ 的人挂了", _name);
+	 [supper dealloc];
+      }
+    
+    3.实际运用
+      int main(...){
+	 Person *p1 = [[Person alloc] init];
+	 p1.name = @"小明";
+
+	 NSUInteger count = [p1 retainCount];
+         NSLog(@"count = %lu ", count); //count = 1
+
+	 [p1 release];
+      }
+
+
+
+ ※ 内存管理的重点
+    1. 有一个对象的创建，就要匹配一个对象的release
+
+    2. retain的次数和release的次数要匹配
+
+    3. 谁用谁retain. 谁不用谁release
+       谁负责retain. 谁就负责release
+    
+    4. 只有在多1个人用的时候才retain 少1个使用的时候才release
+
+    有始有终，有加就有减，有retain就应该匹配1个release 一定要平衡。
+
+
+--------------------------------------------------------------------------------------------------------

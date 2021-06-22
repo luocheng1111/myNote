@@ -1,0 +1,25 @@
+
+
+
+instancetype 关键字
+--------------------------------------------------------------------------------------------------------
+
+ ※ instancetype 关键字
+    instancetype只能作为方法的返回值，代表这个方法的返回值是当前这个类的对象。
+    如果是Person调用，则返回的是Person对象
+    如果是Student调用，则返回的是Student对象
+
+    
+    场景：Student继承Person类，person是Person类的类方法
+
+    + (instancetype)person
+    {
+        return [self new];
+    }
+    
+    Person *person = [Peron person];
+    Student *student = [Person person];
+
+
+--------------------------------------------------------------------------------------------------------
+

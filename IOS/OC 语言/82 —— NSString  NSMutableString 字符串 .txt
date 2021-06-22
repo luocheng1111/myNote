@@ -1,0 +1,209 @@
+
+
+
+NSString 存储原理
+---------------------------------------------------------------------------------------------------
+ ※ NSString的原理
+    1). NSString *str = @"jack";
+        当我们简要创建字符串时，这个字符串对象是存储在常量区(数据段)的
+
+        NSString *str = [NSString stringWithFormat:@"jack"];
+        NSString *str = [NSString new];
+        当我们用类对象创建字符串时，字符串对象存储在堆区
+    
+    2). 当创建1个字符串对象后，这个字符串的内容是无法修改的，
+        如果我们为其重新赋值，并不是修改原来的字符串对象，
+        而是重新创建1个字符串对象，将这个字符串对象的地址重新赋值给字符串指针变量
+        NSString *str = @"jack";
+        NSLog(@"str = %p", str); //str = 0x100004228
+        str = @"rose";
+        NSLog(@"str = %p", str); //str = 0x100004268 地址已经改变
+     
+
+    3). 当系统准备要在内存中创建字符串对象的时候，会先检查内存中是否有相同内容的字符串对象。
+        如果有，直接指向，如果没有才会重新创建
+        NSString *str = @"jack";
+        NSLog(@"str = %p", str); //str = 0x100004228
+        str = @"rose";
+        NSLog(@"str = %p", str); //str = 0x100004268 
+
+        NSString *str2 = @"rose";
+        NSLog(@"str2 = %p", str2); //str2 = 0x100004268 地址和str rose 是一个地址
+
+
+    4). 存储在常量区的数据不会被回收，所以存储在常量区的字符串对象也不会被回收。
+        NSString *str = @"jack";
+        NSLog(@"str = %p", str); //str = 0x100004228
+        str = nil;
+        NSString *str2 = @"jack";
+        NSLog(@"str2 = %p", str2); //str2 = 0x100004228 
+
+       
+---------------------------------------------------------------------------------------------------
+
+
+
+字符串 NSString 与 NSMutableString
+---------------------------------------------------------------------------------------------------
+ ※ 介绍
+     Foundation框架的字符串有两个：NSString与NSMutableString，分别代表不可变、可变字符串
+     NSMutableString是NSString的子类，可变字符串可以用字符串的所有方法
+     
+     NSString *str = @"rose";
+     1). @"rose"本质上是1个NSString对象，这个对象中存储的是字符串"rose"。
+     2). 将这个字符串的地址返回赋值给str指针
+
+
+     
+ ※ NSString 常用方法 
+     1. OC、C转换
+        char *s = "Hello World";
+        NSString *str = @"Hello";
+        // C->OC
+        NSLog(@"%@", [NSString stringWithUTF8String:s]); //Hello World
+        // OC->C
+        NSLog(@"%s", [str UTF8String]); //Hello
+
+
+     2. 拼接
+        // 格式化字符串
+        NSLog(@"%@", [NSString stringWithFotmat:@"a=%d b=%d", 10, 20]); //a=10 b=20
+        // 拼接字符串
+        NSLog(@"%@", [@"123" stringByAppendingString:@"IOS"]); //123IOS
+
+
+     3. 大小写转换
+        //转换小写
+        NSLog(@"%@", [@"aBcDeF" lowercaseString]); //abcdef
+        //转换大写
+        NSLog(@"%@", [@"aBcDeF" uppercaseString]); //ABCDEF
+
+
+     4. 判断前缀、后缀
+        //判断前缀
+        NSLog(@"%d", [@"www.imooc.com" hasPrefix:@"www."]); //返回值是BOOL类型 结果是：1
+        //判断后缀
+        NSLog(@"%d", [@"www.imooc.com" hasSuffix:@".com"]); //返回值是BOOL类型 结果是：1
+
+
+     5. 判断两个字符是否相同
+        NSLog(@"%d", [@"Hello" isEqualToString:@"Hell"]); //返回值是BOOL类型 结果是：0
+
+
+     6. 按照指定字符串分割字符串
+        NSArray *strArray = [@"a,b,c,d,e,f,g" componentsSeparatedByString:@","]
+        for(NSString *str in strArray){
+	           NSLog(@"%d", str); 
+        }
+
+
+     7. 截取
+        NSString *str = @"a,b,c,d,e,f,g";
+        //按照范围截取字符串
+        NSRange range = NSMakeRange(1,5);
+        NSLog(@"%@", [str substringWithRange:range]); //,b,c,
+        //从某一位开始截取字符串
+        NSLog(@"%@", [str substringFromIndex:2]); //b,c,d,e,f,g
+        //从开头截取到某一位
+        NSLog(@"%@", [str substringToIndex:7]); //a,b,c,d
+
+
+     6) 替换、删除
+        - (NSString *)stringByReplacingOccurrencesOfString:(NSString *)target withString:(NSString
+        *)replacement;
+        将字符串中第1个参数替换为第2个参数，
+        提示：原来的指针指向字符串的内容是不会变的，会全部替换。新串是以方法的返回值返回的。
+
+        NSString *str = @"我北京爱北京天安门！";
+        str = [str stringByReplacingOccurrencesOfString:@"北京" withString:@"广州"];
+        NSLog(@"%@", str); //我广州爱广州天安门！
+
+
+     7) 比较字符串的大小 返回值是枚举类型，-1 小于 0 等于 1 大于
+        - (NSComparisonResult)compare:(NSString *)string;
+        NSString *str1 = @"China";
+        NSString *str2 = @"Japan";
+        int res = [str1 compare:str2];
+        NSLog(@"res = %d", res);
+        补充：//忽略大小写
+        int res = [str1 compare:str2 options:NSCaseINsensitiveSearch]; 
+
+
+     8) 写入文件
+        - (BOOL)writeToFile:(NSString *)path atomically:(BOOL)useAuxiliaryFile encoding:
+	   (NSStringEncoding)enc error:(NSError **)error;
+        参数2: YES, 现将内容写入到1个临时文件，如果成功在将这个文件搬到指定的目录。
+	                 安全，效率较低。
+               NO, 直接将内容写入到指定的文件 
+	                 不安全，效率高。推荐使用NO
+	参数4: 二级指针，要传递1个NSError指针的地址
+	       如果写入成功，返回nil
+	       如果写入失败，返回错误对象，对象描述了错误信息，
+	       我们可以通过此值来判断是否写入成功
+
+        NSString *str = @"Hello Visitor";
+	NSError *err;
+	BOOL isOK = [str writeToFile:@"/Users/.../demo.txt" atomically:NO encoding:NSUTF8StringEncoding error:&err];
+        //判断方式1,判断NSEerror的值
+	if(err != nil){
+	    NSLog(@"写入失败！");
+	    NSLog(@"%@",err); //错误信息
+	    NSLog(@"%@",err.localizedDescription); //错误的简要信息
+	}else｛
+	    NSLog(@"写入成功！");
+	｝
+
+	//判断方式2,直接判断返回值，此时error可以传入nil error:nil
+	if(isOK)
+	    NSLog(@"写入成功！");
+	else
+	    NSLog(@"写入失败！");
+
+
+     9) 读取本地文件
+	NSLog(@"%@", [NSString stringWithContentsOfFile:@"/Users/.../test.txt" encoding:NSUTF8StringEncoding error:nil]); //文件中的内容
+
+
+     10) 使用URL来读写字符串数据
+        1).优势：既可以读写本地本件，还可以读写网页文件、ftp服务器上的文件
+        2).不同的类型 URL地址的写法
+	    a.本地磁盘文件：file:///Users/itcast/Desttop/1.txt
+	    b.网页地址： http://www.itcast.cn/index.html
+	    c.ftp文件的地址：ftp://server.itcast.cn/1.txt
+        3).将不同类型的地址封装在NSURL对象之中
+
+	NSURL *url = [NSURL URLWithString:@"http://www.itcast.cn/index.html"]; //网络路径
+	NSLog(@"%@", [NSString stringWithContentsOfURL:httpURL encoding:NSUTF8StringEncoding error:nil]); //
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+
+NSMutableString 
+--------------------------------------------------------------------------------------------------------
+
+ ※ NSMutableString 特有方法  
+
+     1) 可变字符串的创建
+        NSMutableString *mutableStr = [[NSMutableString alloc] init];
+        [mutableStr setString:@"Hello"];
+   
+     2) 追加字符串
+        NSLog(@"%@", [mutableStr appendString:@" world - 10"]); //Hello world - 10
+
+     3) 替换字符串
+        NSRange range = [mutableStr rangeOfString:@"world"];
+        NSLog(@"%@", [mutableStr replaceCharactersInRange:range withString:@"IOS"]); //Hello IOS - 10
+
+     4) 插入字符串
+        NSLog(@"%@", [mutableStr insertString:@"A" atIndex:6]); //Hello AIOS - 10
+
+     5) 删除字符串
+        NSRange range = [mutableStr rangeOfString:@"AIOS"];
+        NSLog(@"%@", [mutableStr deleteCharactersInRange:range]); //Hello  - 10
+   
+
+--------------------------------------------------------------------------------------------------------

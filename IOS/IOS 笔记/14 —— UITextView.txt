@@ -1,0 +1,50 @@
+
+
+UITextView
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UITextView介绍
+   UITextView 多行输入框
+ 
+
+※ UITextView 的使用 Demo见：\Demo\UITextView_study01
+
+    UITextView *textView = [UITextView new];
+    textView.frame = CGRectMake(20, 50, 280, 50);
+    textView.text = @"12321412321311231231231232131313132132131313131313131423478654326654321345654554231231231231231123123123123123123123123213123122321";
+    
+    //外框
+    textView.layer.borderColor = [UIColor redColor].CGColor;
+    textView.layer.borderWidth = 1;
+    textView.layer.cornerRadius = 5;
+    
+    
+    [self.view addSubview:textView];
+
+
+ ※ UITextView 的事件处理
+    UITextView 没有继承UIControl基类，因此它并不支持为那些通用的Touch Down、Touch Up Inside等事件。
+    所以使用委托对象，实现UITextViewDelegate协议
+    该协议定义了如下方法。
+    - textViewShouldBeginEditing: 将要开始编辑内容时触发
+    - textViewDidBeginEditing: 开始编辑内容时触发
+    - textViewShouldEndEditing:将要结束编辑内容时触发
+    - textViewDidEndEditing:结束编辑内容时触发
+    - textViewShouldChangeTextInRange:replacementText:替换指定内容
+    - textViewDidChange:内容发生改变时触发
+    - textViewDidChangeSelection:选中控件内某些文本时触发 
+
+
+ ※ UITextView和UITextFiled的区别
+    IOS中的UITextView和UITextField都是文本输入控件并都能够调用系统键盘。
+    http://blog.csdn.net/lvxiangan/article/details/44886945
+
+    两者最大的区别是：
+    1、UITextView支持多行输入并且可以滚动显示浏览全文，而UITextField只能单行输入。
+    2、UITextView继承自UIScrollView,UITextField继承自UIView[UIControl]。
+    3、UITextview没有placeholder属性 UItextField有placeholder属性
+    在使用上我们完全可以把UITextView看作是UITextField的加强版。
+    
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

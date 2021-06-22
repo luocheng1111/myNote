@@ -1,0 +1,98 @@
+ 
+
+学习自：慕课网/IOS基础教程之界面初体验/5-1
+
+UIImage 加载图片
+---------------------------------------------------------------------------------------------------
+
+ ※ 图片的选择
+    一般是png、jpg
+    bmp: 不建议使用，因为它的颜色会有些问题
+    gif: 不支持，但可以用其他方式实现
+
+ ※ 加载图片的方式:
+   方式一：通过路径加载图片
+    NSString *path = [NSBundle mainBundle] resourcePath]; //工程目录的路径
+    NSString *imagePath = [NSString stringWithFormat:@"%/1.png", path]; //图片路径
+    UIImage *image = [[UIImgae alloc] initWithContentOfFile:imagePath];
+
+
+   方式二：通过图片名加载图片
+    UIImage *image = [[UIImgae imageNamed:@"1.png"];
+
+
+   方式三：加载二进制图片
+    UIImage *image = [UIImgae alloc] initWithData:(NSData *);
+
+   方式一和二的不同：
+    如果用加载图片名次来加载图片，图片会缓存在内存中，好处是再次加载时效率比较高，
+    但只有程序结束时才会释放内存，对内存占有比较高，方式一则相反
+   如何用：
+    小图片用方式二，高清图片建议用方式一
+
+  但图片是不能直接显示在屏幕上的，需要一个载图才能显示在屏幕上，比如UIImageView、UIButton
+
+ 
+---------------------------------------------------------------------------------------------------
+
+
+
+
+UIImageView
+---------------------------------------------------------------------------------------------------
+
+  UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
+  //图片显示在屏幕上的是由载体控制
+  imageView.frame = CGRectMake(10, 100, 350, 400);
+  imageView.backgroundColor = [UIColor yellowColor];
+  [self.view addSubView:imageView];
+  
+  //设置内容模式(图片显示模式)
+  imageView.contentMode = UIViewContentModeCenter; 
+  //有N种方式
+  //typedef enum {
+  //    UIViewContentModeScaleToFill =0, //拉伸充满整个载体
+  //    UIViewContentModeScaleToFill,//保持原图大小，图片显示居中位置
+  //    UIViewContentModeScaleAspectFill,//拉伸不改变比例，充满最大的一边
+  //    UIViewContentModeScaleAspectFit,//拉伸不改变比例，充满最小的一边
+  //} UIView;
+
+
+  //UIImageView动画 - 播放序列图(多张图片拼成一个动画)
+  NSMutableArray *imageArray = [[NSMutableArray alloc] init];
+  for(int i=1;i<13;i++){
+    UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"png%d.png",i]]
+    [imageArray addObject:image];
+  }
+  UIImageView *imageView = [[UIImageView  alloc] init];
+  imageView.frame = CGRectMake((375-407)/2, 100, 407, 217);
+  [self.view addSubView:imageView];
+  //设置播放数组
+  imageView.animationImages = imageArray;
+  //设置播放周期时间(秒)
+  imageView.animationDuration = 2;
+  //执行次数 0代表无限执行
+  imageView.animationRepeatCount = 0;
+  //开始播放动画
+  [imageView startAnimating];
+
+  //[imageView startAnimating];
+
+---------------------------------------------------------------------------------------------------
+
+
+UIImageView
+---------------------------------------------------------------------------------------------------
+
+  //clearColor - 透明色
+  [UIColor clearColor];
+  //自己调配颜色，红、绿、蓝、alpha字的透明度
+  //如果想调出自己的颜色，appStore下载Sip，免费软件 ,是个取色器，比系统好用，且复制好的是代码
+  [UIColor colorWithRed:0.1 green:0.8 blue:0.2 alpha:1];
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+

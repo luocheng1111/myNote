@@ -1,0 +1,59 @@
+
+
+
+纯代码开发IOS 更好的了解程序启动原理
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 不使用界面设计文件开发UI界面
+   1.删除Main.stortboard文件
+   2.删除ViewController.h/m 两个文件
+   3.将项目 -> Deployment Info -> Main Interface 中的Main文字删除 直接什么都不填写
+   4.在AppDelegate.m文件中写代码。application:didFinishLaunchingWithOptions:方法中写代码
+
+
+※ 代码
+     //创建Window 并指定位置
+     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen] bounds];
+     //创建一个视图控制器作为UIWindow的根视图控制器
+     self.window.rootViewController = [[UIViewController alloc] init];
+     //给Window设置背景颜色
+     self.window.backgroundColor = [UIColor blueColor];
+     
+     //添加一个View到Window中
+     UIView *view = [[UIWindow alloc] initWithFrame:CGMakeFrame(100,100,150,150)];
+     view.backgroundColor = [UIColor orangeColor];
+     [self.window.addSubview:view];
+
+     //使window有效并显示到屏幕上
+     [self.window makeKeyAndVisible];
+     
+     retutn YES;
+
+
+※ 强调
+   需要指出的时，使用纯代码放方式开发IOS不是最好的方式，这样方式不仅繁琐，而且不符合MVC设计原理。不利于
+   程序的解耦。更为推荐的是以下的方式、
+   下面介绍一种更实用的代码方式开发UI界面
+
+
+※ 更实用的代码方开发UI界面
+   不用删除任何文件，直接在ViewController.m中添加代码就好了
+   
+    //定义并创建一个UILabel对象
+     UILabel* label = [[UILabel alloc] init];
+     
+     //显示的文字
+     label.text = @"Hello, World";
+
+     //设置label的显示位置
+     label.frame = CGRectMake(100,100,160,40);
+     
+     //设置label的背景颜色
+     label.backgroundColor = [UIColor whiteColor];
+
+     //将UILable显示在屏幕上
+     [self.view addSubView:label];
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

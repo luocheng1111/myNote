@@ -1,0 +1,168 @@
+
+
+
+函数
+---------------------------------------------------------------------------------------------------
+
+※ 函数的基本样式
+   func sayHello(name:String? , greeting:String) -> String{
+	let result = "Hello," + (name ?? "luocheng") + "!" + greeting;
+	return result;
+   }
+
+   //调用函数
+   print( sayHello("罗成", greeting:"你好") )
+
+
+
+※ 外部参数名, 参数名，让调用者可以看到的参数名称
+   func sayHello(userName name:String , greetingStr greeting:String) -> String{
+	let result = "Hello," + (name ?? "luocheng") + "!" + greeting;
+	return result;
+   }
+   print( sayHello(userName:"罗成", greetingStr:"你好") )
+
+   或者 ???
+   func sayHello(#name:String , #greeting:String) -> String{
+	let result = "Hello," + (name ?? "luocheng") + "!" + greeting;
+	return result;
+   }
+   print( sayHello(name:"罗成", greeting:"你好") )
+
+
+
+
+※ 参数默认值
+   func sayHello(name:String , greeting:String = "你好") -> String{
+	let result = "Hello," + (name ?? "luocheng") + "!" + greeting;
+	return result;
+   }
+   print( sayHello("罗成") )
+   print( sayHello("罗成", greeting:"AA") )
+
+
+
+
+※ 可变参数
+   // 多个值相加
+   func add(a:Int, b:Int, other:Int...) -> Int{
+	var result = a+b
+	for value in other{
+	    result + value
+	}
+	retutn result
+   }
+   
+   add(2,b:3,other:4) --> 9
+   add(2,b:3,other:4,5,6) --> 20
+ 
+
+
+※ inout 参数
+   //加了inout参数
+   func swapTowInts(inout a:Int, inout b:Int){
+	let t = a;
+	a = b
+        b = t
+   }
+   let a = 100, b = 0;
+   swapTowInts(&a, &b)
+   print("\{a}, \{b}")  ---> 0, 100
+
+   //没加inout参数
+   func swapTowInts(a:Int, b:Int){
+	let t = a;
+	a = b
+        b = t
+   }
+   let a = 100, b = 0;
+   swapTowInts(a, b)
+   print("\{a}, \{b}")  ---> 100, 0
+
+
+
+※ 多个返回值、(元祖返回值)
+   func minmaxScores(scores:[Int]) -> (minScore:Int, maxScore:Int){
+	var minScore = scores[0], maxScore = scores[0]
+	for value in scores{
+	  minScore(minScore, value)
+	  maxScore(maxScore, value)
+	}
+	retuen (minScore, maxScore)
+   }
+   
+   let userScores = [12,900,9999,415,538,5431]
+   let result = minmaxScores(userScores)
+   print("The minValue is \(result.minScore)")
+   print("The maxValue is \(result.maxScore)")
+   //如果还要深究，还需考虑参数 scores:[Int]?和 (minScore:Int, maxScore:Int)?的情况，
+     这个时候的写法就会改变，不一样
+
+
+
+
+※ 函数类型变量 把函数当做变量
+   func add(a:Int, b:Int) ->Int{
+	return a+b
+   }
+   let add1 = add  //add1类型为  add1:(Int, Int) -> Int
+   add1(1, 2) //3
+   add1(2, 5) //7
+
+
+
+
+※ 函数参数 函数作为参数传入到另外一个函数
+   func map(var data data:[Int], fn: (Int) -> Int) -> [Int]{
+	for var i=0; i< data.count; i++{
+		data[i] = fn(data[i]sss)
+	}
+	return data
+   }
+
+   //定义一个计算平方的函数
+   func square(val:Int) -> Int{
+	retuen val*val
+   }
+
+   //定义一个计算立方的函数
+   func cube(val:Int) -> Int{
+	retuen val*val*val
+   }
+
+   var data = [3,4,9,5,8]
+   //square是传递函数 square()是调用方法
+   print(map(data:data, fn:square)) -> [9,16,81,25,64]
+   print(map(data:data, fn:cube))   -> [27,64,729,125,512]
+
+
+
+
+※ 函数返回值 函数作为返回值类型
+   func getMathFunc(type type:String) -> (Int) -> Int{
+	switch type{
+	    case "square"
+	      return square
+	    case "cube"
+	      return cube
+	}
+   }
+
+   //定义一个计算平方的函数
+   func square(val:Int) -> Int{
+	retuen val*val
+   }
+
+   //定义一个计算立方的函数
+   func cube(val:Int) -> Int{
+	retuen val*val*val
+   }
+
+   var mathFunc = getMathFunc(type:"square")
+   print(mathFunc(5)) //25
+   mathFunc = getMathFunc(type:"cube")
+   print(mathFunc(5)) //125
+
+---------------------------------------------------------------------------------------------------
+
+

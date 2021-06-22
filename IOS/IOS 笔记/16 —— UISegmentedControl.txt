@@ -1,0 +1,36 @@
+
+
+UISegmentedControl
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UISegmentedControl介绍
+   UISegmentedControl 分栏控件
+
+
+※ UISegmentedControl 分栏控件 的使用
+     
+     UISegmentedControl segControl = [[UISegmentedControl alloc] init];
+     
+     //设置位置，宽、高 不可变
+     segControl.frame = CGRectMake(10,200,300,40);
+
+     //添加按钮元素
+     [segControl insertSegmentWithTitle:@"0元" atIndex:0 animated:NO];
+     [segControl insertSegmentWithTitle:@"5元" atIndex:1 animated:NO];
+     [segControl insertSegmentWithTitle:@"10元" atIndex:2 animated:NO];
+     
+     //当前默认按钮索引设置
+     segControl.selectedSegmentIndex = 0;
+     
+     [segControl addTarget:self action:@selector(segChange:) forControlEvents:UIControlEventValueChanged];
+
+     [self.view addSubView:segControl];
+
+
+     -(void) segChange:(UISegmentedControl*) segControl
+     {
+	NSLog(@"%d", segControl.selectedSegmentIndex);
+     }
+
+ 
+----------------------------------------------------------------------------------------------------------------------------------------

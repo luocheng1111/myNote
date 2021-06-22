@@ -1,0 +1,62 @@
+
+
+
+
+
+UINavigationController 导航控制器
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+  UINavigationController继承自UIViewController, 专门用于展示层级结构的内容
+  UINavigationController内部展示着多个UIViewController(视图控制器)的内容, UIViewController中有一个位于界面顶部的UINavigationBar(导航栏)和位于界面底部的默认隐藏的UIToolbar(工具栏), 以及一个位于界面中间部分View,当用户来回切换时, 导航栏和工具栏的内容会随着发生变化, 但其本身不会发生变化, 唯一发生变化的就是位于界面中间部分View, 一个UINavigationBar包含Title Prompt
+  BackBarButtonItem LeftBarButtonItem RightBarButtonItem
+
+
+※ Story方式
+
+
+※ 纯代码方式 实现导航控制器
+
+    //1.在AppDelegate中添加
+    ViewController *viewController  [[ViewController alloc] init]
+    UINavigationController *nav  [[UINavigationController alloc] initWithRootViewController:viewController]//先将root添加在navigation上
+    self.window  [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]]
+    [self.window setRootViewController:nav]//navigation加在window上
+
+    [self.window makeKeyAndVisible]
+    return YES
+
+
+    //2.在UIViewController中添加
+    - (void)viewDidLoad{
+      [super viewDidLoad]
+
+      self.title  @"navigationcontroller"//设置navigationbar上显示的标题
+      UIBarButtonItem *leftItem  [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonItemStyleDone target:self action:Nil]
+      UIBarButtonItem *rightItem  [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonItemStyleDone target:self action:Nil]
+      self.navigationItem.leftBarButtonItem  leftItem//设置左边按钮
+      self.navigationItem.rightBarButtonItem  rightItem//设置右边按钮
+
+      [self.navigationController.navigationBar setTranslucent:NO]//设置navigationbar非半透明
+    }
+
+
+※ UINavigationController 中的的压入和推出
+    //有引导线的压入
+    SecondViewController *secondView  [[SecondViewController alloc] init]
+    [self.navigationController pushViewController:secondView animated:YES]
+
+    //推出
+    [self.navigationController popViewControllerAnimated:NO]
+
+    //没有引导线压入及传值
+    TestSelectViewController *testSelectViewController  [self.storyboard instantiateViewControllerWithIdentifier:@"TestSelectViewController"]
+    testSelectViewController.myTitle  _dataArray[indexPath.row]
+    [self.navigationController pushViewController:testSelectViewController animated:YES]
+
+
+※ 学习
+   视频演示 http://www.maiziedu.com/course/275-3325/
+   http://blog.csdn.net/totogo2010/article/details/7681879
+
+----------------------------------------------------------------------------------------------------------------------------------------

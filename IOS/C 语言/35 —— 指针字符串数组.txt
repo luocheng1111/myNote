@@ -1,0 +1,44 @@
+
+
+
+
+
+字符串数组. 
+-------------------------------------------------------------------------------------------------------------------
+
+※ 字符串数组
+   1).二维字符数组 来存储多个字符串，
+      char name[][10] = {"jack","rose","lily"};
+      每一个长度不超过列数-1
+
+   1).字符指针数组，
+      char *name[] = {"jack","rose","lily","lilei"};
+      每一个长度不限制
+
+
+※ 字符串数组的排序
+    
+    char *countries[] = {"Nepal","Cambodia","China","India","Japan","Singapore","Bhutan","Pakistan"};
+    
+    //1.计算数组的长度
+    int len = sizeof(countries) / sizeof(countries[0]);
+
+    //2.使用冒泡排序 使用strmp()函数比较两个大小
+    for(int i=0, i<len-1; i++){
+	for(int j=0; j<len-1-i; j++){
+	    //重点。使用strcmp()函数比较两个的大小
+	    int res = strcmp(countries[j], countries[j+1]); 
+	    if(res>0){
+		char *temp = countries[j];
+		countries[j] = countries[j+1];
+		countries[j+1]; = temp;
+	    }
+	}
+    }
+   
+    //3.打印结果
+    for(int i=0, i<len-1; i++){
+	printf("%s\n", countries[i]);
+    }
+    
+-------------------------------------------------------------------------------------------------------------------

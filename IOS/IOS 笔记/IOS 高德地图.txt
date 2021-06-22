@@ -1,0 +1,255 @@
+
+
+
+IOS 高德地图
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+   高德地图包括：地图显示（含室内、室外地图）、与地图交互、在地图上绘制、兴趣点搜索、地理编码、离线地图等功能
+   开发指南：http://lbs.amap.com/api/ios-sdk/summary/
+   控制台：http://lbs.amap.com/dev/key/app
+
+
+
+※ 简单使用
+    1.配置SDK和权限
+      1.安装CocoaPods
+      2.使用CocoaPods 安装相关SDK
+        target ‘XXX’ do
+
+        #3D地图SDK
+        pod 'AMap3DMap'
+
+        #地图SDK搜索功能
+        pod 'AMapSearch'
+
+        #定位SDK
+        pod 'AMapLocation'
+
+        end
+      3.项目的info.plist中添加 4个权限相关的设置以及网络权限
+        Required background modes
+           Item 0                                                     App registers for location updates
+        Privacy - Location Always Usage Description                   AMapLocationKit需要定位权限才可以使用
+        Privacy - Location Always and When In Use Usage  Description  AMapLocationKit需要定位权限才可以正常使用，如果您需要使用后台定位功能请选择“始终允许”。
+        Privacy - Location When In Use Usage Description              AMapLocationKit需要定位权限才可以正常使用
+        App Transport Security Settings
+           Allow Arbitrary Loads                                      YES
+
+    2.显示地图和当前位置
+      1.添加配置高德Key
+        AppDelegate.m文件
+        #import <AMapFoundationKit/AMapFoundationKit.h>
+        - (BOOL)application: didFinishLaunchingWithOptions: {
+             [[AMapServices sharedServices] setEnableHTTPS:YES];
+             [AMapServices sharedServices].apiKey = @"9fab196b7d1441f322e524cce50548d8"; //在http://lbs.amap.com/dev/key/app 申请
+             return YES;
+        }
+
+      2.显示地图
+        ViewController.m文件
+        #import <MAMapKit/MAMapKit.h>
+        #import <AMapFoundationKit/AMapFoundationKit.h>
+        - (void)viewDidLoad{
+            [super viewDidLoad];
+
+            //地图需要v4.5.0及以上版本才必须要打开此选项（v4.5.0以下版本，需要手动配置info.plist）
+            [AMapServices sharedServices].enableHTTPS = YES;
+
+            //初始化地图
+            MAMapView *_mapView = [[MAMapView alloc] initWithFrame:self.view.bounds];
+            _mapView.delegate = self;
+
+            //设置地图缩放比例，即显示区域
+            [_mapView setZoomLevel:17 animated:YES];
+            //设置多少米定位更新(此属性好像没效果)
+            _mapView.distanceFilter = 200;
+
+            //地图搜索初始化
+            self.search =[[AMapSearchAPI alloc] init];
+            self.search.delegate=self;
+
+            //把地图添加至view
+            [self.view insertSubview:_mapView atIndex:0];
+        }
+
+      3.显示用户当前位置，并标记在地图上
+        - (void)viewDidLoad{
+            ....
+            //把地图添加至view
+            [self.view insertSubview:_mapView atIndex:0];
+
+            //如果您需要进入地图就显示定位小蓝点，则需要下面两行代码
+            _mapView.showsUserLocation = YES;
+            _mapView.userTrackingMode = MAUserTrackingModeFollow;
+        }
+
+        #pragma mark 定位更新回调 仅在第一次将定位设置为地图中心点
+        -(void)mapView:(MAMapView *)mapView didUpdateUserLocation:(MAUserLocation *)userLocation updatingLocation:(BOOL)updatingLocation{
+            if(updatingLocation){
+                self.mapManager.currentLocation = userLocation.location;
+                NSLog(@"定位更新回调 %f-%f", userLocation.location.coordinate.longitude, userLocation.location.coordinate.latitude);
+
+                if(self.isFirstLocation){
+                    self.isFirstLocation = NO;
+                    self.mapManager.mapView.centerCoordinate = userLocation.location.coordinate;
+                    //发起逆地理编码 将坐标转换为具体地理信息
+                    AMapReGeocodeSearchRequest *regeo = [[AMapReGeocodeSearchRequest alloc] init];
+                    regeo.location = [AMapGeoPoint locationWithLatitude:userLocation.coordinate.latitude longitude:userLocation.coordinate.longitude];
+                    regeo.requireExtension = YES;
+                    [self.search AMapReGoecodeSearch:regeo];
+                }
+        }
+
+        /* 逆地理编码回调. */
+        - (void)onReGeocodeSearchDone:(AMapReGeocodeSearchRequest *)request response:(AMapReGeocodeSearchResponse *)response{
+            if (response.regeocode != nil){
+                [self.mapManager.mapView setZoomLevel:17 animated:YES];
+                //可以用此值进行一些后续的操作
+                //[self onRefresh:request.location address:response.regeocode.formattedAddress];
+            }
+        }
+
+
+
+
+
+※ 其他的一些初始化配置
+    //是否显示指南针 默认是显示
+    _mapView.showsCompass= NO;
+    //是否显示比例尺 默认是显示
+    _mapView.showsScale= NO;
+    //去除高德地图下方的 logo 图标
+    [_mapView.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj isKindOfClass:[UIImageView class]]) {
+            UIImageView * logoM = obj;
+            logoM.layer.contents = (__bridge id)[UIImage imageNamed:@""].CGImage;
+        }
+    }];
+
+
+
+※ 在地图上添加点标记
+    MAPointAnnotation *pointAnnotation = [[MAPointAnnotation alloc] init];
+    //设置经纬度
+    pointAnnotation.coordinate = CLLocationCoordinate2DMake(lat, lon);
+    //点击 标记点后 弹出的弹框标题
+    pointAnnotation.title = title;
+    //点击 标记点后 弹出的弹框副标题
+    pointAnnotation.subtitle = subtitle;
+    [_mapView addAnnotation:pointAnnotation];
+
+
+    //标记点图标设定
+    - (MAAnnotationView *)mapView:(MAMapView *)mapView viewForAnnotation:(id <MAAnnotation>)annotation{
+        //定位小蓝点
+        if ([annotation isKindOfClass:[MAUserLocation class]]) {
+            return nil;
+        }
+        //绘制其他点
+        if([annotation isKindOfClass:[MAPointAnnotation class]]){
+            static NSString *pointReuseIndetifier = @"pointReuseIndetifier";
+
+            MAPinAnnotationView *annotationView = (MAPinAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:pointReuseIndetifier];
+            if (annotationView == nil){
+                annotationView = [[MAPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:pointReuseIndetifier];
+                //点击点标记后是否弹框 如何是YES 弹框显示的是设置好的title和subtitle
+                annotationView.canShowCallout = YES;
+            }
+
+            annotationView.image = [UIImage imageNamed:@"poi_marker_10"];
+
+            return annotationView;
+        }
+        return nil;
+    }
+
+    //点击大头针后的回调
+    - (void)mapView:(MAMapView *)mapView didSelectAnnotationView:(MAAnnotationView *)view{
+        NSLog(@"点啦我");
+    }
+
+
+※ 在地图上规划行驶路线
+  1.搜索行驶路线
+    AMapDrivingRouteSearchRequest *navi = [[AMapDrivingRouteSearchRequest alloc] init];
+
+    navi.requireExtension = YES;
+    navi.strategy = 5;
+    /* 出发点. */
+    navi.origin = [AMapGeoPoint locationWithLatitude:startCoor.latitude longitude:startCoor.longitude];
+    /* 目的地. */
+    navi.destination = [AMapGeoPoint locationWithLatitude:desCoor.latitude longitude:desCoor.longitude];
+    [self.search AMapDrivingRouteSearch:navi];
+
+    //如果需要改变起点和终点的图标则添加下面代码
+    if(isWithStartAndEndImg){
+        //在地图上添加起点和终点 可以根据title的值在 mapView: viewForAnnotation:中修改图标
+        [self addAnomationToMapView:startCoor title:@"起点"];
+        [self addAnomationToMapView:desCoor title:@"终点"];
+    }
+
+   2.设置起点终点的图标
+    - (MAAnnotationView *)mapView:(MAMapView *)mapView viewForAnnotation:(id <MAAnnotation>)annotation{
+        //定位小蓝点
+        if ([annotation isKindOfClass:[MAUserLocation class]]) {
+            return nil;
+        }
+        //绘制其他点
+        if([annotation isKindOfClass:[MAPointAnnotation class]]){
+            ....
+            /* 设置起点的图标. */
+            if ([[annotation title] isEqualToString:@"起点"]){
+                annotationView.image = [UIImage imageNamed:@"startPoint"];
+            }
+            /* 设置终点的图标. */
+            else if([[annotation title] isEqualToString:@"终点"]){
+                annotationView.image = [UIImage imageNamed:@"endPoint"];
+            }
+            /* 设置默认显示图标. */
+            else{
+                annotationView.image = [UIImage imageNamed:@"poi_marker_10"];
+            }
+            return annotationView;
+        }
+        return nil;
+    }
+
+   3.路径规划搜索回调. 根据结果集在地图上画出路线
+    - (void)onRouteSearchDone:(AMapRouteSearchBaseRequest *)request response:(AMapRouteSearchResponse *)response{
+        NSLog(@"onRouteSearchDone");
+        if (response.route == nil){
+            return;
+        }
+        if (response.count > 0){
+            MANaviAnnotationType type = MANaviAnnotationTypeDrive;
+
+            //在地图上绘制出 行车路线 注：此地方需要导4对model 具体使用看carshare项目
+            MANaviRoute *naviRoute = [MANaviRoute naviRouteForPath:response.route.paths[0] withNaviType:type showTraffic:YES startPoint:[AMapGeoPoint locationWithLatitude:self.mapManager.startCoor.latitude longitude:self.mapManager.startCoor.longitude] endPoint:[AMapGeoPoint locationWithLatitude:self.mapManager.destinationCoor.latitude longitude:self.mapManager.destinationCoor.longitude]];
+            [naviRoute addToMapView:self.mapManager.mapView];
+        }
+
+    4.修改线的样式 如需修改则重写此方法
+    - (MAOverlayRenderer *)mapView:(MAMapView *)mapView rendererForOverlay:(id <MAOverlay>)overlay{
+        if ([overlay isKindOfClass:[MAPolyline class]]){
+            MAPolylineRenderer *polylineRenderer = [[MAPolylineRenderer alloc] initWithPolyline:overlay];
+            //设置线的宽度
+            polylineRenderer.lineWidth    = 8.f;
+            //设置线的颜色
+            polylineRenderer.strokeColor  = [UIColor blueColor];
+            polylineRenderer.lineJoinType = kMALineJoinRound;
+            polylineRenderer.lineCapType  = kMALineCapRound;
+
+            //将轨迹设置为自定义的样式
+            //        [polylineRenderer loadStrokeTextureImage:[UIImage imageNamed:@"map_history"]];
+
+            return polylineRenderer;
+        }
+        return nil;
+    }
+
+
+※ 在车享停项目中使用了地图功能，具体代码请参考车享停项目
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,112 @@
+ 
+
+
+IOS动画
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ IOS动画介绍
+   IOS中的动画有两种实现方式，
+   UIView实现动画和CAAnimation实现动画
+
+
+※ 差别：
+    1.核心动画在动画执行完成以后，并不会改变控件的原有位置和尺寸。
+      而UIView动画则会根据动画改变原有的位置和尺寸。
+    2.UIView动画比核心动画更适合与用户进行交互
+    3.核心动画一般适合用在做转场动画(它比UIView动画的转场效果多)、路径动画等场合。
+   
+
+
+※ 动画的使用 \Demo\UIView动画学习
+
+   1).位移
+      [UIView animateWithDuration:1 animations:^{
+        CGPoint center = self.uiView.center;
+        center.x = self.view.bounds.size.width - self.uiView.center.x;
+        center.y = self.view.bounds.size.height - self.uiView.center.y;
+        self.uiView.center = center;
+      }];
+
+
+   2).透明度改变
+      [UIView animateWithDuration:1 animations:^{
+        self.uiView.alpha=0.1;
+      }];
+
+   
+   3).缩放
+       CGAffineTransform transform = self.uiView.transform;
+       [UIView animateWithDuration:1 animations:^{
+          self.uiView.transform = CGAffineTransformMakeScale(2.0, 2.0);
+       } completion:^(BOOL finished) {
+          [UIView animateWithDuration:1 animations:^{
+            self.uiView.transform = transform;
+          }];
+       }];
+
+
+   4).渐变
+      [UIView animateWithDuration:1 animations:^{
+         self.uiView.backgroundColor = [UIColor greenColor];
+      }];
+
+   
+   5).旋转
+      CGAffineTransform transform = self.uiView.transform;
+      [UIView animateWithDuration:1 animations:^{
+         self.uiView.transform = CGAffineTransformMakeRotation(4.0);
+      } completion:^(BOOL finished) {
+         [UIView animateWithDuration:1 animations:^{
+            self.uiView.transform = transform;
+         }];
+      }];
+   
+
+   6).重复动画
+      [UIView animateWithDuration:2 delay:0 options:UIViewAnimationOptionRepeat animations:^{
+        CGPoint center = self.uiView.center;
+        center.x = self.view.bounds.size.width - self.uiView.center.x;
+        self.uiView.center = center;
+      } completion:^(BOOL finished) {
+        
+      }];
+
+
+   7).反复动画
+      [UIView animateWithDuration:2 delay:0 options:UIViewAnimationOptionRepeat|UIViewAnimationOptionAutoreverse
+      animations:^{
+        CGPoint center = self.uiView.center;
+        center.x = self.view.bounds.size.width - self.uiView.center.x;
+        self.uiView.center = center;
+      } completion:^(BOOL finished) {
+        
+      }];
+
+
+   8).移动时 速率动画
+      [UIView animateWithDuration:2 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+        CGPoint center = self.uiView.center;
+        center.x = self.view.bounds.size.width - self.uiView.center.x;
+        self.uiView.center = center;
+      } completion:^(BOOL finished) {
+        
+      }];
+
+
+   9).弹簧动画
+      [UIView  animateWithDuration:2 delay:0 usingSpringWithDamping:0.1 initialSpringVelocity:0 options:nil animations:^{
+        CGPoint center = self.uiView.center;
+        center.x = self.view.bounds.size.width - self.uiView.center.x;
+        self.uiView.center = center;
+      } completion:^(BOOL finished) {
+        
+      }];
+
+
+
+学习：
+UIView动画比核心动画的区别：http://www.jianshu.com/p/587f7a7a8f0c
+动画的各种用法：http://winann.blog.51cto.com/4424329/1441537
+UIView的两种动画写法 http://www.jianshu.com/p/5abc038e4d94
+
+----------------------------------------------------------------------------------------------------------------------------------------

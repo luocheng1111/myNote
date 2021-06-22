@@ -1,0 +1,44 @@
+
+
+
+UILabel
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UILabel介绍
+   UILabel 文本标签，用来显示文字
+   
+   
+※ UILable的使用
+     
+     //定义并创建一个UILabel对象
+     UILabel* label = [[UILabel alloc] init];
+     //设置label的显示位置
+     label.frame = CGRectMake(100,100,160,40);
+
+     //显示的文字
+     label.text = @"Hello, World";
+     //设置label的背景颜色
+     label.backgroundColor = [UIColor whiteColor];
+
+     //将UILable显示在屏幕上
+     [self.view addSubView:label];
+
+
+
+※ UILable的其他使用
+     
+     //设置阴影的颜色
+     label.shadowColor = [UIColor redColor];
+     //设置阴影的偏移量
+     label.shadowOffset = CGSizeMake(3,3);
+
+     //设置text文字的对齐模式，默认靠左侧对齐
+     label.textAlignment = NSTextAlignmentLeft;
+
+     //设置label的文字显示行数，默认值为1，只用1行来显示
+     //如果设置>0的行数，文字会尽量按照设定行数来显示
+     //如果值为0，IOS会自动计算文字所需行数，按照需要的行数显示文字
+     label.numberOfLines = 5;
+     
+
+----------------------------------------------------------------------------------------------------------------------------------------

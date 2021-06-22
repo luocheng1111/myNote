@@ -1,0 +1,81 @@
+
+
+
+NSString
+--------------------------------------------------------------------------------------------------------
+
+※ NSString
+   介绍：NSString是专门用来存储OC字符串的指针类型,专门用来存储OC字符串的地址
+
+
+※ 用法
+   NSString *str = @"jack";
+   NSLog(@"大家好，我叫%p", str);
+   NSLog(@"大家好，我叫%@", str);
+
+   %p 是指针变量的值
+   %@ 是指针变量指向的对象。
+
+   1).字符串加了 @符号，代表是OC类型的字符串，没有加，则代表这个C类型的字符串
+      NSStrig声明的字符串必须是OC类型的字符串，所以，NSString声明的字符串肯定带 @符号
+
+   2).NSString 输出占位符是%@
+
+
+--------------------------------------------------------------------------------------------------------
+
+
+
+NSString 常用的方法
+--------------------------------------------------------------------------------------------------------
+
+※ 常用的类方法
+   1. 将C语言的字符串转换为OC字符串对象。
+      + (instancetype)stringWithUTF8String:(const char *)nullTerminatedCString;
+
+      char *str = "jack";
+      NSString *str = [NSString stringWithUTF8String:str];
+      NSLog(@"str = %@", str);
+
+
+   2.拼接1个字符串对象，使用变量或者其他数据拼接成OC字符串。
+      + (instancetype)stringWithFormat:(NSString *)format, ...
+
+      NSString *name = @"小明";
+      int age = 19;
+      NSString *str = [NSString stringWithFormat:@"我的名字：%@ 我的年龄：%d", name, age];
+      NSLog(@"str = %@", str);
+
+
+
+※ 常用的对象方法
+   1. 得到字符串的字符个数
+      NSString *str = @"中国11我爱你";
+      NSUInteger len = [str length];
+      NSLog(@"len = %lu", len); //7
+
+
+   2. 得到字符串指定下标的字符，返回值为unichar 占位符是 %C
+      NSString *str = @"中国我爱你";
+      unichar ch = [str characterAtIndex:2];
+      NSLog(@"ch = %C", ch); //国
+
+
+   3. 判断两个字符是否相等
+      - (BOOL)isEqualToString:(NSString *)aString;
+      NSString *str1 = @"jack";
+      NSString *str2 = [NSString stringWithFormat:@"jack"];
+      if([str1 isEqualToString:str2])
+
+
+   4. 比较字符串的大小 返回值是枚举类型，-1 小于 0 等于 1 大于
+      - (NSComparisonResult)compare:(NSString *)string;
+
+      NSString *str1 = @"China";
+      NSString *str2 = @"Japan";
+
+      int res = [str1 compare:str2];
+      NSLog(@"res = %d", res);
+
+
+--------------------------------------------------------------------------------------------------------

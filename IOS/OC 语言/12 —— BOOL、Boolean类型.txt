@@ -1,0 +1,44 @@
+
+
+
+BOOL、Boolean
+--------------------------------------------------------------------------------------------------------
+
+ # BOOL类型
+    BOOL类型有两个值,YES和NO，分别代表真和假，OC底层实际上使用signed char来表示BOOL，YES、NO对应的是1和0
+    OC中 0为假，非0为真
+
+    typedef signed char BOOL;
+       
+    #define YES ((BOOL)1)
+    #define NO ((BOOL)0)
+
+
+ # BOOL类型的使用
+     eg:
+      BOOL b1 = 1;
+      BOOL b2 = 18;
+      NSLog(@"b1的值为:%d", b1); //1
+      NSLog(@"b2的值为:%d", b2); //18
+      无论是1还是18，都是非零的数值，OC都会把它们但YES处理，
+      BOOL的实际类型是signed char，底层只占1字节(8位)，如果将一个较大的非零整数赋值给BOOL，
+      而这个非零整体数值的最低8位都是0，那么系统会把它当成NO处理，
+
+
+ # Boolean
+    1).可以存储 yes和no 中的任意1个数据
+    2).一般情况下Boolean类型的变量用来存储条件表达式的结果，如果条件表达式成立，
+       结果为yes，如果不成立，结果为no
+   
+    3).Boolean的本质
+       Boolean的本质：typedef unsigned char Boolean; 实际上是unsigned char类型。
+
+       #define true  1
+       #define false 0
+       true实际上1，false实际上的0
+
+
+ # C语言中、大多数用的是BOOL，所以建议使用BOOL，而不用Boolean
+
+
+--------------------------------------------------------------------------------------------------------

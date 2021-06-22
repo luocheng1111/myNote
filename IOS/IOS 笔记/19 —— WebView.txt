@@ -1,0 +1,196 @@
+
+
+
+WebView
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ WebView介绍
+   WebView 内嵌浏览器控件
+   在IOS中主要有两种WebView：UIWebView和WKWebView，
+   UIWebViewIOS2之后开始使用、WKWebView在IOS8开始使用。
+   毫无疑问WKWebView将逐步取代笨重的UIWebView。
+ 
+  
+※ WKWebView的优点
+   1.WKWebView更多的支持HTML5的特性
+   2.WKWebView更快，占用内存可能只有UIWebView的1/3 ~ 1/4
+   3.WKWebView高达60fps的滚动刷新率和丰富的内置手势
+   4.WKWebView具有Safari相同的JavaScript引擎
+   5.WKWebView增加了加载进度属性
+
+
+※ 注意点
+   1.访问网络时，应该在info.plist里添加字段，来允许响应HTTP请求
+
+
+※ 学习
+   http://www.jianshu.com/p/cf9bc03db7d6
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+UIWebView
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UIWebView加载函数
+  /* 1.加载网络请求 */
+  - (void)loadRequest:(NSURLRequest *)request;
+
+  /* 2.加载本地HTML字符串 */
+  - (void)loadHTMLString:(NSString *)string baseURL:(nullable NSURL *)baseURL;
+
+  /* 3.加载二进制数据 */
+  - (void)loadData:(NSData *)data MIMEType:(NSString *)MIMEType 
+                     characterEncodingName:(NSString *)characterEncodingName 
+                                   baseURL:(NSURL *)baseURL;
+
+  
+※ 1.UIWebView加载网络请求
+    NSURL *url = [NSURL URLWithString:@"http://www.baidu.com"];
+    NSURLRequest *request =[NSURLRequest requestWithURL:url];
+    [self.webView loadRequest:request];
+
+
+※ 2.加载本地HTML字符串
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"myPage" ofType:@"html"];
+    NSString *htmlString = [NSString stringWithContentsOfFile:path 
+                                                     encoding:NSUTF8StringEncoding 
+                                                        error:NULL];
+    // 加载本地HTML字符串
+    [self.webView loadHTMLString:htmlString baseURL:[[NSBundle mainBundle] bundleURL]];
+
+
+※ UIWebView支持加载其他文件
+   UIWebView不仅可以加载HTML页面，还支持pdf、word、txt、各种图片等等的显示。
+   使用loadRequest方法加载的URL是pdf、word、txt、各种图片的URL路径，就可以加载对应的文件
+
+
+※ 3.UIWebView的网页导航方法
+   #pragma mark - 判断属性
+   // 是否可以后退
+   @property (nonatomic, readonly, getter=canGoBack) BOOL canGoBack;
+   // 是否可以向前
+   @property (nonatomic, readonly, getter=canGoForward) BOOL canGoForward;
+   // 是否正在加载
+   @property (nonatomic, readonly, getter=isLoading) BOOL loading;
+
+   #pragma mark - 操作方法
+   // 刷新网页
+   - (void)reload;
+   // 停止加载网页
+   - (void)stopLoading;
+   // 后退
+   - (void)goBack;
+   // 前进
+   - (void)goForward;
+
+
+※ 4.UIWebViewDelegate代理方法
+   一共有四个方法：
+   //是否允许加载网页，也可获取js要打开的url，通过截取此url可与js交互
+   - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request 
+                                                 navigationType:(UIWebViewNavigationType)navigationType;
+   //开始加载网页
+   - (void)webViewDidStartLoad:(UIWebView *)webView;
+   //网页加载完成
+   - (void)webViewDidFinishLoad:(UIWebView *)webView;
+   //网页加载错误
+   - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error;
+
+
+※ 5.UIWebView和JavaScript交互的方法
+   主要有两方面：JS执行OC代码、OC调取写好的JS代码
+
+   JS执行OC代码：
+   JS是不能执行OC代码的，但是可以变相的执行，JS可以将要执行的操作封装到网络请求里面，
+   然后OC拦截这个请求，获取URL里面的字符串解析即可，这里用到代理协议里面的一个方法
+   - (BOOL)webView:(UIWebView *)webView  shouldStartLoadWithRequest:(NSURLRequest *)request  
+              navigationType:(UIWebViewNavigationType)navigationType
+
+   OC调取写好的JS代码：
+   用到WebView的一个方法stringByEvaluatingJavaScriptFromString
+   // 实现自动定位JS代码, htmlLocationID为定位的位置(由JS开发人员给出)，实现自动定位代码，应该在网页加载完成之后再调用
+   NSString *javascriptStr = [NSString stringWithFormat:@"window.location.href = '#%@'",htmlLocationID];
+   // webview执行代码
+   [self.webView stringByEvaluatingJavaScriptFromString:javascriptStr];
+   // 获取网页的title
+   NSString *title = [self.webView stringByEvaluatingJavaScriptFromString:@"document.title"];
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+WKWebView
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 注意点
+   要使用WKWebView需要导入 <WebKit/WebKit.h>框架
+
+
+※ UIWebView加载函数
+   UIWebView有的，WKWebView都有，
+   WKWebView多了一个加载文件方法，而且WKWebView的这些加载方法都有返回值。
+
+  /* 1.加载网络请求 */
+  - (WKNavigation *)loadRequest:(NSURLRequest *)request;
+
+  /* 2.加载本地HTML字符串 */
+  - (WKNavigation *)loadHTMLString:(NSString *)string 
+                         baseURL:(nullable NSURL *)baseURL;
+
+  /* 3.加载本地文件 */
+  - (WKNavigation *)loadFileURL:(NSURL*)url 
+      allowingReadAccessToURL:(NSURL*)url;
+
+  /* 4.加载二进制数据 */
+  - (WKNavigation *)loadData:(NSData *)data 
+                  MIMEType:(NSString *)MIMEType 
+     characterEncodingName:(NSString *)characterEncodingName 
+                   baseURL:(NSURL *)baseURL;
+
+
+※ 1.WKWebView加载本地文件
+     NSURL *url = [NSURL fileURLWithPath:@"/Users/userName/Desktop/bigIcon.png"];
+     [self.webView loadFileURL:url allowingReadAccessToURL:url];
+
+
+※ 2.UIWebView的网页导航方法
+     与UIWebView相差不大，多了返回值，多了一些属性，也多了2个方法：
+     reloadFromOrigin，缓存加载
+     goToBackForwardListItem，跳转到指定历史页面
+
+   @property (nonatomic, readonly) BOOL canGoBack;
+   @property (nonatomic, readonly) BOOL canGoForward;
+   @property (nonatomic, readonly, getter=isLoading) BOOL loading;
+   - (WKNavigation *)goBack; 
+   - (WKNavigation *)goForward;
+   - (WKNavigation *)reload; 
+   - (void)stopLoading; 
+
+   /* 加载进度，取值范围0~1 */
+   @property (nonatomic, readonly) double estimatedProgress;
+   /* 是否允许左右划手势导航，默认不允许 */
+   @property (nonatomic) BOOL allowsBackForwardNavigationGestures;
+   /* 访问历史列表 */
+   @property (nonatomic, readonly, strong) WKBackForwardList *backForwardList;
+   /* 会比较网络数据是否有变化，没有变化则使用缓存，否则从新请求 */
+   - (WKNavigation *)reloadFromOrigin;
+   /* 比向前向后更强大，可以跳转到某个指定历史页面 */
+   - (WKNavigation *)goToBackForwardListItem:(WKBackForwardListItem *)item;
+
+
+
+※ 3.WKWebView的代理
+   UIWebView只有一个代理，但WKWebView有好几个，但常用的有2个，
+   id<WKNavigationDelegate> navigationDelegate和id<WKUIDelegate> UIDelegate：
+
+   WKNavigationDelegate: 最常用，和UIWebViewDelegate功能类似，追踪加载过程，有是否允许加载、开始加载、加载完成、加载失败。
+   WKUIDelegate：UI界面相关，原生控件支持，三种提示框：输入、确认、警告。
+   
+   ..具体使用看 http://www.jianshu.com/p/cf9bc03db7d6
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

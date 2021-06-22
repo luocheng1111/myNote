@@ -1,0 +1,65 @@
+
+
+
+UITableView 无数据时 替换界面
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+   有时候会当UITableView没有数据时，需要显示Empty界面
+   DZNEmptyDataSet是解决这个问题很好的一个框架，此框架会自动检测数据的数量，如果为0，则会显示已经写好的Empty界面
+   Github：https://github.com/dzenbot/DZNEmptyDataSet
+
+
+
+※ 如何使用 学习自：https://www.jianshu.com/p/f70dc3e0f436
+    1.导入DZNEmptyDataSet
+      cocoapods导入：pod 'DZNEmptyDataSet'
+      或者手动导入：将DZNEmptyDataSet文件夹中的所有文件拽入项目中
+
+    2.导入框架
+      #import <DZNEmptyDataSet/UIScrollView+EmptyDataSet.h>
+
+    3.遵循协议
+      - (void)viewDidLoad{
+          [super viewDidLoad];
+
+          self.tableView.emptyDataSetSource = self;
+          self.tableView.emptyDataSetDelegate = self;
+          self.tableView.dataSource = self;
+          self.tableView.delegate = self;
+          // 删除单元格分隔线的一个小技巧 需要调用这一行
+          self.tableView.tableFooterView = [UIView new];
+      }
+
+    4.实现对应的方法，就可实现不同的空白页效果 需要那个写那个
+      比如：空白页显示图片和文字
+      - (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView {
+          return [UIImage imageNamed:@"lion"];
+      }
+
+      - (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView {
+          NSString *title = @"狮子王";
+          NSDictionary *attributes = @{
+                                 NSFontAttributeName:[UIFont boldSystemFontOfSize:18.0f],
+                                 NSForegroundColorAttributeName:[UIColor darkGrayColor]
+                                 };
+          return [[NSAttributedString alloc] initWithString:title attributes:attributes];
+      }
+
+     如果需要显示按钮，则添加此方法
+      - (NSAttributedString *)buttonTitleForEmptyDataSet:(UIScrollView *)scrollView forState:(UIControlState)state {
+          // 设置按钮标题
+          NSString *buttonTitle = @"喜欢我就点点点点我";
+          NSDictionary *attributes = @{
+                                 NSFontAttributeName:[UIFont boldSystemFontOfSize:17.0f]
+                                 };
+          return [[NSAttributedString alloc] initWithString:buttonTitle attributes:attributes];
+      }
+
+
+※ 自己在此之上封装了框架
+      Demo：/Demo/UITableView 无数据时 替换界面.zip
+      效果图：项目中
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

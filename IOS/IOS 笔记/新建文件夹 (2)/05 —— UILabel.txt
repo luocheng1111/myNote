@@ -1,0 +1,75 @@
+ 
+
+学习自：慕课网/IOS基础教程之界面初体验/4-1
+
+UILabel 文本标签的使用 https://my.oschina.net/clownfish/blog/56340
+---------------------------------------------------------------------------------------------------
+
+ ※ 例子:
+     UILabel *label = [[UILabel alloc] init]
+     label.frame = CGRectMake(10, 100, 300, 30);
+     //背景颜色默认为透明
+     label.backgroundColor = [UIColor yellowColor];
+
+     //设置文本
+     label.text = @"我是一个标签";
+     //文字布局模式
+     label.textAlignment = NSTextAlignmentCenter;
+     //文字颜色
+     label.textColor = [UIColor clearColor];
+     //设置透明度，注意这里设置控件加字的透明度，一般不使用
+     //label.aplha = 0.5;
+     //设置字体字号
+     label.font = [UIFont systemFontOfSize:20];
+     //设置字体加粗 同属性会顶掉上一次的设置
+     label.font = [UIFont boldSystemFontOfSize:25];
+     //字体倾斜 同属性会顶掉上一次的设置
+     label.font = [UIFont italicystemFontOfSize:30];
+
+     //如果又想加粗又想倾斜，则上面的不行，得是另外一种字体
+     //设置字体
+     label.font = [UIFont fontWithName:@"Bodoni 72" size:25];
+     //设置阴影
+     label.shadowColor = [UIColor redColor];
+     //阴影偏移量 正数是向右向下偏移
+     label.shadowOffset = CGSizeMake(5, 5);
+
+     /*如果文字太多，一行显示不下怎么办
+       1.Label要有足够的大小
+       2.设置换行模式,对中文无效，对英文有效
+       3.设置显示的行数(0可以不限制行数) 
+     */
+     label.lineBreakMode = NSLineBreakByWordWrapping;
+     label.numberOfLines = 0;
+
+     //根据字符串大小计算label的大小 得出的size.height就是label的高度
+     //sizeWithFont 字体 constrainedToSize 限制大小，宽度要准确，高度可以无限大 lineBreakMode 换行模式
+     CGSize size = [label.text sizeWithFont:label.font constrainedToSize:CGSizeMake
+     (355,10000) lineBreakMode:NSLineBreakByCharWrapping];
+
+
+     [self.view addSubview:label];
+
+ 
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+UIColor 类
+---------------------------------------------------------------------------------------------------
+
+  //clearColor - 透明色
+  [UIColor clearColor];
+  //自己调配颜色，红、绿、蓝、alpha字的透明度
+  //如果想调出自己的颜色，appStore下载Sip，免费软件 ,是个取色器，比系统好用，且复制好的是代码
+  [UIColor colorWithRed:0.1 green:0.8 blue:0.2 alpha:1];
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+

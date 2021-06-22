@@ -1,0 +1,55 @@
+
+
+
+UIView
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UIView介绍
+   UIView 视图
+   
+   
+※ UIView的层级关系
+     
+     UIView* view01 = [[UIView alloc] init];
+     view01.frame = CGRectMake(100, 100, 150, 150);
+     view01.backgroundColor = [UIColor blueColor];
+
+     UIView* view02 = [[UIView alloc] init];
+     view02.frame = CGRectMake(125, 125, 150, 150);
+     view02.backgroundColor = [UIColor orangeColor];
+
+     UIView* view03 = [[UIView alloc] init];
+     view03.frame = CGRectMake(150, 150, 150, 150);
+     view03.backgroundColor = [UIColor greenColor];
+
+     //将三个视图对象显示到屏幕上
+     [self.view addSubView:view01];
+     [self.view addSubView:view02];
+     [self.view addSubView:view03];
+     
+     结果：view03覆盖view02，view02覆盖view01
+     结论：后面添加的会覆盖前面添加的
+
+
+
+※ 主动调整层级关系
+    
+     //将三个视图对象显示到屏幕上
+     [self.view addSubView:view01];
+     [self.view addSubView:view02];
+     [self.view addSubView:view03];
+     
+     //将某一视图调整到最前面显示
+     [self.view bringSubviewToFront:view03];
+     //将某一视图调整到最后方显示
+     [self.view bringSubviewToBack:view01];
+     
+     UIView* viewBack = self.view.subviews[0];
+     UIView* viewFront = self.view.subviews[2];
+     if(viewBack == view01)
+     {
+	NSLog(@"相等！");
+     }
+     
+
+----------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,121 @@
+#import <AMapFoundationKit/AMapFoundationKit.h>
+#import <AMapLocationKit/AMapLocationKit.h> 
+
+//单次定位
+
+self.locationManager = [[AMapLocationManager alloc] init];
+[self.locationManager setDelegate:self];
+//设置期望定位精度
+[self.locationManager setDesiredAccuracy:kCLLocationAccuracyHundredMeters];
+//设置不允许系统暂停定位
+[self.locationManager setPausesLocationUpdatesAutomatically:NO];
+//设置允许在后台定位
+[self.locationManager setAllowsBackgroundLocationUpdates:YES];
+//设置定位超时时间
+[self.locationManager setLocationTimeout:10];
+//设置逆地理超时时间
+[self.locationManager setReGeocodeTimeout:5];
+
+
+// 带逆地理（返回坐标和地址信息）。将下面代码中的 YES 改成 NO ，则不会返回地址信息。
+[self.locationManager requestLocationWithReGeocode:YES completionBlock:^(CLLocation *location, AMapLocationReGeocode *regeocode, NSError *error) {
+        if (error != nil && error.code == AMapLocationErrorLocateFailed){
+            //定位错误：此时location和regeocode没有返回值，不进行annotation的添加
+            NSLog(@"定位错误:{%ld - %@};", (long)error.code, error.localizedDescription);
+            return;
+        }
+        else if (error != nil
+                 && (error.code == AMapLocationErrorReGeocodeFailed
+                     || error.code == AMapLocationErrorTimeOut
+                     || error.code == AMapLocationErrorCannotFindHost
+                     || error.code == AMapLocationErrorBadURL
+                     || error.code == AMapLocationErrorNotConnectedToInternet
+                     || error.code == AMapLocationErrorCannotConnectToHost))
+        {
+            //逆地理错误：在带逆地理的单次定位中，逆地理过程可能发生错误，此时location有返回值，regeocode无返回值，进行annotation的添加
+            NSLog(@"逆地理错误:{%ld - %@};", (long)error.code, error.localizedDescription);}
+        else if (error != nil && error.code == AMapLocationErrorRiskOfFakeLocation){
+            //存在虚拟定位的风险：此时location和regeocode没有返回值，不进行annotation的添加
+            NSLog(@"存在虚拟定位的风险:{%ld - %@};", (long)error.code, error.localizedDescription);
+            return;
+        }else{
+            //没有错误：location有返回值，regeocode是否有返回值取决于是否进行逆地理操作，进行annotation的添加
+        }
+
+        //修改label显示内容
+        if (regeocode){
+            NSLog(@"%@ \n %@-%@-%.2fm", regeocode.formattedAddress,regeocode.citycode, regeocode.adcode, location.horizontalAccuracy);
+        }else{
+            NSLog(@"lat:%f;lon:%f \n accuracy:%.2fm", , location.coordinate.latitude, location.coordinate.longitude, location.horizontalAccuracy);
+        }
+}];
+
+//连续定位
+self.mapView = [[MAMapView alloc] initWithFrame:self.view.bounds];
+        [self.mapView setDelegate:self];
+
+        [self.view addSubview:self.mapView];
+
+    self.locationManager = [[AMapLocationManager alloc] init];
+
+    [self.locationManager setDelegate:self];
+
+    //设置不允许系统暂停定位
+    [self.locationManager setPausesLocationUpdatesAutomatically:NO];
+
+    //设置允许在后台定位
+    [self.locationManager setAllowsBackgroundLocationUpdates:YES];
+
+    //设置允许连续定位逆地理
+    [self.locationManager setLocatingWithReGeocode:YES];
+
+    //开始定位
+    [self.locationManager startUpdatingLocation];
+
+//定位失败
+- (void)amapLocationManager:(AMapLocationManager *)manager didFailWithError:(NSError *)error{
+    NSLog(@"%s, amapLocationManager = %@, error = %@", __func__, [manager class], error);
+}
+
+//定位成功
+- (void)amapLocationManager:(AMapLocationManager *)manager didUpdateLocation:(CLLocation *)location reGeocode:(AMapLocationReGeocode *)reGeocode{
+    NSLog(@"location:{lat:%f; lon:%f; accuracy:%f; reGeocode:%@}", location.coordinate.latitude, location.coordinate.longitude, location.horizontalAccuracy, reGeocode.formattedAddress);
+
+    //获取到定位信息，更新annotation
+    if (self.pointAnnotaiton == nil){
+        self.pointAnnotaiton = [[MAPointAnnotation alloc] init];
+        [self.pointAnnotaiton setCoordinate:location.coordinate];
+
+        [self.mapView addAnnotation:self.pointAnnotaiton];
+    }
+
+    [self.pointAnnotaiton setCoordinate:location.coordinate];
+
+    [self.mapView setCenterCoordinate:location.coordinate];
+    [self.mapView setZoomLevel:15.1 animated:NO];
+}
+
+//定位按钮样式
+- (MAAnnotationView *)mapView:(MAMapView *)mapView viewForAnnotation:(id<MAAnnotation>)annotation{
+    if ([annotation isKindOfClass:[MAPointAnnotation class]])
+    {
+        static NSString *pointReuseIndetifier = @"pointReuseIndetifier";
+
+        MAPinAnnotationView *annotationView = (MAPinAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:pointReuseIndetifier];
+        if (annotationView == nil)
+        {
+            annotationView = [[MAPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:pointReuseIndetifier];
+        }
+
+        annotationView.canShowCallout   = NO;
+        annotationView.animatesDrop     = NO;
+        annotationView.draggable        = NO;
+        annotationView.image            = [UIImage imageNamed:@"icon_location.png"];
+
+        return annotationView;
+    }
+
+    return nil;
+}
+
+

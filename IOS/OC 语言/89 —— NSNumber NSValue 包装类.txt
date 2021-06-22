@@ -1,0 +1,75 @@
+
+
+
+NSNumber
+---------------------------------------------------------------------------------------------------
+
+※ NSNumber
+    NSNumber是Foundation框架中定义好的1个类，这个类的作用的包装基本数据类型，方便基本数据类型存储到
+    NSArray或字典之中。
+    
+    原理：就是1个类，有不同的成员变量，然后把值赋值给这个成员变量，之后将这个类加在数组或字典之中
+
+
+
+※ 使用方式
+    NSNumber *number1 = [NSNumber numberWithFloat:10.1f];
+    NSNumber *number2 = [NSNumber numberWithFloat:10.2f];
+    NSNumber *number3 = [NSNumber numberWithFloat:10.3f];
+
+    NSArray *arr = @[number1, number2, number3];
+    for(NSNumber *num in arr){
+	NSLog(@"%f", num.floatValue);
+    }
+
+
+
+※ 简写方式
+    
+    NSArray *arr = @[@10, @20, @30, @40];
+    
+    @10: 代表这是1个NSNumber对象，这个对象中的包装是整形10，这个不是整形的10
+         相当于代码[NSNumber numberWithInt:10f];
+    
+    包装注意：
+    如果数据是1个变量，那么这个变量必须使用小括弧括起来。
+    int num = 10;
+    NSNumber *number1 = @(num);
+    
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+
+NSValue
+---------------------------------------------------------------------------------------------------
+
+ ※ NSValue
+    可以包装结构体变量。可以让他们存在集合之中
+    比如：NSRange、CGPoint、CGSize、CGRect
+
+
+ ※ 实例
+    CGPoint p1 = CGPointMake(10,20);
+    CGPoint p2 = CGPointMake(110,120);
+    CGPoint p3 = CGPointMake(110,320);
+    CGPoint p4 = CGPointMake(110,240);
+
+    NSValue *v1 = [NSValue valueWithPoint:p1];
+    NSValue *v2 = [NSValue valueWithPoint:p2];
+    NSValue *v3 = [NSValue valueWithPoint:p3];
+    NSValue *v4 = [NSValue valueWithPoint:p4];
+
+    NSArray *arr = @[v1,v2,v3,v4];
+
+    for(NSValue *v in arr)
+    {
+	NSLog(@"%@", NSStringFromPoint(v.pointValue));
+    }
+
+
+---------------------------------------------------------------------------------------------------
+

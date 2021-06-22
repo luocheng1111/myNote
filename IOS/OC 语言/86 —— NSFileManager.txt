@@ -1,0 +1,61 @@
+
+
+
+NSFileManager 文件管理类
+---------------------------------------------------------------------------------------------------
+
+ ※ NSFileManager 类介绍
+    NSFileManager类：用来操作磁盘上的文件 文件夹 对他们进行创建、删除、复制、拷贝、移动.....
+
+
+ ※ NSFileManager的使用
+
+     //NSFileManager的创建 
+     NSFileManager *fileManager = [NSFileManager defaultManager];
+     
+     //判断指定的文件或者文件夹在磁盘上是否真实的存在
+     - (BOOL)fileExistsAtPath:(NSString *)path;
+
+     //判断指定的路径是否真实的存储在我们的磁盘之上，并且判断这个路径是1个文件夹路径还是1个文件路径
+     - (BOOL)fileExistsAtPath:(NSString *)path isDirectory:(BOOL *)isDirectory;
+     返回值：代表这个路径是否真实存在
+     参数指针：代表这个路径是否是1个文件夹路径
+
+     //判断指定的文件夹或者文件是否可以读取
+     - (BOOL)isReadableFileAtPath:(NSString *)path;
+     
+     //判断指定的文件夹或者文件是否可以写入
+     - (BOOL)isWritableFileAtPath:(NSString *)path;
+     
+     //判断指定的文件夹或者文件是否可以删除
+     - (BOOL)isDeletableFileAtPath:(NSString *)path;
+
+
+ ※ 实例：文件终结者程序，如果某个文件夹中有东西，就删除他
+    while(1)
+    {
+	1.先拿到文件夹中的子目录
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+	NSString *path = @"/Users/Apple/Desktop/重要文件/";
+	NSArray *arr = [fileManager contentOfDirectoryAtPath:path error:nil];
+	if(arr.count > 0)
+	{
+	    //说明有东西，删除。
+	    for(NSString *p in arr)
+	    {
+		NSString *newP = [NSString stringWithFormat:@"%@%@",path,p];
+		if([fileManager isDeletableFileAtPath:newP])
+		{
+		     [fileManager removeItemAtPath:newP error:nil];
+		}
+	    }
+	}
+	NSLog(@"扫描完成！");
+
+	[NSThread sleepForTimeInterval:3];//CPU暂定指定的时间。
+    }
+   
+---------------------------------------------------------------------------------------------------
+
+
+

@@ -1,0 +1,78 @@
+ 
+
+Json
+---------------------------------------------------------------------------------------------------
+ ※ Demo 见 ./Demo/Json解析
+
+---------------------------------------------------------------------------------------------------
+
+
+
+NSJSONSerialization 原生JSON解析
+---------------------------------------------------------------------------------------------------
+
+ ※ 案例
+     let line: NSString = "[{\"ID\":1,\"Name\":\"元台禅寺\",\"LineID\":1},{\"ID\":2,\"Name\":\"田坞里山塘\",\"LineID\":1},{\"ID\":3,\"Name\":\"滴水石\",\"LineID\":1}]"
+     let data = line.dataUsingEncoding(NSUTF8StringEncoding)
+     let jsonArr = try! NSJSONSerializatin.JSONObjectWithData(data!, options: NSJSONReadingOptions.MutableLeaves) as! NSArray
+     print("记录数:\(jsonArr.count)")
+     for json in jsonArr{
+         print("ID:", json.objectForKey("ID")!, "    Name：", json.objectForKey("Name")!)
+     }
+
+
+ ※ 解析思路：
+     把解析后的数据转换成自己想要的类型，然后在使用这个类型
+     比如是数组类型：
+        let jsonArray = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.AllowFragments)). as! NSArray
+        print(jsonArr.count)
+	for ...
+     比如是String类型：
+        let str = try NSJSONSerialization.JSONObjectWithData(data!, options: .AllowFragments)) as! String
+        print(str.character.count)
+	...
+
+
+ ※ NSJSONReadingOptions 枚举介绍
+     MutableContainers：指定解析返回的是可变的数组和字典。
+     MutableLeaves：指定叶节点是可变字符串
+     AllowFragments：指定顶级节点可以不是数组或字典
+
+---------------------------------------------------------------------------------------------------
+
+
+
+SwiftJson 第三方控件解析
+---------------------------------------------------------------------------------------------------
+ ※ 学习地址
+    http://www.hangge.com/blog/cache/detail_968.html
+
+ ※ 优势，相比原生
+    1.SwiftyJSON不需要一直判断这个节点是否存在，是不是我们想要的class，下一个节点是否存在，是不是我们想要的class…
+    2.SwiftyJSON内部会自动对optional（可选类型）进行拆包（Wrapping ），大大简化了代码
+ 
+ ※ 使用步骤
+    1.只需将SwiftJson.swift文件导入项目中即可
+  
+ ※ 案例
+    let jsonStr = "[{\"name\": \"hangge\", \"age\": 100, \"phones\": [{\"name\": \"公司\",\"number\":
+                   \"123456\"}, {\"name\": \"家庭\",\"number\": \"001\"}]}, {\"name\": \"big boss\",\"age\": 1,
+		   \"phones\":[{ \"name\": \"公司\",\"number\": \"111111\"}]}]"  
+    if let jsonData  = jsonStr.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false){
+	let json = JSON(data: jsonData) //data要为NSData()类型
+	print("第一个联系人的第一个电话号码:", json[0]["phones"][0]["number"].string)
+    } 
+
+---------------------------------------------------------------------------------------------------
+
+
+
+SwiftKit 第三方控件解析
+---------------------------------------------------------------------------------------------------
+  
+
+
+---------------------------------------------------------------------------------------------------
+
+
+

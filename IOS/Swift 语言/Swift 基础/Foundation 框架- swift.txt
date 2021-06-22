@@ -1,0 +1,145 @@
+
+
+
+Foundation框架
+----------------------------------------------------------------------------------------------------------------------------------------
+
+ ※ 什么是框架？
+    就是系统(苹果)或者第三方(其他的一些高手)事先写好了一些很牛X功能的类，
+    把这些类交给我们使用，这个类的集合我们叫做框架
+
+
+ ※ Foundation.framework？
+     Foundation：基础  framework：框架
+     Foundation.framework 基础框架
+  
+   
+ ※ Foundation框架
+    Foundation框架是Cocoa编程、IOS编程的基础框架，它包括字符串、集合、日期、时间等基础。
+    无论是开发Cocoa应用程序，还是开发IOS应用，Foundation框架都是基础框架。
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+字符串 NSString 与 NSMutableString
+---------------------------------------------------------------------------------------------------
+ ※ 介绍
+     Foundation框架的字符串有两个：NSString与NSMutableString，分别代表不可变、可变字符串
+     在Swift中，不可变、可变字符串用 let、var控制
+     
+ ※ 常用方法
+     var str = "Hello, playground"
+     var nsstr:NSString = "Hello, playground"
+
+     str.characters.count //17 Swift获取字符串长度 
+     nsstr.length //17 NSString获取字符串长度
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+日期和时间 NSDate
+---------------------------------------------------------------------------------------------------
+ ※ 获取当前时间或某一时间
+     let date1 = NSDate() //获取当前时间 "Apr 11, 2016, 11:11 AM"
+     let date2 = NSDate(timeIntervalSinceNow: 3600*24)    //获取一天后的时间
+     let date3 = NSDate(timeIntervalSinceNow: -3*3600*24) //获取三天前的时间 "Apr 8, 2016, 11:11 AM"
+     let date4 = NSDate(timeIntervalSince1970: 3600*24*366*20) //获取1970.1.1起，20年后的时间
+
+
+ ※ 两个时间的比较
+    let earlier = date1.earlierDate(date2) //"Apr 11, 2016, 11:11 AM"
+    let later = date1.laterDate(date2) //"Apr 12, 2016, 11:11 AM"
+
+    let NSComparisonResult = date1.compare(date2)
+    switch NSComparisonResult{
+    case NSComparisonResult.OrderedAscending:
+	 print("第一个位于第二个之前")   //"第一个位于第二个之前\n"
+    case .OrderedSame:
+	print("第一个和第二个相等")
+    case .OrderedDescending:
+	 print("第一个和第二个之后")
+    }
+    
+    NSLog("相差％g秒", date1.timeIntervalSinceDate(date2))
+    NSLog("相差％g秒", date2.timeIntervalSinceDate(date3))
+
+---------------------------------------------------------------------------------------------------
+
+
+
+日期格式器 NSDateFormatter
+---------------------------------------------------------------------------------------------------
+ ※ 介绍
+     MSDateFormatter代表一个日期格式器，它的功能是完成NSDate与NSString之间的转换
+
+
+ ※ 时间转换成我们需要的类型
+    let date = NSDate()
+    let df = NSDateFormatter()
+    df.dateFormat = "yyyy-MM-dd HH:mm:ss"
+    df.stringFormDate(date) //"2016-04-11 11:11:13"
+
+ ※ 时间转换成日期
+    let dateString = "2016-03-02"
+    let df = NSDateFormatter()
+    df.dateFormat = "yyyy-MM-dd"
+    df.dateFromString(df)
+
+---------------------------------------------------------------------------------------------------
+
+
+
+NSLocal
+---------------------------------------------------------------------------------------------------
+ ※ 介绍
+     根据国家，数据用不同方式显示
+
+
+ ※ 根据国家选择，显示国家的时间表达方式
+     let local = NSLocale.currentLocale()
+     let dateFormat = NSDateFormatter.dateFormatFromTemplate("yyyy-MM-dd", options: 0, locale: local)
+     let dateFormatter = NSDateFormatter()
+     dateFormatter.dateFormat = dateFormat
+     let showDate = dateFormatter.stringFromDate(date)
+
+
+--------------------------------------------------------------------------------------------------
+
+
+
+日历(NSCalender) 与日期组件(NSDateComponents)
+---------------------------------------------------------------------------------------------------
+ ※ 介绍
+     为了能分开处理NSDate对象所包含的各个字段的数据
+
+
+ ※ 从NSDate中提取年、月、日、时分秒各字段信息
+    //components -> NSDateComponents: 从NSDate中提取年、月、日、时分秒各字段信息
+    let gregorian = NSCalendar(calendarIdentifier:NSCalendarIdentifierGregorian)
+    let date = NSDate()
+    let unitFlags:NSCalendarUnit = [.Year, .Month, .Day, .Hour, .Minute, .Second, .Weekday]
+    let comp = gregorian!.components(unitFlags, fromDate: date)
+    comp.year      //2016
+    comp.month     //4
+    comp.day       //11
+    comp.hour      //11
+    comp.minute    //11
+    comp.second    //13
+    comp.weekday   //2
+
+ ※ 从年、月、日等字段信息创建NSDate
+    //dateFromComponents() -> NSDate?: 使用coms对象包含的年、月、日、时分秒字段信息创建NSDate
+    let com = NSDateComponents()
+    comp.year = 2013
+    comp.month = 4
+    comp.day = 5
+    comp.hour = 19
+    comp.minute = 21
+    let date = gregorian!.dateFromComponents(com) //"Apr 5, 2013, 7:21 PM"
+
+
+---------------------------------------------------------------------------------------------------

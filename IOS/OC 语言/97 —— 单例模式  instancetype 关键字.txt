@@ -1,0 +1,93 @@
+
+
+
+单例模式
+---------------------------------------------------------------------------------------------------
+
+※ 单例模式介绍
+   一个类的对象，无论何时创建、无论创建多少次。创建出来的都是同1个对象。
+
+
+※ 原理：
+   无论如何创建对象，最终都会调用alloc方法来创建对象。
+   alloc方法的内部。其实什么都没有做，只是调用了allocWithZone方法
+   实际上真正申请空间 创建对象的事情是allocWithZone方法在做
+
+
+※ 单例模式的规范：
+   如果类是1个单例模式，要求为类提供1个类方法。来放回这个单例对象。
+   类方法的名称必须以 shared类名; default类名;
+
+
+
+※ 单例模式的写法
+   #import "Person.h"
+
+   @implementation Person
+
+   //重写allocWithZone方法
+   + (instancetype)allocWithZone:(struct _NSZone *)zone
+   {
+      static id instance = nil;
+      if(instance == nil)
+      {
+         instance = [super allocWithZone:zone];
+      } 
+      return instance;
+   }  
+
+   + (instancetype)sharedPerson
+   {  
+      return [self new];
+   }
+
+   + (instancetype)defaultPerson
+   {  
+      return [self new];
+   }
+
+   @end
+
+
+
+   int main(...)
+   {
+      Person *p1 = [Person new];
+      Person *p2 = [Person new];
+      Person *p3 = [Person new];
+      Person *p4 = [Person new];
+   }
+
+
+※ 什么时候要把类搞成单例
+   如果数据需要被整个程序所共享，将数据以属性的方式存储在单例对象中。
+
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+instancetype 关键字
+--------------------------------------------------------------------------------------------------------
+
+ ※ instancetype 关键字
+    instancetype只能作为方法的返回值，代表这个方法的返回值是当前这个类的对象。
+    如果是Person调用，则返回的是Person对象
+    如果是Student调用，则返回的是Student对象
+
+    
+    场景：Student继承Person类，person是Person类的类方法
+
+    + (instancetype)person
+    {
+        return [self new];
+    }
+    
+    Person *person = [Peron person];
+    Student *student = [Person person];
+
+
+--------------------------------------------------------------------------------------------------------
+

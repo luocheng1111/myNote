@@ -1,0 +1,251 @@
+
+
+
+ IOS 数据持久化
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ IOS 数据持久化的方式分为三种：
+   1.属性列表(Plist、NSUserDefaults)
+   2.归档(NSKeyedArchiver)
+   3.数据库(SQLite、Core Data、第三方类库等)
+
+
+※ IOS数据安全策略-沙盒机制
+   与Android系统不同的是，IOS系统使用的是特有的数据安全策略：沙盒机制。
+   沙盒机制：系统会为每个APP分配一块独立的存储空间，用于存储图像，图标，声音，
+   映像，属性列表，文本等文件，并且在默认情况下每个APP只能访问自己的空间。
+
+
+※ 学习自：
+   http://www.jianshu.com/p/0273fd0123e5
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Plist
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ Plist 介绍
+   属性列表文件(Property List), 扩展名为.plist, 源码以xml格式存储数据, 在IOS开发中, 通常用来存储用户设置, 用于存储程序中经常用到而不经常改动的数据。
+   文件中的根类型只能为array或dictionary，而array或dictionary中存储的数据则可为Boolean，data，string，date，number和array或dictionary，数据可以互相嵌套。
+
+   注意点：
+   命名的时候不能用Info.plist, INfo.plist, xxxInfo.plist等形式。否则会出现与系统中存在一个Info.plist文件发生冲突，
+
+
+
+※ Plist的使用  Demo见：\Demo\Plist_study01
+
+   //如果文件不存在，创建文件，并写入数据 如果文件存在，则覆盖其原有的数据，dictionary的写法类似
+   - (void) writeDataToPlist{
+      NSArray *array = @[@"www", @"sss", @"ddd", @1];
+      BOOL isSuccess = [array writeToFile:@"/Users/luocheng/Desktop/IOS/Plist_student01/Plist_student01/NewsModel.plist" atomically:YES];
+      NSLog(@"%d",isSuccess);
+   }
+
+
+   //读取文件中的内容
+   - (void) readPlistData{
+      NSURL *filePath = [NSURL fileURLWithPath:@"/Users/luocheng/Desktop/IOS/Plist_student01/Plist_student01/NewsModel.plist"];
+      NSArray *readArray = [[NSArray alloc] initWithContentsOfURL:filePath];
+      NSLog(@"%@", readArray);
+   }
+
+
+
+※ 参考：
+    http://www.jianshu.com/p/33974a2928b7
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Preference - NSUserDefaults
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ Preference 介绍
+   Preference 偏好设置 实际类是NSUserDefaults 用于保存少量数据 他与Plist不同的是不需要创建建文件、而是像读字典一样，直接读取数据，都没有文件名
+   注意点：NSUserDefaults不能存储可变(mutable)类型，只能存储不可变类型
+
+
+※ Preference 使用 Demo见：\Demo\Preference_study01
+
+   //保存数据
+   -(void)save{
+      NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+      [defaults setObject:@"chaoyuan" forKey:@"username"];
+      [defaults setFloat:18.6 forKey:@"text_size"];
+      [defaults setBool:YES forKey:@"auto_login"];
+
+      //强制数据保存
+      [defaults synchronize];
+   }
+
+   //读取数据
+   -(void)read{
+      NSUserDefaults *defualts = [NSUserDefaults standardUserDefaults];
+      NSString *username = [defualts objectForKey:@"username"];
+      float textsize = [defualts floatForKey:@"text_size"];
+      BOOL autoLogin = [defualts boolForKey:@"auto_login"];
+      NSLog(@"username = %@",username);
+      NSLog(@"textsize = %0.1f",textsize);
+      NSLog(@"autoLogin = %i",autoLogin);
+    }
+
+※ 学习：
+    http://www.jianshu.com/p/9324081099f5
+    http://blog.csdn.net/chaoyuan899/article/details/11901895
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+NSKeyedArchiver
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ NSKeyedArchiver
+   归档(又名序列化)，就是把数据或对象转为字节的过程，最后以文件的形式存储到磁盘上；
+
+
+※ 归档的特点
+   1.归档可以归档自定义的对象
+   2.通过归档创建的文件是加密的
+   3.归档这种保存方式缺点就是没有属性列表（NSuserDefault）速度快，因为它每次都要把文件保存到闪存中，
+     优点是可以创建自己想要的数据模型，然后统一以模型方式存储，比属性列表要过分依赖Key要省心。
+
+
+※ 归档的注意点
+   1.当需要归档自定义对象时(比如Student 学生类时)，要实现NSCoding协议
+
+
+※ NSKeyedArchiver的使用 \Demo\NSKeyedArchiver_study01
+- (void) save{
+    //获得文件路径
+    NSString *documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *filePath = [documentPath stringByAppendingPathComponent:@"file111.archiver"];
+
+    //1. 使用NSData存放归档数据
+    NSMutableData *archiverData = [NSMutableData data];
+    //2. 创建归档对象
+    NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:archiverData];
+    //3. 添加归档内容 （设置键值对）
+    [archiver encodeObject:@"jereh" forKey:@"name"];
+    [archiver encodeInt:20 forKey:@"age"];
+    [archiver encodeObject:@[@"ios",@"oc"] forKey:@"language"];
+    Student *student = [Student new];
+    student.name = @"张三";
+    student.age = 18;
+    NSLog(@"%d", student == nil);
+    [archiver encodeObject:student forKey:@"student"];
+    //4. 完成归档
+    [archiver finishEncoding];
+    //5. 将归档的信息存储到磁盘上
+    if ([archiverData writeToFile:filePath atomically:YES]) {
+        NSLog(@"archiver success");
+    }
+}
+
+
+- (void) read{
+    //获得文件路径
+    NSString *documentPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+    NSString *filePath = [documentPath stringByAppendingPathComponent:@"file111.archiver"];
+    //解归档
+    //1. 从磁盘读取文件，生成NSData实例
+    NSData *unarchiverData = [NSData dataWithContentsOfFile:filePath];
+    //2. 根据Data实例创建和初始化解归档对象
+    NSKeyedUnarchiver *unachiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:unarchiverData];
+    //3. 解归档，根据key值访问
+    NSString *name = [unachiver decodeObjectForKey:@"name"];
+    int age = [unachiver decodeIntForKey:@"age"];
+    NSArray *ary = [unachiver decodeObjectForKey:@"language"];
+    Student *student = [unachiver decodeObjectForKey:@"student"];
+    NSLog(@"name=%@ age=%i ary=%@ student.name=%@, student.age=%d",name,age,ary,student.name,student.age);
+}
+
+
+
+※ 学习：
+    http://www.cnblogs.com/zhaoweizheng/p/4561934.html
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+SQLite 数据库
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ SQLite 介绍
+   SQLite是一个轻量级关系数据库, 用于嵌入式开发，
+   优点是占用资源低、可移植性强、速度块 现在用的一般是SQLite3.0
+
+
+※ SQLite 支持的数据类型
+
+   INTEGER  有符号整形
+   REAL	    浮点型
+   TEXT     字符串类型，采用UTF-8 UTF-16编码
+   BLOB     大二进制对象类型。能够存放任何二进制数据
+   VARCHAR CHAR CLOB 转换成TEXT类型
+   FLOAT DOUBLE      转换成为REAL
+   NUMERIC	     转换成为 INTEGER或者REAL类型
+
+   没有布尔类型数据        用整数0或者1代替
+   没有日期、时间类型数据  存储在TEXT、REAL类型中
+
+
+※ 注意点：
+   要使用SQLite时，记得项目导入libsqlite3.tbd文件
+   导入方式：
+   项目->General->Linked Frameworks and Libraries->点+号->搜索libsqlite3.tbd
+   ->添加libsqlite3.tbd
+
+
+※ 使用方式
+   Demo见：\Demo\SQLite_study01
+
+
+学习：
+   http://blog.csdn.net/u010390827/article/details/51378068
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+CoreData
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ CoreData
+   CoreData是一个强大的数据持久化技术，它基于SQLite，提供了对象-关系映射(ORM)的功能，
+   可以使我们不写SQL语句就能将数据保存到SQLite数据库文件中
+
+
+
+※ CoreData 使用
+
+
+
+※ CoreData 在什么情况下使用？
+   (coredata并非严格的说是对sqlite数据库的一个封装，也可以用其他的数据库，
+   并不一定要使用sqlite3，当然了coredata的好处还是非常多的，高效，简介，能节省至少50%的代码量，
+   条目清新)
+
+
+
+※ 学习：
+    http://blog.csdn.net/chen505358119/article/details/9334831
+    http://www.cocoachina.com/ios/20160801/17248.html
+    http://www.jianshu.com/p/4411f507dd9f
+    http://blog.csdn.net/q199109106q/article/details/8563438/
+    http://www.jianshu.com/p/880dd63c5f5e
+    http://www.jianshu.com/p/113047a478c5
+
+----------------------------------------------------------------------------------------------------------------------------------------

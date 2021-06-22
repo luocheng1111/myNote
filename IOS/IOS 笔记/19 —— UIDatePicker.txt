@@ -1,0 +1,29 @@
+
+
+UIDatePicker
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UIDatePicker介绍
+   UIDatePicker 日期选择器控件
+ 
+
+※ UIDatePicker 的使用 Demo见：\Demo\UIDatePicker_study01
+
+    UIDatePicker *datePicker = [UIDatePicker new];
+    datePicker.frame = CGRectMake(0, 50, 300, 250);
+    [self.view addSubview:datePicker];
+    [datePicker addTarget:self action:@selector(dateChanged:) forControlEvents:UIControlEventValueChanged];
+
+    - (void)dateChanged:(UIDatePicker*)datePicker{
+      NSDate *date = datePicker.date;
+      NSLog(@"%@", date);
+      NSDateFormatter *dateFormatter = [[NSDateFormatter alloc]init];
+      [dateFormatter setDateFormat:@"yyyy年MM月dd日"];
+      NSString  *string = [[NSString alloc]init];
+      string = [dateFormatter stringFromDate:date];
+      NSLog(@"%@", string);
+    }
+
+ 
+
+----------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,19 @@
+
+
+MVC模式：Model View Control，把模型 视图 控制器 层进行解耦合编写。
+单例模式：通过static关键词，声明全局变量。在整个进程运行期间只会被赋值一次。
+观察者模式：KVO是典型的通知模式，观察某个属性的状态，状态发生变化时通知观察者。
+委托模式：代理+协议的组合。实现1对1的反向传值操作。
+
+
+MVC模式：
+MVC是一种架构模式，M表示Model，V表示视图View，C表示控制器Controller
+Model 负责存储、定义、操作数据; 可以使用KVO和通知，当数据改变时进行KVO和通知，等待被Controler调用
+View 用来展示界面，和用户进行操作交互，用户在手机上看到的任何东西都是View
+
+Controller 是Model和View的协调者，Controller把Model中的数据拿过来给View用，
+Controller可以直接与Model和View进行通信，而View不能和Controller直接通信。
+View与Controller通信需要利用代理协议的方式，
+Model也要与Controller进行通信，当Model有数据更新的时候，这个时候可以用Notification和KVO发信号，
+Controller设置监听接受信号，进行下一步操作
+Model和View不能直接进行通信，这样会违背MVC设计模式。也非常不建议这样做

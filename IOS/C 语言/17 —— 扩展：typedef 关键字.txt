@@ -1,0 +1,109 @@
+
+
+
+
+typedef 类型
+-------------------------------------------------------------------------------------------------------------------
+
+※ typedef 作用
+    为已知的数据类型取一个别名，
+    如果我们想使用这个类型，直接使用别名就可以了
+    语法：typedef 数据类型  别名
+
+※ typedef 使用
+
+  例一：
+   typedef int itheima; //为int数据类型取1个别名，叫做itheima
+   itheima age = 16; //这个时候itheima完全等价于int
+
+
+
+  例二：string 代替 char*
+   typedef char* string; 
+   string name = "rose";
+
+  
+  系统 size_t 其实就是 unsigned long
+
+ 
+
+※ 什么时候用的到别名勒?
+   1.当数据类型很长的时候，就可以为这个数据类型取1个短1点的别名,这样用起来就很方便
+     typedef unsigned long long int hm;
+   
+   2.string 代替 char*
+
+   3.typedef 给枚举、结构体取1个短别名
+
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+
+
+
+typedef 给结构体、枚举取1个短别名
+-------------------------------------------------------------------------------------------------------------------
+
+※ typedef 给结构体 取短别名
+    struct Student{
+	     char *name;
+	     int age;
+	     int score;
+    };
+
+
+    1).先声明结构体类型，然后用typedef给结构体取1个短别名
+       typedef struct Student Student;
+       Student stu = {"rose", 16, 80};
+    
+
+    2).声明结构体的同时，用typedef给结构体取1个短别名
+       typedef struct Student{
+          char *name;
+          int age;
+          int score;
+       } Student;
+
+
+    3).声明匿名结构体的同时，用typedef给结构体取1个短别名
+       typedef struct {
+          char *name;
+          int age;
+          int score;
+       } Student;
+
+
+
+※ typedef 枚举 取短别名
+    enum Direction{
+	     DirectionEast;
+	     DirectionSouth;
+	     DirectionWest;
+	     DirectionNorth;
+    };
+
+
+    1).先声明结构体类型，然后用ypedef给结构体取1个短别名
+       typedef  enum Direction Direction;
+    
+
+    2).声明结构体的同时，用typedef给结构体取1个短别名
+       typedef enum Direction{
+	       DirectionEast;
+	       DirectionSouth;
+	       DirectionWest;
+	       DirectionNorth;
+       } Direction;
+
+
+    3).声明匿名结构体的同时，用typedef给结构体取1个短别名
+       typedef enum {
+         DirectionEast;
+         DirectionSouth;
+         DirectionWest;
+         DirectionNorth;
+       } Direction;
+ 
+
+-------------------------------------------------------------------------------------------------------------------

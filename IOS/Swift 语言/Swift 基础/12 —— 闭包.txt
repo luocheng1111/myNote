@@ -1,0 +1,72 @@
+
+
+
+
+闭包
+---------------------------------------------------------------------------------------------------
+※ 闭包的基本写法 
+   func getMathFunc(type type:String) -> (Int) -> Int{
+	switch type{
+	    case "square"
+	      return {(val:Int) -> Int in
+			retuen val*val
+	             }
+	    case "cube"
+	      return {(val:Int) -> Int in
+			retuen val*val*val
+	             }
+	}
+   }
+
+   var mathFunc = getMathFunc(type:"square")
+   print(mathFunc(5)) //25
+   mathFunc = getMathFunc(type:"cube")
+   print(mathFunc(5)) //125
+
+
+
+※ 闭包的简洁写法 //省略参数，返回值
+   func getMathFunc(type type:String) -> (Int) -> Int{
+	switch type{
+	    case "square"
+	      return { retuen $0*$0 }
+	    case "cube"
+	      return { retuen $0*$0*$0 }
+	}
+   }
+
+   var mathFunc = getMathFunc(type:"square")
+   print(mathFunc(5)) //25
+   mathFunc = getMathFunc(type:"cube")
+   print(mathFunc(5)) //125
+
+
+
+※ 结尾闭包写法 //代码风格更好，推荐这种
+   func map(var data data:[Int], fn: (Int) -> Int) -> [Int]{
+	for var i=0; i< data.count; i++{
+		data[i] = fn(data[i]sss)
+	}
+	return data
+   }
+
+   //定义一个计算平方的函数
+   func square(val:Int) -> Int{
+	retuen val*val
+   }
+
+   //定义一个计算立方的函数
+   func cube(val:Int) -> Int{
+	retuen val*val*val
+   }
+
+   var data = [3,4,9,5,8]
+   原先写法：
+   // print(map(data:data, fn:square)) -> [9,16,81,25,64]
+   // print(map(data:data, fn:cube))   -> [27,64,729,125,512]
+   结尾闭包写法：
+   let map1 = map(data:data){$0*$0}    -> [9,16,81,25,64]
+   let map2 = map(data:data){$0*$0*$0} -> [27,64,729,125,512]
+   
+
+---------------------------------------------------------------------------------------------------

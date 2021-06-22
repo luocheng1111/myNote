@@ -1,0 +1,38 @@
+
+
+
+UIWindow
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UIWindow介绍
+   UIWindow是一种特殊的UIView，通常一个app中只会有一个UIWindow
+   IOS程序启动完毕后，创建的第一个视图控件就是UIWIndow，接着创建控制器view，然后将控制器
+   的view添加到UIWindow上，于是控制器的view就显示在屏幕上了。
+   
+   UIWindow是创建的第一个视图控件，程序之所以能显示在屏幕上，完全是因为它有UIWindow，也就是
+   说，没有UIWindow，就看不见任何UI界面
+   
+
+   
+※ UIWindow的使用
+     
+     //创建Window 并指定位置
+     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen] bounds];
+     //创建一个视图控制器作为UIWindow的根视图控制器
+     self.window.rootViewController = [[UIViewController alloc] init];
+     //给Window设置背景颜色
+     self.window.backgroundColor = [UIColor blueColor];
+     //使window有效并显示到屏幕上
+     [self.window makeKeyAndVisible];
+
+
+     //添加一个View到Window中
+     UIView *view = [[UIWindow alloc] initWithFrame:CGMakeFrame(100,100,150,150)];
+     view.backgroundColor = [UIColor orangeColor];
+     [self.window.addSubview:view];
+
+     
+     retutn YES;
+     
+
+----------------------------------------------------------------------------------------------------------------------------------------

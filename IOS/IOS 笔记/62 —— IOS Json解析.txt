@@ -1,0 +1,98 @@
+
+
+
+IOS Json解析
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ IOS 数据解析
+   数据为了方便传输，用一些固定格式来固定数据，通常有两种 JSON和XML
+
+   Json解析 比较流行的几种方式有
+    IOS自带的JSON库
+    JSONKit
+    TouchJson
+    SBJson
+
+   XML解析 比较流行的几种方式有
+    SAX
+    DOM
+
+
+
+※ IOS 自带的JSON解析(仅支持IOS5以上版本，如果程序要兼容IOS5以下版本，则建议用第三方解析)
+    Demo见：/Demo/Json_IOSjiexi
+
+    //主要是依靠NSJSONSerialization：JSONObjectWithData方法
+
+    NSString *jsonStr = @"{\"name\":\"James\",\"age\":\"30\"}";
+    NSData *jsonData = [jsonStr dataUsingEncoding:NSUTF8StringEncoding];
+
+    id jsonObj = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:nil];
+    if([jsonObj isKindOfClass:[NSDictionary class]]){
+        //字典类型
+        NSDictionary *dic = (NSDictionary*)jsonObj;
+        NSLog(@"%@, %@ ", [dic objectForKey:@"name"],[dic objectForKey:@"age"]);
+    }
+    if ([jsonObj isKindOfClass:[NSArray class]]){
+
+    }
+
+
+
+※ NSJSONReadingOptions的见解
+   0：返回的对象是不可变的，NSDictionary或NSArray
+   NSJSONReadingMutableContainers：返回可变容器，NSMutableDictionary或NSMutableArray。
+   NSJSONReadingMutableLeaves：返回NSMutableString类型数据
+   NSJSONReadingAllowFragments：只要是JSON解析，都可以使用这个，允许JSON字符串最外层既不是NSArray也不是NSDictionary，但必须是有效的JSON Fragment
+
+   一般情况下，使用0就够了，如果你想改变返回结果，往返回结果里加数据的话，就使用NSJSONReadingMutableContainers
+
+
+※ JSONKit解析 Demo见：/Demo/JSON_JSONKit
+
+   注意点：
+    1.需要将JSONKit.h和JSONKit.m拖到项目中。下载地址：https://github.com/johnezang/JSONKit/
+    2.需要输入指令 兼容ARC
+    3.需要isa 设置。。。
+      具体见Demo中的截图(截图在JSON_JSONKit.zip中)
+
+
+※ TouchJson & SBJson
+    也需要输入指令和进行一些其他设置。
+    具体见JSON_JSONKit.zip中的截图
+
+
+※ 总结
+   一般情况下，用IOS自带的就可以了。最方便，速度最快。
+   其他第三方使用的话需要输入指令和进行一些设置
+
+   1.优选使用IOS自带解析器。
+     1) 自带解析器(类方法) 类名：NSJSONSerialization 方法：JSONObjectWithData：options：error：
+     2) JSONKit 类名：JSONDecoder   方法：objectWithData：
+     3) TouchJson 类名：CJJSONDeserializer   方法：deserialize：error：
+     4) SBJson 类名：SBJsonParser   方法：objectWithData：
+
+   2.第三方库使用步骤：
+     1).下载并拷贝到工程路径下
+     2).以create group方法导入工程
+     3).如果工程使用ARC. 则针对导入的源文件使用 -fno-objc-arc命令
+
+   3.json数据解析步骤：
+     1) 从数据源获取json数据
+     2) 将json数据转换为NSDictionary或NSArray
+     3) 解析NSDictionary或NSArray;
+
+
+
+
+学习：
+视频演示JSON的各种解析和XML的各种解析：http://www.imooc.com/learn/681
+
+NSJSONReadingOptions的说明
+http://blog.csdn.net/lg767201403/article/details/51822330
+http://www.cnblogs.com/linyc/p/4272060.html
+
+JSONKIT的使用 http://blog.csdn.net/qjlhlh/article/details/8126385
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

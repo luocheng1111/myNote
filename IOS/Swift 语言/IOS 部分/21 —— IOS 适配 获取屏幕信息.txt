@@ -1,0 +1,90 @@
+ 
+
+获取设备信息
+---------------------------------------------------------------------------------------------------
+
+ ※ 获取屏幕宽高
+     let iosDeviceScreenSize:CGSize = UIScreen.mainScreen().bounds.size  // iphone 5S为例
+     print("屏幕的宽：\(iosDeviceScreenSize.width)")  --> 屏幕的宽：320.0
+     print("屏幕的高：\(iosDeviceScreenSize.height)")  --> 屏幕的高：568.0 
+
+
+ ※ 判断是那种设备
+     if(UIDevice.currentDevice().userInterfaceIdiom == UIUserInterfaceIdiom.Phone){
+       ...
+     }
+     UIUserInterfaceIdiom是枚举类型
+      Phone：判断为iPhone或iPod touch设备。Object-C版本为UIUserInterfaceIdiomPhone
+      Pad：判断为iPad设备。Object-C版本为UIUserInterfaceIdiomPad
+      Unspecified：未知设备。Object-C版本为UIUserInterfaceIdiomUnSpecified
+     
+
+ ※ IOS中的"栏"
+     在iPad和iPhone屏幕布局中，一般会有状态栏、标签栏、导航栏(或工具栏)以及内容视图部分
+     状态栏：最顶部， 占用20点
+     导航栏：标题，占用44点
+     标签栏：最底部，占用49点 // 点在不同设备上等于的像素不一样 比如5S 1点=2倍像素，6Plus 1点=3倍像素
+
+
+ ※ Main.stroyboard 预览各种屏的布局效果 
+     1.点击右上角图标显示出对比界面或效果，
+     2.选择Preview->Main.stroyboard,就可以出现4s的预览图
+     3.如果想看6s的预览图，点击+，增加6s预览图就行
+
+    
+---------------------------------------------------------------------------------------------------
+
+
+
+AutoLayout -- IOS适配
+---------------------------------------------------------------------------------------------------
+
+ ※ 手动AutoLayout
+      拖动控件到边距上、下、左、右的间距，在尺子ConstraInts可看到效果，也可以
+      在预览中看到效果
+    
+ ※ 自动AutoLayout
+      选中整体View, 点击底部最后一个，选择Add Missing ConstraIns，就自动增加了适配效果
+
+---------------------------------------------------------------------------------------------------
+
+
+Size Class -- IOS适配
+---------------------------------------------------------------------------------------------------
+
+ ※ Size Class 介绍
+     Compact： 紧凑，屏幕空间相对比较小
+     Any：任意
+     Regular：正常
+     如iPhone竖屏时，水平方向是"紧凑"，竖直方法是"正常"，取值wCompact | hRegular
+       iPhone竖屏时，水平方向是"正常"，竖直方法是"紧凑"，取值wRegular | hCompact
+       在"紧凑"与"正常"之间的值是"任意"，"任意"一般用于iPad布局。
+    
+ ※ Size Class 有9种组合，9种组合用于解决所有的IOS多屏幕适配，说明如下
+     wCompact | hCompact：适用于3.5英寸、4英寸、4.7英寸的iPhone横屏情形
+     wAny | hCompact：    适用于所有的垂直方向是"紧凑"的情形，例如iPhone横屏
+     wRegular | hCompact：适用于5.5英寸的iPhone横屏情形
+     wCompact | hAny：    适用于所有的水平方向是"紧凑"的情形，如：3.5英寸、4英寸、4.7英寸的iPhone竖屏情形
+     wRegular | hAny：    适用于所有的水平方向是"正常"的情形，如iPad横屏和竖屏的情形
+     wAny | hRegular：    适用于所有的垂直方向是"正常"的情形，如iPhone竖屏、iPad横屏和竖屏的情形
+     wRegular | hRegular：适用于所有的iPad横屏和竖屏情形
+     wCompact | hRegular：适用于所有的iPhone竖屏情况
+     wAny | hAny：        适用于所有的布局情形，但这种情形是最后的选择
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+AutoLayout vs SizeClass
+---------------------------------------------------------------------------------------------------
+
+  AutoLayout可以实现横竖屏效果一样的情况
+  SizeClass则可以实现横竖屏效果完全不一样的情况
+  SizeClass可以解决横屏是一种布局，竖屏是一种布局，分辨率不同，布局不同
+  一般情况下，他们混合使用
+
+---------------------------------------------------------------------------------------------------
+
+
+

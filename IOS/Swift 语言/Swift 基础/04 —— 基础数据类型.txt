@@ -1,0 +1,176 @@
+
+
+---------------------------------------------------------------------------------------------------
+ 基本类型包括
+   Int、Float、Double、Bool、String、Character
+
+ 新增数据类型
+   Tuple 元祖、Optional 可选型
+
+ 集合类型
+   Array 数组、Dictionary 字典、Set 集合 
+ 
+ 类类型
+   Enum 枚举
+---------------------------------------------------------------------------------------------------
+
+
+Int
+---------------------------------------------------------------------------------------------------
+ Int  有符号的整形  Int.min --> -93....    Int.max --> 93...    
+ UInt 无符号的整形  UInt.min --> 0         Uint.max --> 184..(Int.max的2倍) 
+
+ 显示的表示整形的位数
+ Int8  -128 -- 127
+ UInt8    0 -- 255
+  ..
+ Int16
+  ..
+ Int64
+ UInt64
+ 
+ 在32位平台上, UInt与UInt32长度相同
+ 在64位平台上, UInt与UInt64长度相同
+
+ swift平台上
+ 1000000000 可写成 1_000_000_000 或 10_0000_0000 不影响值
+ 注意：尽量不要使用UInt，除非你真的需要存储一个和当前平台原生字长相同的无符号整数,
+       除了这种情况，最好使用Int，即使你要存储的值已知是非负的。
+
+---------------------------------------------------------------------------------------------------
+
+
+Float、Double 浮点类型 分别表示32位浮点数、64位浮点数
+---------------------------------------------------------------------------------------------------
+ let iFloat:Float = 3.1415926   --> 3.14159
+ let iDouble:Double = 3.1415926 --> 3.1415926
+    
+---------------------------------------------------------------------------------------------------
+
+
+String、Character
+---------------------------------------------------------------------------------------------------
+   Character代表单个字符，String代表字符串
+   Swift采用Unicode字符集来存储字符，因为Swift的字符、字符串几乎存储世界上所有语言的任意字符
+
+※ String 索引
+   由于不同字符在str中需不同内存大小来存储，固我们不能用下标获得字符，因此Swift提供了索引属性，Index
+   str.startIndex/endInde 获取String的 第一个/最后一个 索引
+   str.endInde.predecessor()/successor() 前一个或者后一个所以  
+   str.endInde.advancesBy(4) 访问该索引前几个或者后几个位置的字符
+
+※ String长度、获取每个字符
+   String提供了一个characters属性，该属性可获取字符个数、遍历所有字符等
+   str.characters.count 获取字符串长度
+   str.characters 获取字符
+
+   let name = "luocheng"
+   print("名字长度为\(name.characters.count)")
+   for value in name.characters{
+	print(value)
+   }
+
+※ String与NSString
+   1.OC中，字符串有两个类 NSString和NSMutableString，分别代表不可变字符串和可变字符串，
+     Swift中，用let和var区分
+   2.他们计算字符串长度有所不同
+
+
+※ String的添加、插入、删除、替换方法
+   append("a") 添加单个字符
+   appendContentsOf("org") 添加字符串
+   insert("!", atIndex:str.startIndex.advancesBy(4)) 指定位置插入单个字符
+   insertContentsOf("abc".characters, at:str.startIndex.advancesBy(4)) 指定位置插入字符串
+   removeAtIndex(str.endIndex.advancesBy(-4)) 删除指定位置的字符
+   removeRange(str.endIndex.advancesBy(-15)..<str.endIndex.advancesBy(-4))   删除指定范围内的字符串
+   replaceRange(str.startIndex..<str.startIndex.advancesBy(4), with:"crazyit")  替换指定范围内的字符串
+ 
+※ 字符串的比较
+   str1 == str2  //str1和str2是否一样
+   str.hasPrefix("fk")  //str是否以 "fk"  开头
+   str.hasSuffix("org") //str是否以 "org" 结尾
+ 
+※ String 的局限性
+   1.控制小数精度
+     let str = "one third is \(1.0/3.0)"  --> one third is 0.33333333  就不能控制精度,而NSString可以很方便控制
+     let str2:String = NSString(format:"one third is %.2f", 1.0/3.0) as Sttring  --> one third is 0.33
+   2.去掉空格
+     let str6 = "    --- Hello ----   " as NSString
+     str6.stringByTrimmingCharactersInSet(NSCharacterSet(charactersInString:" -")) --> Hello
+     
+---------------------------------------------------------------------------------------------------
+
+
+Tuples 元祖
+---------------------------------------------------------------------------------------------------
+※ 声明
+   var point = (5, 2)
+   var httpResponse = (404, "Not Found")
+   var point2:(Int, String) = (200, "OK")
+   let point = (x:5, y:2)
+
+※ 赋值
+   let point = (x:5, y:2)
+   let point2:(x:Int, y:Int) = point
+   point.x --> 5
+   point.y --> 2
+   point.0 --> 5
+   point.1 --> 2 
+ 
+※ 解包
+   let (x, y) = (5, 2)
+   let (x, _) = (5, 2)
+   x --> 5
+   y --> 2
+
+---------------------------------------------------------------------------------------------------
+
+
+可选值 Optionals 
+---------------------------------------------------------------------------------------------------
+※ 定义
+    var num1:Int? //类型后加?则为可选项，此时num1可以为Int类型的值也可以为nil
+    为什么要有可选型勒？
+      假如请求接口，返回数据时，出错或不合法，我们一般设置errorCode:Int=0，此时如果为0的话，又会出现一系列
+      的问题，所以有了可选型，为了程序的更安全，更完善。
+
+※ eg：
+   var num1:Int?    --> nil
+   num1 = 12        --> {Some 12}
+   let num2 = num1! --> 12
+
+※ eg：
+   let ageInput = "abc"
+   var age:Int? = ageInput.toInt()
+   if age == nil{
+       print("年龄为\(age!)")
+   }else{
+       print("输入值有问题")
+   }
+ 
+
+※ 可选型 解包和使用
+    1.强制解包
+      let name:String? = "张三"
+      name!.upcase //可选型的强制解包。可以发现，如果不解包，此时是不能使用String的方法的，所以要使用可选型的值，第一步必须先解包
+    2.if let解包
+      let name:String? = "张三"
+      if let name1 = name{ //1.可以为if var  2.if let解包时可以与解包的值同名 if let name = name{...}
+	print(name1.upcase) //此时已经解包
+      }else{      
+	print("请先赋名字")
+      }
+    3.不强制解包,直接使用
+       let name:String? = "张三"
+       name?.upcase //这种方式等于解包2的方式，如果为nil，则跳过，如果不为nil，则直接调用方法
+    4.可选型散步运算符简约写法
+       let name:String = nameInput != nil ? nameInput! : "Guest"
+       简约写法 let name:String = nameInpu ?? "Guest"
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+

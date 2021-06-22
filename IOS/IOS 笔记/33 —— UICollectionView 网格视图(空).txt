@@ -1,0 +1,47 @@
+
+
+
+UICollectionView 网格视图
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UICollectionView 介绍
+   网格视图、流式布局
+
+
+※ 实现一个普通的UICollectionView
+    //记得实现delegate和dataSource接口
+    //UICollectionView的创建
+    UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds];
+    *collectionView.delegate = self;
+    *collectionView.dataSource = self;
+    [self.view addSubview:*collectionView];
+  
+
+    //有多少列
+    - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+       return 10;  
+    }
+    
+
+     // 指定Section个数  
+     - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {  
+       return 3;  
+     }  
+
+     // 指定section中的collectionViewCell的个数  
+    - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {  
+       return 10;  
+    }  
+
+   // 配置section中的collectionViewCell的显示  
+   - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {  
+      CollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"CellIdentifier" forIndexPath:indexPath];  
+      cell.backgroundColor = [UIColor redColor];  
+      cell.textLabel.text = [NSString stringWithFormat:@"(%ld %ld)", indexPath.section, indexPath.row];  
+
+      return cell;  
+   }
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

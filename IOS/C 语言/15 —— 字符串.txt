@@ -1,0 +1,109 @@
+
+
+
+
+字符串. 
+-------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+    C语言中的字符串就啥把每1个字符存储到字符数组中，然后在最后面追加1个'\0'代表字符串存储完毕
+   
+
+※ 字符串的声明
+    a.最根本原理的写法
+      char name[5] = {'j', 'a', 'c', 'k', '\0'};
+      char name[] = {'j', 'a', 'c', 'k', '\0'};
+      将字符串数据的每1个字符存储到字符数组中，在后面追加1个'\0'代表存储结束。
+
+    b.简写的方式
+      char name[] = {"jack"};
+      将字符串数据的每1个字符存储到字符数组中，在后面追加1个'\0'代表存储结束。
+
+    c.最常用的方式
+      char name[] = "jack";
+      将字符串数据的每1个字符存储到字符数组中，在后面追加1个'\0'代表存储结束。
+
+
+※ 字符数组的长度
+    1.没有指定长度时，字符数组长度=字符串长度+1
+       char name[] = "jack";
+       int len = sizeof(name); //5
+    2.指定了长度时，字符串数组长度就是指定长度
+       char name[10] = "jack";
+       int len = sizeof(name); //10
+    3.如果小于字符串长度，就会出现存储不下的情况
+       char name[2] = "jack";
+       int len = sizeof(name); //2 ｛'j', 'k'｝
+    4.所以，在使用字符串时，最好不要给指定长度，让程序自己去计算
+     
+    5.声明时，可以用中文
+       char name[] = "中国";
+	     int len = sizeof(name); //7 1个中文占3个字节
+
+    字符串长度
+      char name[100] = "jack";
+      int len = 0;
+      while(name[i]!='\0'){      
+         i++;
+	       len++;
+      }
+      printf("len=%d\n", len);
+
+
+※ 字符串输出 
+   char name[] = "jack";
+   printf("%s\n", name);
+   %s原理：从给定的数组地址开始，1个字节1个字节的输出，直到遇到'\0'
+   例1：
+   char str1[] = "jack";
+   char str2[4] = "rose";
+   printf("%s\n", str2); //rosejack
+
+   例2：
+   char str1[] = {'j', 'a', '\n', 'c', 'k'};
+   printf("%s\n", str1); //ja
+
+
+
+※ 字符串中常用的一些方法  
+  stdio.h头文件中
+    a.puts()函数 只能输出字符串，输出后自动换行，不能使用占位符
+       char name[] = "jack";
+       puts{name}; //jack
+
+    b.gets()函数 从控制台接受用户输入1个字符串数据，当用户输入数据中包含空格时，也会一起接受。
+       char name[10];
+       printf("请输入你的姓名:");
+       gets(name);
+       puts(name);
+    
+
+  string.h头文件中
+    a.strlen()函数 得到字符数组中字符串数据的长度
+       char name[] = "jack";
+       unsigned long len = strlen(name); //4
+
+
+    b.strcmp()函数 cmp->compare比较 比较相同位置字符ASCII码大小。可以用在字符串的排序
+       char name1[] = "jack";
+       char name2[] = "rose";
+       int res = strcmp(name1, name2);
+       printf("res = %d\n", res); //-8 正数,1比2大，负数1比2小，0一样大
+       可以用作字符串的排序
+
+
+    c.strcpy()函数 把字符串数组2拷贝到数组1
+       char name1[] = "smith";
+       char name2[] = "rose";
+       strcpy(name1, name2);
+       printf("name1 = %d\n", name1); //name1实际上是 {'r','o','s','e','\0','\0'}
+
+
+    d.strcat()函数. concat:链接 把字符串数组2链接到字符串数组1后面,如果字符1存储不下字符2，运行则会崩溃
+       char name1[12] = "jack";
+       char name2[] = "rose";
+       strcat(name1, name2);
+       printf("name1 = %d\n", name1); //jackrose 
+
+
+-------------------------------------------------------------------------------------------------------------------

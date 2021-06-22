@@ -1,0 +1,73 @@
+
+
+
+
+CocoaPods
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 什么是CocoaPods
+   CocoaPods是OS X和iOS下的一个第三类库管理工具，
+   通过CocoaPods工具我们可以为项目添加被称为“Pods”的依赖库（这些类库必须是CocoaPods本身所支持的）
+   并且可以轻松管理其版本。
+
+
+
+※ Cocoapods安装
+   1.更换Ruby镜像
+     终端输入：gem sources --remove https://rubygems.org/
+     终端输入：gem sources -a https://gems.ruby-china.org/ (淘宝镜像已经不可用)
+     查看当前镜像：gem sources -l  如果显示 https://gems.ruby-china.org/ 则替换成功
+
+
+   2.下载CocoaPods
+     先升级ruby：sudo gem update --system
+     下载cocoapods：sudo gem install cocoapods
+     如果没有权限，则输入：sudo gem install -n /usr/local/bin cocoapods
+     最后显示 22 gems installed 说明下载成功
+
+   3.安装CocoaPods (下载过程有点漫长 要等很长时间)
+     终端输入：pod setup
+
+   4.pod search AFNetworking 可以验证是否安装成功
+
+
+
+※ Cocoapods的使用
+   1.先到工程中中
+     终端输入：$ cd /Users/liyang/Desktop/CocoaPodsTest
+
+   2.创建一个Podfile文件
+     终端输入：touch Podfile
+
+   2.编辑Podfile文件
+     Podfile文件中的内容 例子：
+
+     target ‘XiangQinJiao’ do
+
+     #
+     source 'https://github.com/CocoaPods/Specs.git'
+     platform:ios, '8.0'
+     pod 'AFNetworking',  '~>3.0'
+
+     #
+     pod 'MJRefresh'
+
+     #
+     pod 'SDWebImage'
+
+     end
+
+   3.安装第三方库
+     终端输入： pod install
+     项目中会多一个xxx.xcworkspace文件
+
+   4.双击xxx.xcworkspace打开项目，进行编程
+
+
+
+
+
+学习：http://www.jianshu.com/p/9e4e36ba8574 iOS安装CocoaPods详细过程
+     http://www.jianshu.com/p/6e5c0f78200a CocoaPods的安装使用和常见问题
+
+----------------------------------------------------------------------------------------------------------------------------------------

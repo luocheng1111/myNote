@@ -1,0 +1,45 @@
+
+
+
+提示框 UIAlertController
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UIAlertController 提示框
+   IOS8 新增了UIAlertController控制器，它可以实现警告框和操作表的效果
+
+ ※ 优势
+     1.可实现警告框和操作表效果
+     2.可添加自定义视图和文本框
+     3.响应事件可通过闭包实现，省去了繁琐的代理方法，更加方便
+
+
+※ 用法
+    /* 
+       类方法快速创建一个提示控制器 值得注意的是这个控制器有个preferreStyle属性你可以根据这个属性来确定是使用UIAlertView 还是 UIActionSheet 
+       UIAlertControllerStyleAlert 从中间弹出
+       UIAlertControllerStyleActionSheet 从底部弹出
+     */
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"显示的标题" message:@"标题的提示信息" preferredStyle:UIAlertControllerStyleAlert];
+
+    [alertController addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        NSLog(@"点击取消");
+    }]];
+
+
+    [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSLog(@"点击确认");
+    }]];
+
+
+    [alertController addAction:[UIAlertAction actionWithTitle:@"警告" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+
+        NSLog(@"点击警告");
+
+    }]];
+
+    // 由于它是一个控制器 直接modal出来就好了
+    [self presentViewController:alertController animated:YES completion:nil];
+
+ 
+ 
+----------------------------------------------------------------------------------------------------------------------------------------

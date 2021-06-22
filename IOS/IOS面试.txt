@@ -1,0 +1,114 @@
+
+
+面试重点：
+ 1.自我介绍
+ 2.你对我们的公司有什么想要了解的嘛?
+   可以问公司最近做的相关项目和未来项目安排
+ 3.一定要了解自己的项目，每个功能实现的思路
+ 4.面试题目，面试官喜欢问的一些技术点
+ 5.简历的项目描述突要突出实现了哪些功能(给不懂人看，能体现你的技术)，
+   使用了哪些技术(给懂技术的人看)
+
+
+投简历：
+ 1.明确自己想要去什么样的公司(做自己的产品？做外包的产品？做其他人的产品？ 产品类型)
+ 2.公司的地点，不要太偏僻
+
+
+
+面试题
+ https://www.cnblogs.com/bossren/p/6401067.html
+ http://www.cocoachina.com/ios/20160323/15770.html
+ http://www.jianshu.com/p/945da55a9fb1?utm_campaign=maleskine&utm_content=note&utm_medium=pc_all_hots&utm_source=recommendation
+
+
+原则：只收藏经典的题目
+
+1.设计模式是什么？ 你知道哪些设计模式，并简要叙述？
+  MVC模式：Model View Control，把模型 视图 控制器 层进行解耦合编写。
+  单例模式：通过static关键词，声明全局变量。在整个进程运行期间只会被赋值一次。
+  观察者模式：KVO是典型的通知模式，观察某个属性的状态，状态发生变化时通知观察者。
+  委托模式：代理+协议的组合。实现1对1的反向传值操作。
+
+2.如何理解MVC设计模式？
+
+3.Objective-C 中是否支持垃圾回收机制？
+  1.OC是支持辣鸡回收机制的(Garbage collection简称GC)，但是IOS移动端不支持GC，Mac桌面操作系统是支持GC的，10.8之后弃用了GC，推荐使用ARC
+  2.iOS开发只支持MRC和ARC，编译器会自动在合适的地方自动生成release消息。
+  3.ARC比GC性能好。
+
+3.#import跟 #include 有什么区别，@class呢，#import<> 跟 #import””有什么区别？
+
+
+3. @property中有哪些属性关键字？/ @property 后面可以有哪些修饰符？
+
+
+4.什么情况使用 weak 关键字，相比 assign 有什么不同？
+
+
+5.用 @property声明的 NSString / NSArray / NSDictionary 经常使用 copy 关键字，为什么？如果改用strong关键字，可能造成什么问题？
+
+
+6.浅拷贝和深拷贝的区别？
+
+
+7.这个写法会出什么问题： @property (nonatomic, copy) NSMutableArray *arr;
+
+
+常见的 Objective-C 的数据类型有那些，和C的基本数据类型有什么区别？如：NSInteger和int
+
+
+解释 id 类型
+
+Objective-C 如何对内存管理的，说说你的看法和解决方法？
+
+为什么我们常见的delegate属性都用是week而不是retain/strong？
+
+
+@public，@protected，@private，@package 声明各有什么含义？
+
+
+写一个完整的代理，包括声明、实现
+
+线程与进程的区别和联系?
+
+ViewController生命周期
+
+iOS中常用的数据存储方式有哪些？
+
+
+iOS的沙盒目录结构是怎样的？
+
+iOS多线程技术有哪几种方式？
+
+CD 与 NSOperation 的区别：
+
+
+OC中创建线程的方法是什么？如果在主线程中执行代码，方法是什么？
+
+对沙盒的理解
+
+tableView的重用机制？
+
+探探UITableView的优化
+
+Objective-C 中是否支持垃圾回收机制？
+
+
+IOS第三方框架
+1.AFNetworking 底层原理分析
+2.描述下SDWebImage里面给UIImageView加载图片的逻辑
+
+
+
+算法 
+排序算法 - 冒泡排序
+
+
+设计模式是什么？ 你知道哪些设计模式，并简要叙述？
+如何理解MVC设计模式
+代理模式：
+单例模式：
+
+
+runtime和runloop

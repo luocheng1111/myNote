@@ -1,0 +1,98 @@
+
+
+
+UIButton
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UIButton介绍
+   UIButton 按钮，可为文字按钮，也可为图片按钮
+   
+   
+※ UIButton的使用-文字按钮
+     
+     //定义并创建一个UIButton对象
+     //后面为枚举类型，用于创建不同的风格的按钮
+     UIButton* btn = [[UIButton buttonWithType:UIButtonTypeRoundedRect];
+
+     //设置btn的显示位置
+     btn.frame = CGRectMake(100,100,100,40);
+
+     //设置按钮正常状态时 文字内容 按钮文字颜色
+     [btn setTitle:@"按钮1", forState:UIControlStateNormal];
+     [btn setTitleColor:[UIColor redColor], forState:UIControlStateNormal];
+     
+     //设置按钮正常按下时 文字内容 按钮文字颜色
+     [btn setTitle:@"按钮按下", forState:UIControlStateHighlighted];
+     [btn setTitleColor:[UIColor orangeColor], forState:UIControlStateHighlighted];
+     
+     //设置btn的背景颜色
+     btn.backgroundColor = [UIColor whiteColor];
+
+     //将UIButton显示在屏幕上
+     [self.view addSubView:btn];
+
+
+
+※ UIButton的使用-图片按钮
+     
+     //定义并创建一个UIButton对象
+     //UIButtonTypeCustom 按钮的外观依靠开发者的设置
+     UIButton* btnImage = [[UIButton buttonWithType:UIButtonTypeCustom];
+
+     btnImage.frame = CGRectMake(100,100,100,40);
+     
+     [btnImage setImage:[UIImage imageNamed:@"btn01.jpg"], forState:UIControlStateNormal];
+     [btnImage setImage:[UIImage imageNamed:@"btn02.jpg"], forState:UIControlStateHighlighted];
+
+     [self.view addSubView:btnImage];
+     
+
+
+※ UIButton的事件监听
+     
+     /**
+	向按钮添加事件函数
+	P1:"谁"来实现事件函数，实现的对象就是"谁"
+	P2: @selector(pressBtn) 谁来处理函数时间，如果pressBtn: 加冒号，则表示实现的函数有参数
+	P3: 枚举，UIControlEventTouchDown 手指触碰到屏幕上触发 UIControlEventTouchUpInside 手指离开屏幕时触发
+     */
+     
+     [btn1 addTarget:self action:@selector(touchDown) forControlEvents:UIControlEventTouchDown];
+     [btn1 addTarget:self action:@selector(touchDown:) forControlEvents:UIControlEventTouchDown];
+     [btn1 addTarget:self action:@selector(pressBtn) forControlEvents:UIControlEventTouchUpInside];
+     [btn2 addTarget:self action:@selector(touchDown:) forControlEvents:UIControlEventTouchDown];
+     btn1.tag = 101;
+     btn1.tag = 102;
+
+    
+     -(void) touchDown
+     {
+	NSLog("按钮1按下！");
+     }
+
+
+     -(void) pressBtn
+     {
+	NSLog("按钮1松开！");
+     }
+
+
+     -(void) touchDown:(UIButton*) btn
+     { 
+        if(btn.tag == 101)
+	{
+	   NSLog("按钮1按下！");
+	}
+	if(btn.tag == 102)
+	{
+	   NSLog("按钮2按下！");
+	}
+	
+     }
+     
+     注意点：
+     1.带：和不带：的区别
+     2.多个按钮可以指向同1事件，用tag区分，这也是按钮带参数的好处
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

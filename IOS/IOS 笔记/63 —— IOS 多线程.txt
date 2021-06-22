@@ -1,0 +1,278 @@
+
+
+
+IOS 多线程
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ IOS 多线程
+   在 iOS 中其实目前有 4 套多线程方案，他们分别是：
+   Pthreads
+   NSThread
+   GCD
+   NSOperation & NSOperationQueue
+
+   Deme见：/Demo/Thread_study01.zip
+
+
+
+※ Pthreads
+   基于 c语言 的框架，是一套在很多操作系统上都通用的多线程API，所以移植性很强
+   但手动处理线程的各个状态的转换即管理生命周期 ，比如，这段代码虽然创建了一个线程，但并没有销毁。
+   IOS 开发几乎不可能用到
+
+   #import <pthread.h>
+
+   - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+      pthread_t thread;
+      //创建一个线程并自动执行
+      pthread_create(&thread, NULL, start, NULL);
+    }
+
+    void *start(void *data) {
+      NSLog(@"%@", [NSThread currentThread]);
+      return NULL;
+    }
+
+
+
+※ NSThread
+   苹果封装后的，完全面向对象。但它的生命周期还是需要我们手动管理，
+   所以这套方案并不经常使用，只是偶尔使用他的一些功能，方便调试 
+   比如 获取线程的一些属性 [NSThread currentThread]，它可以获取当前线程类，
+   
+   有3种创建方式
+   1.先创建线程后，再启动
+      NSThread *thread = [[NSThread alloc] initWithTarget:self selector:@selector(run:) object:nil];
+      [thread start];
+
+   2.通过detachNewThreadSelector 创建线程并启动
+      [NSThread detachNewThreadSelector:@selector(run:) toTarget:self withObject:nil];
+
+   3.使用 NSObject 的方法创建并自动启动
+      [self performSelectorInBackground:@selector(run:) withObject:nil];
+
+
+
+※ GCD
+   全称 Grand Central Dispatch 苹果为多核的并行运算提出的解决方案
+   所以会自动合理地利用更多的CPU内核（比如双核、四核），
+   最重要的是它会自动管理线程的生命周期（创建线程、调度任务、销毁线程），
+   
+   在GCD中，有几个非常重要的概念： 任务 和 队列。
+   任务有两种执行方式：同步和异步
+   队列 有两种 串行和并行
+   
+   同步：如果是同步，则会阻塞线程，等待任务执行完毕，当前线程才会继续往下运行
+   异步：当前线程会直接往下执行，它不会阻塞当前线程。
+
+   串行：一个接一个的先进先出的进行执行。
+   并行：很多任务同时进行
+
+
+   写法：
+    //同步：
+    dispatch_sync(<#queue#>, ^{
+      //code here
+      NSLog(@"%@", [NSThread currentThread]);
+    });
+
+
+    //异步：
+    dispatch_async(<#queue#>, ^{
+      //code here
+      NSLog(@"%@", [NSThread currentThread]);
+    });
+
+
+    //串行队列
+    dispatch_queue_t queue = dispatch_queue_create("tk.bourne.testQueue", NULL);
+    dispatch_queue_t queue = dispatch_queue_create("tk.bourne.testQueue", DISPATCH_QUEUE_SERIAL);
+
+    //并行队列
+    dispatch_queue_t queue = dispatch_queue_create("tk.bourne.testQueue", DISPATCH_QUEUE_CONCURRENT);
+
+    //系统提供的并行队列
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+
+    //主线程队列
+    dispatch_queue_t queue = dispatch_get_main_queue();
+   
+    具体使用：
+    //异步并行队列
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        //执行耗时任务
+        NSLog(@"thread start!");
+        sleep(3);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            //回到主线程刷行UI
+            NSLog(@"刷新UI");
+        });
+    });
+
+
+    //同步串行队列
+    dispatch_queue_t queue = dispatch_queue_create("com.test.thread", NULL);
+    dispatch_sync(queue, ^{
+        NSLog(@"thread1 start!");
+        [NSThread sleepForTimeInterval:2];
+        NSLog(@"thread1 end!");
+    });
+     
+    dispatch_sync(queue, ^{
+        NSLog(@"thread2 start!");
+        [NSThread sleepForTimeInterval:2];
+        NSLog(@"thread2 en   d!");
+    });
+
+
+    //其他使用：队列组：当一组线程全部执行完成之后可以进行通知
+    //1.创建队列组
+    dispatch_group_t group = dispatch_group_create();
+    
+    //2.多次使用队列组的方法执行任务, 只有异步方法
+    //2.1.执行3次循环
+    dispatch_group_async(group, dispatch_get_global_queue(0, 0), ^{
+        for (NSInteger i = 0; i < 3; i++) {
+            NSLog(@"group-01 - %ld", i);
+        }
+    });
+    
+    //2.2.主队列执行8次循环
+    dispatch_group_async(group, dispatch_get_main_queue(), ^{
+        for (NSInteger i = 0; i < 5; i++) {
+            NSLog(@"group-02 - %ld", i);
+        }
+    });
+    
+    //2.3.执行5次循环
+    dispatch_group_async(group, dispatch_get_global_queue(0, 0), ^{
+        for (NSInteger i = 0; i < 3; i++) {
+           NSLog(@"group-03 - %ld", i);
+        }
+    });
+    
+    //3.都完成后会自动通知
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        NSLog(@"完成 - %@", [NSThread currentThread]);
+    });
+
+   
+
+
+
+※ NSOperation和NSOperationQueue
+   NSOperation 是苹果公司对 GCD 的封装，完全面向对象
+   NSOperation 和 NSOperationQueue 分别对应 GCD 的 任务 和 队列 
+   
+   NSOperation的三种创建方式及介绍 及自定义：
+   但这3种方式都是同步的，会阻塞当前线程，如果想异步，则需要加入到NSOperationQueue中
+    //1.NSInvocationOperation创建
+    NSInvocationOperation *operation = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(nsOperationRun) object:nil];
+    [operation start];
+
+    //2.NSBlockOperation创建
+    NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
+        NSLog(@"NSBlockOperation");
+    }];
+    [operation start];
+
+    //3.自定义类
+    类继承NSOpreation,并重写main方法就可以了
+    CustomOperation *customOperation = [CustomOperation new];
+
+ 
+
+    NSOperationQueue的使用：
+    //1.主队列
+    NSOperationQueue *queue = [NSOperationQueue mainQueue];
+    
+    //2.其他队列
+    NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+
+    eg：
+    NSOperationQueue *queue = [NSOperationQueue mainQueue];
+    queue.maxConcurrentOperationCount = 3;
+    [queue addOperation:invocationOperation];
+    [queue addOperation:blockOperation];
+    [queue addOperation:customOperation];
+
+    
+
+   NSOperationQueue其他用法的
+   1).不用管串行、并行、同步、异步这些名词。NSOperationQueue 有一个参数 maxConcurrentOperationCount 最大并发数，用来设置最多可以让多少个任务同时执行。
+      当你把它设置为 1 的时候，他就是串行了 maxConcurrentOperationCount 设置最大并发数
+   2).NSOperationQueue 还有一个添加任务的方法，- (void)addOperationWithBlock:(void (^)(void))block; ，
+      这样就可以添加一个任务到队列中了，十分方便。
+
+
+   NSOperation 有一个非常实用的功能，那就是添加依赖。
+   //1.任务一：下载图片
+   NSBlockOperation *operation1 = [NSBlockOperation blockOperationWithBlock:^{
+      NSLog(@"下载图片 - %@", [NSThread currentThread]);
+      [NSThread sleepForTimeInterval:1.0];
+   }];
+
+   //2.任务二：打水印
+   NSBlockOperation *operation2 = [NSBlockOperation blockOperationWithBlock:^{
+      NSLog(@"打水印   - %@", [NSThread currentThread]);
+      [NSThread sleepForTimeInterval:1.0];
+   }];
+
+   //3.任务三：上传图片
+   NSBlockOperation *operation3 = [NSBlockOperation blockOperationWithBlock:^{
+      NSLog(@"上传图片 - %@", [NSThread currentThread]);
+      [NSThread sleepForTimeInterval:1.0];
+   }];
+
+   //4.设置依赖
+   [operation2 addDependency:operation1];      //任务二依赖任务一
+   [operation3 addDependency:operation2];      //任务三依赖任务二
+
+   //5.创建队列并加入任务
+   NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+   [queue addOperations:@[operation3, operation2, operation1] waitUntilFinished:NO];
+
+
+
+
+
+
+※ GCD和NSOperation的对比
+   http://blog.csdn.net/sevenquan/article/details/50388001
+
+
+
+
+
+
+
+※ 线程的其他用法
+   1.从其他线程回到主线程的方法
+    //1.NSThread
+    [self performSelectorOnMainThread:@selector(run) withObject:nil waitUntilDone:NO];
+
+    //2.GCD
+    dispatch_async(dispatch_get_main_queue(), ^{
+    });
+
+    //3.NSOperationQueue
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+
+    }];
+
+   2.单例模式
+
+   3.线程同步
+
+
+
+   4延迟执行
+
+
+
+学习：
+IOS多线程：非常详细全面的文章 http://www.jianshu.com/p/0b0d9b1f1f19
+视频演示讲解：http://www.imooc.com/learn/761
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

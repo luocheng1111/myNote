@@ -1,0 +1,82 @@
+
+
+
+值类型、引用类型
+---------------------------------------------------------------------------------------------------
+※ 牛人笔记
+    http://letsswift.com/2014/08/value-type-and-reference-type/
+    http://wiki.jikexueyuan.com/project/swift/chapter4/05_Value_and_Reference_Types.html 
+
+
+※ 介绍
+    在Swift中，类型分为两类：
+    值类型：改类型的每个实例持有数据副本，
+    引用类型：改类型的实例共享数据唯一的一份副本
+    
+    Swift中：
+     值类型：结构体(struct)、枚举(enum)、元祖(tuple)、
+     引用类型：类(class) 
+    
+
+※ 实例：值类型：
+     struct S { 
+      var data:Int = -1 
+     }
+
+     var a = S()
+     var b = a                         // a复制一份，并将副本赋值给了b
+     a.data = 42                       // a的数据改变了，但是b的并没有改变
+     println("\(a.data), \(b.data)")   // prints "42, -1"
+
+
+※ 实例：引用类型
+     class C { 
+      var data: Int = -1
+     }
+
+     var x = C()
+     var y = x       // 将x赋值给y
+     x.data = 42     // 修改了x的数据，其实是修改了引用数据，那么y的数据也会改变 
+     println("\(x.data), \(y.data)")   // prints "42, 42"  
+
+---------------------------------------------------------------------------------------------------
+
+
+
+引用类型的比较 ===和!==
+---------------------------------------------------------------------------------------------------
+ ※ 介绍
+     == 和!=   是值的比较
+     ===和!==  比较两个引用类型的变量是否指向同一个实例，当两个引用变量指向同一个
+               实例时，===比较得到true,当两个引用变量不指向同一个实例时，!==比较得到true
+      
+
+ ※ 例：
+    class User{
+      var name:String
+      init(name:String){
+	self.name = name
+      }
+    }
+
+    var user1 = User("luocheng")
+    var user2 = User("luocheng")
+    var user3 = user1
+    print(user1===user2) //false
+    print(user1!==user2) //true
+    print(user1===user3) //true
+    print(user1!==user3) //false
+
+
+ ※ 例：
+    struct User{
+      var name:String
+    }
+    
+    var user1 = User("luocheng")
+    var user2 = User("luocheng")
+    //===和!==不能比较'值'类型的变量，因此下面两行会引起编译错误
+    //print(user1===user2) //语法错误
+    //print(user1!==user2) //语法错误
+
+---------------------------------------------------------------------------------------------------

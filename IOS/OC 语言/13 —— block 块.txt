@@ -1,0 +1,159 @@
+
+
+
+block 块
+-------------------------------------------------------------------------------------------------------
+
+ ※ 什么是block？
+    block是1个数据类型，同int、double、float、char
+    block类型的变量专门存储1段代码，这段代码可以有参数，可以有返回值
+
+
+ ※ block类型的声明和使用
+    block类型的声明必须要指定变量存储的代码是否有参数，是否有返回值
+    一旦指定以后，这个block变量中只能存储这样的代码
+
+    声明：返回值类型 (^变量名称)(参数列表);
+    初始化和赋值: ^返回值类型(参数列表){  代码段  };
+
+    1)：
+     void (^myBlock1)();
+     myBlock1 = ^void(){
+	       NSLog(@"我爱你");
+	       NSLog(@"我爱你");
+     }
+
+     myBlock1();
+
+
+    2)：
+     int(^myBlock2)() = ^int(){
+	       int num = 10+20;
+	       return num;
+     }
+
+     int sum = myBlock2();
+     NSLog(@"sum = &d", sum);
+
+
+    3)：
+     int(^myBlock3)(int num1, int num2) = ^int(int num1, int num2){
+         int num = num1+num1;
+         return num;
+     }
+
+     int sum = myBlock3(10, 20);
+     NSLog(@"sum = &d", sum);
+
+
+
+ ※ block的简写
+    1).无返回值 无参数 只能省代码段
+       void (^myBlock1) = ^{
+         NSLog(@"我爱你");
+         NSLog(@"我爱你");
+       }
+
+    2).有返回值 无参数 只能省代码段
+       int(^myBlock2)() = ^int{
+         int num = 10+20;
+         return num;
+       }
+
+    3).有返回值 有参数 省返回值
+       int(^myBlock3)(int, int) = ^(int num1, int num2){
+         int num = num1+num1;
+         return num;
+       }
+
+    4).有返回值 有参数 省声明参数
+       int(^myBlock3)(int, int) = ^int(int num1, int num2){
+         int num = num1+num1;
+         return num;
+       }
+
+    建议：依然按照 最标准的写法 写声明和代码段，因为这样可以提高代码的阅读性。
+
+
+
+ ※ 使用typedef 简化block声明
+
+     typedef void (^NewType)();
+     NewType block1 = ^{
+         NSLog(@"呵呵");
+     };
+     NewType block2;
+
+
+     typedef int(^NewType2)(intnum1, int num2);
+     NewType2 t1 = ^int(int num1, int num2){
+         int sum = num1+num1;
+         return sum;
+     };
+
+
+
+ ※ block中使用变量时的注意点
+    1).在block代码块的变量可以取定义在外部的变量的值，包括外部的局部变量和全局变量
+    2).在block代码块的变量可以修改全局变量的值，但不能修改局部变量的值，如果想修改，
+       则在局部变量前加__block修饰符
+
+
+
+ ※ block作为函数的参数
+    //声明block变量
+    typedef void (^NewType)();
+
+    //声明test方法
+    void test(NewType block1);
+
+    int main(){
+         NewType type = ^{
+            NSLog(@"哈哈");
+            NSLog(@"啊啊");
+	       };
+
+         test(type);
+
+         test(^{
+            NSLog(@"哈哈");
+            NSLog(@"嘿嘿");
+         });
+    }
+
+    void test(NewType block1){
+         NSLog(@"~~~~~~~");
+         block1();
+         NSLog(@"~~~~~~~");
+    }
+
+
+
+ ※ block作为函参可以实现的效果
+      可以将调用者自己写的一段代码 传递到 函数的内部去执行。
+      可以实现自定义效果
+
+
+ ※ 什么时候block可以作为方法、函数的参数？
+      当方法的内部需要执行1个功能，但是这个功能具体的实现函数内部不确定，
+      那么这个时候，就使用block让调用者将这个功能的具体实现传递进来。
+
+      应用案例一：字符串排序，根据字母、根据长短、根据大小
+      应用案例二：有一个遍历数组的方法，遍历每个数组后，数组是打印出来还是存在文件中，可使用block代码块
+
+
+※ block作为函数的返回值
+     当block作为函数的返回值的时候，返回值的类型必须是typedef定义的短类型
+
+
+※ block与函数的异同
+   相同点：都是封装1段代码
+
+   不同点：
+   1).block是1个数据类型，函数是1个函数
+   1).我们可以声明block类型的变量，函数只是函数
+   1).block可以作为函数的参数，而函数不能
+
+
+-------------------------------------------------------------------------------------------------------
+

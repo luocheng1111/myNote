@@ -1,0 +1,31 @@
+
+
+UIImageView
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UIImageView 介绍
+   UIImageView 作为展示图片的一个控件
+
+
+※ UIImageView 的使用
+     
+     UIImageView *imageView = [[UIImageView alloc] init];
+     //设置位置
+     imageView.frame = CGRectMake(10, 66, 300, 400);
+     //设置图片
+     imageView.image = [UIImage imageNamed:@"image_photo"];
+     //设置图片的显示方式
+     imageView.contentMode = UIViewContentModeScaleAspectFit;
+     //设置图片允许点击事件
+     imageView.userInteractionEnabled = YES;
+
+     [self.view addSubView:textField];
+
+
+※ UIImageView contentMode属性
+   ScaleToFill：默认属性，将图片按照整个区域进行拉伸(会破坏图片的比例)
+   ScaleAspectFit：将图片等比例拉伸，可能不会填充整个区域
+   ScaleAspectFill: 将图片等比例拉伸，会填充整个区域，但是会有一部分过大而超出整个区域
+   至于Center, Top, Bottom, Left, Right等等就是将图片在view中的位置进行调整。原图大小不变
+ 
+----------------------------------------------------------------------------------------------------------------------------------------

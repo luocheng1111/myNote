@@ -1,0 +1,110 @@
+
+
+
+
+
+CGPoint
+---------------------------------------------------------------------------------------------------
+
+ ※ CGPoint 介绍
+    CGPoint是一个结构体，一般情况是用来表示坐标的，用来表示空间在界面上的位置。
+
+    struct CGPoint {
+	CGFloat x;
+	CGFloat y;
+    };
+    typedef struct CGPoint CGPoint;
+    typedef CGPoint NSPoint;
+
+
+ ※ CGPoint的创建及赋值
+    1). CGPont p1;
+        p1.x = 20;
+	p1.y = 30; 
+    
+    2). CGPoint p1 = {20,30};
+
+    3). Foundation框架中提供了函数来快速创建1个CGPoint变量.
+        a.CGPointMake(x,y);
+	  CGPoint p1 = CGPointMake(20,30);
+	
+	b.NSMakePoint(x,y);
+	  NSPoint p2 = NSMakePoint(20,30);
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+CGSize
+---------------------------------------------------------------------------------------------------
+
+ ※ CGSize介绍
+    CGSize描述1个控件的大小，无非就是两个数据。宽度、高度。
+
+    struct CGSize {
+	CGFloat width;
+	CGFloat height;
+    };
+    typedef struct CGSize CGSize;
+    typedef CGSize NSSize;
+
+
+ ※ CGSize的创建及赋值
+    1). CGSize size;
+        size.width = 100;
+	size.height = 30; 
+    
+    2). CGSize size = {100,30};
+
+    3). Foundation框架中提供了函数来快速创建1个CGSize变量.
+        a.CGSizeMake(width,height);
+	  CGSize size = CGSizeMake(100,30);
+	
+	b.NSMakeSize(x,y);
+	  CGSize size = NSMakeSize(100,30);
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+CGRect
+---------------------------------------------------------------------------------------------------
+
+ ※ CGRect介绍
+    CGRect描述1个控件的位置和大小。
+
+    struct CGRect {
+	CGPoint origin;
+	CGSize size;
+    };
+    typedef struct CGRect CGRect;
+    typedef CGRect NSRect;
+
+
+ ※ CGRect的创建及赋值
+    1). CGRect rect;
+        rect.origin.x = 20;
+	rect.origin.y = 40;
+	rect.size.width = 100;
+	rect.size.height = 30;
+    
+    2). 当结构体作为结构体变量时，不能直接{}赋值。
+        CGRect rect;
+	rect.origin = (CGPoint){10,20};
+	rect.size = (CGSize){100,30};
+
+    3). 也提供了函速创建CGRect变量.
+        CGRect rect1 = CGRectMake(10,20,100,30);
+	CGRect rect2 = NSMakeRect(10,20,100,30);
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+
+

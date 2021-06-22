@@ -1,0 +1,161 @@
+
+
+
+IOS 推送须知
+---------------------------------------------------------------------------------------------------
+  1.模拟器不支持推送，需要真机测试
+  2.通知的标题不可修改，标题来自App的名字
+  3.Device-Token改变的问题
+    同一个App，生产环境和开发环境的token是不同的，
+    测试变化的原因是因为经常删了重装，这样会导致token的变化，另外更换证书也会导致变化
+
+    ios9以前的系统里面：
+      一个设备的token是唯一的。除了升级系统等少量情况，基本不变。 
+      而且在token变了以后，老的token，就被认为是无效了。 苹果不会对这部分无效的token推送。
+    ios9的系统：
+      一个app每一次重新安装多会产生新的token。 而且老的token不会无效，还可以正常推送。  
+      这个问题，我们在ios9刚发布的时候，我们就向苹果反馈过这个问题，也得到过他们反馈，应该是个bug。
+      但是他们一直也没有修复。 所以这个重担就落在我们头上。
+      我们目前是根据OpenUDID和IDFA双重过滤（部分app没有采集IDFA，就只按按照OpenUDID），
+      对于同一个OpenUDID或者IDFA只采用最新的devietoken做为设备的有效devicetoken，
+      老的我们这边认为是非法的。   
+      由于某些原因OpenUDID也可能会变，
+      所以就会有极少量的设备可能会存在发送两次以上的情况（尤其是测试设备）。 (来自友盟)
+
+  4.友盟推送需要添加服务器地址白名单，但服务器地址经常改变的话，可以可以去掉白名单的限制？
+     可以的，发送邮件到 msg-support@umeng.com , 标明Appkey和原因，会有相关工作人员处理
+
+
+  推送例子见 ./友盟推送Swift Demo.zip
+---------------------------------------------------------------------------------------------------
+
+
+
+IOS 推送流程
+---------------------------------------------------------------------------------------------------
+  刚开始进入程序时，
+     -> application:didFinishLaunchingWithOptions launchOptions(此时,launchOptions的值为nil)
+  程序运行在最前台，收到通知，   
+     -> application:didReceiveRemoteNotification userInfo(此时,userInfo的值为传递过来的值)
+  程序运行在后台未被销毁时，收到通知，点击通知进入程序
+     -> application:didReceiveRemoteNotification userInfo(此时,userInfo的值为传递过来的值)
+  程序运行在后台或被销毁时，收到通知，点击通知进入程序
+     -> application:didFinishLaunchingWithOptions launchOptions(此时,launchOptions的值为传递过来的值)
+
+
+ 特殊情况：
+   程序运行在后台或被销毁时，收到通知，此时点击应用图标而不是通知进入程序
+     -> application:didFinishLaunchingWithOptions launchOptions(此时,launchOptions的值为nil)
+     -> 只能在applicationWillEnterForeground或者applicationDidBecomeActive,根据发过来通知中的badge进行判断是否有通知，然后发请求获取数据
+     此时也不知怎么处理。。。。
+     
+---------------------------------------------------------------------------------------------------
+
+
+推送的一些功能代码
+---------------------------------------------------------------------------------------------------
+  获取DeviceToken
+      var characterSet: NSCharacterSet = NSCharacterSet(charactersInString: "<>")
+      var deviceTokenString: String = (deviceToken.description as NSString).stringByTrimmingCharactersInSet(characterSet).stringByReplacingOccurrencesOfString(" ", withString: "") as String
+      print("deviceToken:\(deviceTokenString)")
+  
+
+  AppDelegate 调用 ViewController的一些方法 
+      let viewController = self.window?.rootViewController?.childViewControllers[0] as! ViewController
+      viewController.toShowUrlController(data); //调用ViewController类的toShowUrlController方法
+
+
+  Push传的值userinfo解析
+      let data = try? NSJSONSerialization.dataWithJSONObject(userInfo, options: NSJSONWritingOptions.PrettyPrinted)
+      var json = JSON(data: data1)
+      print("json\(json)")
+      let json1 = json["UIApplicationLaunchOptionsRemoteNotificationKey"]
+      let url = json1["url"].string
+      print("url:\(url)")
+
+  Push时，App的状态
+     if(application.applicationState == UIApplicationState.Active){
+         //当App在前台时，收到通知
+           。。。
+     }else if(application.applicationState == UIApplicationState.Inactive){
+         //当App在后台且未被销毁时，点击通知进图App
+           。。。
+     }
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+APNS 推送  APNS: Apple Push Notification Service(苹果推送服务器)
+---------------------------------------------------------------------------------------------------
+ 
+ ※ 牛人笔记
+     http://blog.csdn.net/showhilllee/article/details/8631734
+ 
+
+ ※ 苹果官方给出的对IOS推送机制的解释：
+     Provider (Notification) -> APNS (Notification) -> Iphone (Notification) -> Client App
+     Provider:我们程序的后台服务器
+
+     上面分为三个阶段：
+	1.应用程序的服务器端把要发送的消息、目的iPhone的标识打包，发给APNS。 
+	2.第二阶段：APNS在自身的已注册Push服务的iPhone列表中，查找有相应标识的iPhone，并把消息发送到iPhone。 
+	3.第三阶段：iPhone把发来的消息传递给相应的应用程序，并且按照设定弹出Push通知。
+ 
+
+ ※ 具体步骤
+    准备工作：
+     1.苹果设备，模拟器不支持推送
+     2.CRS证书(通过钥匙串应用生产)
+     3.p12密匙文件(IOSDeveloper生成，可以生成一个cer文件，再通过钥匙串应用转为p12文件)
+     4.CRS证书转pem文件，2个pem文件整成一个pem文件(pem文件用于windows系统链接苹果服务器需要的证书)
+     5.测试证书是否正确
+    建立项目：
+     1.项目的BundleIdentifier必须和我们推送应用的App id一致
+     2. ....
+ 
+(最终结果，未测试成功)
+(最终结果，未测试成功)
+(最终结果，未测试成功! 蛋疼)
+
+---------------------------------------------------------------------------------------------------
+
+
+
+友盟推送
+---------------------------------------------------------------------------------------------------
+ ※ Demo见：
+    ./Demo/友盟推送Swift Demo.zip
+ 
+ ※ 注意点：
+     1.测试时，要添加测试设备，DeviceToken
+  
+    
+ (最终结果，应用最前台和后台都收的到消息，应用即使消失，也收到到通知)
+
+   
+---------------------------------------------------------------------------------------------------
+
+
+极光推送
+---------------------------------------------------------------------------------------------------
+ ※ Demo见：
+    ./Demo/极光推送Swift Demo.zip 不完整版本。
+ 
+ ※ 注意点
+    1.JPush Swift 官方Demo https://github.com/jpush/jpush-swift-demo
+      备份地址： http://download.csdn.net/detail/u012524598/9525202
+    2.项目记得添加网络权限
+    3.jpush-ios02.1.6.a 包有问题，重新进入界面后不会自动重连，
+      推荐使用Demo中的包：jpush-ios-2.1.0.a
+    4.推送消息只有当应用在最前台时才收得到，一旦进入后台就收不到消息(官方文档已说明)
+    5.通知推送不成功，原因为何，不知
+
+
+ (最终结果，应用在最前台时才收得到，一旦进入后台就收不到消息 (官方文档已说明)
+	    辣鸡)
+
+---------------------------------------------------------------------------------------------------
+
+

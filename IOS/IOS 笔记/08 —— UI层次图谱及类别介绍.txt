@@ -1,0 +1,210 @@
+ 
+
+UIView 视图及控件
+---------------------------------------------------------------------------------------------------
+
+ ※ UIKit 框架介绍
+     所有UI开头的控件均定义在UIKit框架库中
+     苹果官方的控件都定义在UIKit框架库中
+  
+
+ ※ UI 结构层次
+
+                UIWindow
+	        UILabel 
+		UITableViewCell     UITableView
+		UIScrollView <----- UITextView    滚动视图类
+		UIPickerView        UICollectionView
+		UIProgerssView
+    UIView <--  UIActivityIndicatorView
+		UIImageView	    UIBUtton
+		UITabBar	    UIDatePicker
+		UIToolbar	    UIPageControl
+		UIControl    <----- UISegmentedControl 往往带有事件响应
+		UINavigationBar	    UITextField	 
+		UIActionSheet	    UISlider
+		UIAlertView	    UISwitch
+		UIWebView           UIStepper
+
+
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+---------------------------------------------------------------------------------------------------
+ ※ UILabel 标签
+     标签控件，用于显示一些文字或描述信息
+
+
+ ※ UITextView 
+     可展示和编辑多行文本的控件
+
+ ※ UIImageView
+     根据图片名字设置图片：image.image = UIImage(named:imgName)
+
+
+ ※ UIButton 按钮
+     按钮控件，不仅支持文字还支持图片，可变成图片按钮
+ 
+
+ ※ UISwitch 开关控件
+     获取值：let hasPropertyText = switch.on ? "有房","没房"
+     设置值：switch.setOn(true, animated:true)
+
+
+ ※ UISegmentedControl 分段控件
+     let genderText = gender.selectedSegmentIndex == 0? "高富帅":"白富美"
+
+
+ ※ UISlider 滑块控件
+     获取值：slider.value
+
+
+※ UIProgressView 进度条
+     进度条的最大进度是1.0
+     设置进度 progressView.progress = progressView.progress + 0.1
+     获取进度 let progress = progressView.progress
+
+
+※ UIActivityIndicatorView 活动指示器
+     是否在活动：indicatorView.isAnimating()
+     开始/停止活动： indicatorView.startAnimating()/stopAnimating()
+
+---------------------------------------------------------------------------------------------------
+ 
+
+UITextField 文本框
+---------------------------------------------------------------------------------------------------
+ 
+ ※ 常用方法
+     获取文本框中的值：var year = et.text.toInt()                                                                                                                                                          
+     修改文本框中的值：et.text = 2016
+ 
+ ※ 控制软键盘的显示和隐藏    
+     方式一：
+     失去焦点，隐藏键盘：et.resignFirstResponder()
+
+     方式二：点击其他地方，隐藏键盘： 
+     override func touchesEnded(.....){
+	et.resignFirstResponder()
+     }
+     
+     方式三：点击键盘中的Next/Return关闭软键盘
+     1.首先类要委托协议 UITextFieldDelegate
+     2.textFiled与类绑定 et.delegate = self
+     3.重写textFieldShouldReturn(..){
+	    et.resignFirstResponder()
+	    return true
+       }
+
+---------------------------------------------------------------------------------------------------
+ 
+
+选择器
+---------------------------------------------------------------------------------------------------
+
+※ UIDatePicker 日期选择器
+    有四种模式：Date(日期)模式、Time(时间)模式、Date and Time(日期时间)模式
+                、Count Down Timer(倒计时定时器)模式
+
+    可选属性介绍：
+      Mode：设定日期选择器的模式
+      Local：设定本地化、选择后，会按照本地习惯显示日期
+      Interval：设定间隔时间，单位为分钟
+      Date：设定开始时间
+      Constraints：设定能显示的最大和最小日期
+      Timer：在倒计时定时器模式下倒计时的秒数
+    
+    获取日期：
+      let date:NSDate = dataPicker.data //此时获取的日期格式是美国？时间
+      let df = NSDateFormatter()
+      df.dateFormat = "yyyy-MM-dd HH:mm:ss"
+      print(df.stringFromDate(date))
+
+
+※ UIPickerView 普通选择器
+  设置初始值：
+     1.实现协议UIPickerViewDataSource,UIPickerViewDelegate
+     2.pickerView.dataSource = self
+       pickerView.delegate = self
+     3.重写一些方法
+      //选择器数量
+      func numberOfComponentsInPickerVIew(...) -> Int{
+        return 1;  //1代表只显示一个普通选择器，若有多个，则返回多个
+      }
+
+      //选择器数据的总数
+      func pickerView(..., numberOfRowsInCompnent component:Int) -> Int{
+        if(component == 1){
+	   return data1.count
+	}else{
+	   return data2.count
+	}
+      }
+
+      //具体数据
+      func pickerView(..., titleForRow row:Int, ...) ->String?{
+	if(component == 1){
+	   return data1
+	}else{
+	   return data2
+	}
+      }
+      
+      //选中选择器某个波轮中的某行时调用 row，代表行数
+      func pickerView(..., didSelectRow row:Int, ...) {
+        if(component == 0){
+	  ... 
+	}
+      }
+     
+  获取值
+    let index:Int = pickerView.selectedRowInComponent(0)
+    print(data[index])
+
+---------------------------------------------------------------------------------------------------
+
+
+UIWebView
+---------------------------------------------------------------------------------------------------
+ ※ 介绍
+     WebView控件可以加载本地HTML代码或者网络资源
+     本地资源加载：采用同步方式, 数据可以来源于本地文件或者硬编码的HTML字符串
+     网络资源加载：异步加载方式, 其中http://和file:// 是协议名，不能省略。
+     Demo见 ../Demo/UIWebViewDemo.zip
+
+
+ ※ 加载网络资源，(需要加网络访问权限)
+     let url = NSURL(string: "https://www.baidu.com")
+     let request = NSURLRequest(URL:url!)
+     self.webView.loadRequest(request)
+     // self.webView.delegate = self  //设置协议 
+
+
+ ※ UIWebViewDelegate委托协议方法介绍：
+      shouldStartLoadWithRequest:navigationType：该方法在WebView开始加载新界面之前调用，可以用来捕获WebView中的JavaScript事件
+      DidStartLoad：该方法在WebView开始加载新的界面之后调用
+      DidFinishLoad：该方法在WebView完成加载新的界面之后调用
+      DidFailLoadWithError：该方法在WebView加载失败时调用
+
+ ※ 加载本地资源
+     方式一：
+     let htmlPath:String! = NSBundle.mainBundle().pathForResource("index", ofType: "html") //获得index.html所在资源目录的全路径
+     let bundleUrl = NSURL.fileURLWithPath(NSBundle.mainBundle().bundlePath) //获得index.html所在的基本路径
+     let html = try? String(contentsOfFile: htmlPath, encoding: NSUTF8StringEncoding) //将内容读取到String对象中
+     self.webView.loadHTMLString(html!, baseURL: bundleUrl) //baseURL参数用于设定主页文件到基本路径，即index.html所在到资源目录
+     
+     方式二：
+     let htmlPath = NSBundle.mainBundle().pathForResource("index", ofType: "html")
+     let bundleUrl = NSURL.fileURLWithPath(NSBundle.mainBundle().bundlePath)
+     let htmlData = NSData(contentsOfFile: htmlPath!) //使用NSData而没用NSString读取文件,是因为NSData是一种二进制到字节数组类型
+     //装载WebView，同时指定字符集，因为NSData没有字符集到概念
+     webView.loadData(htmlData!, MIMEType: "text/html", textEncodingName: "UTF-8", baseURL: bundleUrl) 
+
+---------------------------------------------------------------------------------------------------
+     
+
+
+

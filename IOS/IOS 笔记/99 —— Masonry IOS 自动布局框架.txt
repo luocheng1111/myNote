@@ -1,0 +1,177 @@
+
+
+
+
+Masonry - IOS自动布局框架
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+   对于简单的界面，可以使用storyboard开发，但相对一些需要根据值来变化控件宽高或者位置的复杂界面，则需要使用纯代码的方式进行开发。
+   Masonry是基于UILayoutConstraint封装的第三方布局框架，采用链式编程API，系统AutoLayout支持的操作，Masonry都支持，
+
+
+※ 使用方式
+   1.pod中集成Masonry
+     pod 'Masonry'
+
+   2.导入Masonry类
+     #import <Masonry.h>
+
+   3.添加基本约束 设置内边距
+     [self.yellowView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.view).with.offset(10);
+        make.top.equalTo(self.view).with.offset(10);
+        make.right.equalTo(self.view).with.offset(-10);
+        make.bottom.equalTo(self.view).with.offset(-10);
+     }];
+     或insert简化设置内边距
+     [self.blueView mas_makeConstraints:^(MASConstraintMaker *make) {
+        // 下、右不需要写负号，insets方法中已经为我们做了取反的操作了。
+        make.edges.equalTo(self.view).with.insets(UIEdgeInsetsMake(10, 10, 10, 10));
+     }];
+
+
+
+※ 其他功能
+   1.更新约束设置
+     [self.greenView mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.size.mas_equalTo(CGSizeMake(100, 100));
+      }];
+
+   2.设置约束比例，比如说是宽度的2倍
+     [self.redView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.center.equalTo(self.view);
+        make.height.mas_equalTo(30);
+        make.width.equalTo(self.view).multipliedBy(0.2);
+     }];
+
+   3.子视图垂直居中
+     CGFloat padding = 10.f;
+     [self.blueView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.equalTo(self.view);
+        make.left.equalTo(self.view).mas_offset(padding);
+        make.right.equalTo(self.redView.mas_left).mas_offset(-padding);
+        make.width.equalTo(self.redView);
+        make.height.mas_equalTo(150);
+     }];
+
+     [self.redView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerY.equalTo(self.view);
+        make.right.equalTo(self.view).mas_offset(-padding);
+        make.width.equalTo(self.blueView);
+        make.height.mas_equalTo(150);
+     }];
+
+
+
+※ UITableView动态Cell高度
+    1.需要设置tableView的rowHeight属性为自动高度，告诉系统Cell的高度是不固定的
+    2.设置tableView的estimatedRowHeight属性，设置一个估计的高度。(我这里用的代理方法，实际上都一样)
+
+     - (UITableView *)tableView {
+        if (!_tableView) {
+            _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+            _tableView.delegate = self;
+            _tableView.dataSource = self;
+            // 设置tableView自动高度
+            _tableView.rowHeight = UITableViewAutomaticDimension;
+            [_tableView registerClass:[MasonryTableViewCell class] forCellReuseIdentifier:LXZTableViewCellIdentifier];
+            [self.view addSubview:_tableView];
+        }
+        return _tableView;
+     }
+
+     - (void)tableViewConstraints {
+        [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.edges.equalTo(self.view);
+        }];
+     }
+
+     - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+        return self.dataList.count;
+     }
+
+     - (MasonryTableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+        MasonryTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:LXZTableViewCellIdentifier];
+        [cell reloadViewWithText:self.dataList[indexPath.row]];
+        return cell;
+     }
+
+    // 需要注意的是，这个代理方法和直接返回当前Cell高度的代理方法并不一样。
+    // 这个代理方法会将当前所有Cell的高度都预估出来，而不是只计算显示的Cell，所以这种方式对性能消耗还是很大的。
+    // 所以通过设置estimatedRowHeight属性的方式，和这种代理方法的方式，最后性能消耗都是一样的。
+     - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath {
+        return 50.f;
+     }
+
+
+     UITableViewCell部分
+     // 自定义了一个UIImageView和UILabel控件，并且通过Masonry进行约束。
+     [self.avatarImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.size.mas_equalTo(CGSizeMake(40, 40));
+        make.top.left.equalTo(self.contentView).mas_offset(CellPadding);
+     }];
+
+     [self.detailLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.avatarImageView.mas_right).mas_offset(CellPadding);
+        make.top.equalTo(self.contentView).mas_offset(CellPadding);
+        make.right.bottom.equalTo(self.contentView).mas_offset(-CellPadding);
+        make.height.greaterThanOrEqualTo(@30);
+     }];
+
+
+
+※ UIScrollView自动布局
+   布局小技巧：
+   给UIScrollView添加的约束是定义其frame，设置contentSize是定义其内部大小。UIScrollView进行addSubview操作，都是将其子视图添加到contentView上。
+   所以，添加到UIScrollView上的子视图，对UIScrollView添加的约束都是作用于contentView上的。只需要按照这样的思路给UIScrollView设置约束，就可以掌握设置约束的技巧了。
+
+   代码：
+    // 在进行约束的时候，要对containerView的上下左右都添加和子视图的约束，以便确认containerView的边界区域。
+    [self.scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.equalTo(self.view);
+    }];
+
+    CGFloat padding = LXZViewPadding;
+    [self.containerView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.equalTo(self.scrollView).insets(UIEdgeInsetsMake(padding, padding, padding, padding));
+    }];
+
+    //添加绿色View
+    [self.containerView addSubview:self.greenView];
+    [self.greenView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.left.equalTo(self.containerView).offset(padding);
+        make.size.mas_equalTo(CGSizeMake(250, 250));
+    }];
+
+    //添加红色View
+    [self.containerView addSubview:self.redView];
+    [self.redView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.containerView).offset(padding);
+        make.left.equalTo(self.greenView.mas_right).offset(padding);
+        make.size.equalTo(self.greenView);
+        make.right.equalTo(self.containerView).offset(-padding);
+    }];
+
+    //添加黄色View
+    [self.containerView addSubview:self.yellowView];
+    [self.yellowView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.containerView).offset(padding);
+        make.top.equalTo(self.greenView.mas_bottom).offset(padding);
+        make.size.equalTo(self.greenView);
+        make.bottom.equalTo(self.containerView).offset(-padding);
+    }];
+
+
+※ 注意点
+  1、在使用Masonry添加约束之前，需要在addSubview之后才能使用，否则会导致崩溃。
+  2、在添加约束时初学者经常会出现一些错误，约束出现问题的原因一般就是两种：约束冲突和缺少约束。
+     对于这两种问题，可以通过调试和log排查。
+  3、之前使用Interface Builder添加约束，如果约束有错误直接就可以看出来，并且会以红色或者黄色警告体现出来。
+     而Masonry则不会直观的 体现出来，而是以运行过程中崩溃或者打印异常log体现，所以这也是手写代码进行AutoLayout的一个缺点。
+
+
+※ 参考：
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

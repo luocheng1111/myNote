@@ -1,0 +1,84 @@
+
+
+UISwitch
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UISwitch介绍
+   UISwitch 开关控件，可进行开、关两种状态的切换
+   
+   
+※ UISwitch的使用
+     
+     //定义并创建一个UISwitch对象
+     UISwitch* switchView = [[UISwitch alloc] init];
+     
+     /**
+       设置开关的显示位置
+       x、y的值可以改变
+       宽度和高度值无法改变，即使你设置了值
+     */
+     switchView.frame = CGRectMake(100,200,180,40);
+
+     //设置开关初始状态.是否开启动画效果
+     [switchView setOn:YES animated:YES];
+     
+     //将开关显示在屏幕上
+     [self.view addSubView:switchView];
+
+     //监听开关状态改变事件
+     [switchView addTarget:self action:@selector(swChange:) forControlEvents:UIControlEventValueChanged];
+     
+
+     -(void) swChange:(UISwitch*) sw
+     {
+	NSLog(@"开关状态发生变化!");
+        if(sw.on == YES)
+	{
+	   NSLog(@"开关被打开!");
+	}
+	else
+	{
+	   NSLog(@"开关被关闭!");
+	}
+     }
+
+ 
+
+----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+UISegmentedControl
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UISegmentedControl介绍
+   UISegmentedControl 分栏控件
+
+
+※ UISegmentedControl 分栏控件 的使用
+     
+     UISegmentedControl segControl = [[UISegmentedControl alloc] init];
+     
+     //设置位置，宽、高 不可变
+     segControl.frame = CGRectMake(10,200,300,40);
+
+     //添加按钮元素
+     [segControl insertSegmentWithTitle:@"0元" atIndex:0 animated:NO];
+     [segControl insertSegmentWithTitle:@"5元" atIndex:1 animated:NO];
+     [segControl insertSegmentWithTitle:@"10元" atIndex:2 animated:NO];
+     
+     //当前默认按钮索引设置
+     segControl.selectedSegmentIndex = 0;
+     
+     [segControl addTarget:self action:@selector(segChange:) forControlEvents:UIControlEventValueChanged];
+
+     [self.view addSubView:segControl];
+
+
+     -(void) segChange:(UISegmentedControl*) segControl
+     {
+	NSLog(@"%d", segControl.selectedSegmentIndex);
+     }
+
+ 
+----------------------------------------------------------------------------------------------------------------------------------------

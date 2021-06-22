@@ -1,0 +1,88 @@
+
+
+
+深拷贝、前拷贝
+---------------------------------------------------------------------------------------------------
+
+ ※ 浅拷贝和深拷贝
+    浅拷贝：没有产生新对象， 而是直接将对象本身的地址返回，地址拷贝
+    深拷贝：产生了1个新对象，内容拷贝
+
+
+ ※ 结论 copy和mutableCopy
+    1).当源数据类型是NSString，copy是浅拷贝、mutableCopy是深拷贝
+    2).当源数据类型是NSMutableString，copy、mutableCopy都是深拷贝
+       而copy、mutableCopy的区别是 copy后返回的对象是不可变的，mutableCopy后返回的对象是可变的
+    3).当源数据类型是不可变集合类型或可变集合类型时，结论如同NSString和NSMutableString
+    4).当源数据类型是自定义对象，自定义对象如果有NSCopying协议或者NSMutableCopying协议，
+       是浅拷贝还是深拷贝，依照自定义方法copyWithZone和copyWithMutableZone中的写法而定。见下面
+
+
+ ※ 如何自定义类实现对象的拷贝
+    如果我们想要让我们的自己的类具备对象拷贝的能力，那么就让我们的类遵守NSCoping协议
+    并实现copyWithZone：方法
+
+    如果想要实现深拷贝：那么就重新创建1个对象，并将对象 属性的值复制，返回
+    如果先要实现浅拷贝：那么就直接返回self
+
+    写法：
+    int main(...){
+        Person *p1 = [Person new];
+        p1.name = @"jack";
+        p1.age = 18;
+
+        Person *p2 = [p1 copy];
+        NSLog(@"p1 = %p", p1);
+        NSLog(@"p2 = %p", p2);
+    }
+
+    //深拷贝
+    - (id)copyWithZone:(NSZone *)zone{
+        //深拷贝写法
+        //把对象的属性的值 复制 到新对象中 将新对象返回。
+        Person *p1 = [Person new];
+        p1.name = _name;
+        p1.age = _age;
+        retutn p1;
+    }
+
+    //浅拷贝
+    - (id)copyWithZone:(NSZone *)zone{
+        //浅拷贝写法
+        retutn self;
+    }
+
+
+
+ ※ 注意点：
+    1.当类没有遵守NSCoping协议，那么类中就没有copyWithZone：方法，所以，当我们自定义的类调用copy方法的时候就会出错
+      原因：copy方法的内部调用了另外1个方法  copyWithZone: 这个方法是定义在NSCoping协议之中的
+
+
+
+ ※ 学习：http://blog.csdn.net/chenyufeng1991/article/details/51771728
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+
+NSString属性为什么建议使用copy
+---------------------------------------------------------------------------------------------------
+
+ ※ 原因
+    因为对于字符串，我们希望是一次内容的拷贝，外部修改也不会影响我们的原来的值，
+    而且NSString类遵守了NSCopying, NSMutableCopying, NSSecureCoding协议
+    而在ARC下，NSString只有2种选择，strong和copy，而copy会得到我们想要的效果
+    当strong时，NSString永远用的都是浅拷贝
+
+
+
+学习：http://blog.csdn.net/chenyufeng1991/article/details/51771728
+
+
+
+
+---------------------------------------------------------------------------------------------------
+

@@ -1,0 +1,99 @@
+
+
+UIProgressView和UISlider、UIActivityIndicatorView
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UIProgressView、UISlider、UIActivityIndicatorView介绍
+   UIProgressView 进度条
+   UISlider 滑动条
+   UIActivityIndicatorView 等待指示器
+   
+
+
+※ UIProgressView 进度条 的使用
+     
+     UIProgressView* progressView = [[UIProgressView alloc] init];
+     
+     //设置位置，高度不可变更
+     progressView.frame = CGRectMake(50,100,200,40);
+
+     //设置初始进度值 范围0~1
+     progressView.progress = 0.5;
+
+     //设置进度条风格
+     progressView.progressViewStyle = UIProgressViewStyleDefault;
+     
+     [self.view addSubView:progressView];
+
+   
+
+
+※ UISlider 滑动条 的使用
+
+     UISlider* sliderView = [[UISlider alloc] init];
+     
+     //设置位置，高度不可变更
+     sliderView.frame = CGRectMake(10,200,300,40);
+
+     //设置滑动的最大最小值
+     sliderView.maximumValue = 100;
+     sliderView.minimumValue = 0;
+
+     //设置滑块的位置 float类型
+     sliderView.value = 50;
+
+     [self.view addSubView:sliderView];
+
+     //监听开关状态改变事件
+     [sliderView addTarget:self action:@selector(pressSlider:) forControlEvents:UIControlEventValueChanged];
+     
+
+     -(void) pressSlider:(UISlider*) sliderView
+     {
+	NSLog(@"value = %f", sliderView.value);
+     }
+
+
+
+※ UIActivityIndicatorView 指示器 的 使用
+
+    UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] init];
+    
+    //指示器的那个圈的宽高不会改变，但指示器的大小会改变
+    indicator.frame = CGRectMake(100, 125, 50, 50);
+    indicator.backgroundColor = [UIColor whiteColor];
+    
+    [self.view addSubview:indicator];
+    
+    //设置风格
+    /**
+     UIActivityIndicatorViewStyleWhiteLarge  白 大号
+     UIActivityIndicatorViewStyleWhite       白
+     UIActivityIndicatorViewStyleGray        灰
+     */
+    indicator.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhiteLarge;
+    
+    //设置停止时是否隐藏
+    indicator.hidesWhenStopped = NO;
+    
+    //设置颜色
+    indicator.color = [UIColor redColor];
+    
+
+    - (IBAction)startClick:(UIButton *)sender {
+       [indicator startAnimating];
+    }
+
+
+    - (IBAction)stopClick:(UIButton *)sender {
+       [indicator stopAnimating];
+    }
+
+
+   Demo见：/Demo/UIActivityIndicatorView_study01
+   学习自：http://jingyan.baidu.com/article/f7ff0bfc27c73b2e26bb13ba.html
+
+
+
+ 
+----------------------------------------------------------------------------------------------------------------------------------------

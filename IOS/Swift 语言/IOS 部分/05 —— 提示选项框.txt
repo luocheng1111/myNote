@@ -1,0 +1,87 @@
+    
+
+UIAlertView 警告框
+---------------------------------------------------------------------------------------------------
+
+ ※ 一个选项的提示框：
+     let alertView:UIAlertView = UIAlertView(title: "AlertView", message: "Are you OK?", delegate: nil, cancelButtonTitle: "确定")
+     alertView.show()
+    
+ ※ 多个选项的提示框，如果多于三个选项钮，选项会变成竖排，取消选项在最下面
+     let alertView:UIAlertView = UIAlertView(title:"AlertView", message:"Are you OK?", delegate: self, cancelButtonTitle: "取消", otherButtonTitles: "")
+     alertView.show()
+  
+ ※ 选项监听，类需先要继承UIAlertViewDelegate
+     public func AlertView(alertView: UIAlertView, clickedButtonAtIndex buttonIndex: Int){
+        print(buttonIndex)   //如果有取消按钮，不管取消按钮位置如何，index都为0
+    }
+
+---------------------------------------------------------------------------------------------------
+
+
+UIActionSheet 操作表，从视图底部弹出
+---------------------------------------------------------------------------------------------------
+
+ ※ 一个破坏性选项和取消选项，破坏性选项为红色字体，且在最顶部
+     let actionSheet:UIActionSheet = UIActionSheet(title: nil, delegate: nil, cancelButtonTitle: nil, destructiveButtonTitle: "破坏性按钮")
+     actionSheet.showInView(self.view)
+
+ ※ 多个选项
+     let actionSheet:UIActionSheet = UIActionSheet(title: nil, delegate: self, cancelButtonTitle: "取消", destructiveButtonTitle: "破坏性按钮", otherButtonTitles: "其他", "其他1", "其他2")
+     actionSheet.showInView(self.view)
+
+ ※ 选项监听，类需先要继承UIActionSheetDelegate
+     public func ActionSheet(actionSheet: UIActionSheet, clickedButtonAtIndex buttonIndex: Int){
+        print(buttonIndex)  //若有破坏性选项，破坏性选项index为0，取消选项index为1，其他的依次排列
+     }
+
+---------------------------------------------------------------------------------------------------
+
+
+UIAlertController 提示选项框, 取代UIAlertView和UIActionSheet
+---------------------------------------------------------------------------------------------------
+ ※ 介绍
+     IOS8 新增了UIAlertController控制器，它可以实现警告框和操作表
+     优势：1不仅可以添加按钮，还可添加文本框和自定义视图到提示选项框中，响应事件可以通过闭包实现，而不用委托协议实现
+ 
+ ※ 优势
+     1.可实现警告框和操作表效果
+     2.可天假自定义视图和文本框
+     3.响应事件可通过闭包实现，而不用委托协议
+  
+ ※ UIAlertController 中的枚举介绍
+     UIAlertControllerStyle：其有两个值，Alert/ActionSheet
+     UIAlertActionStyle：其有三个值，Default/Cancel/Destructive(破坏样式),且添加时,Cancel样式的Action只能有一个
+
+ ※ 实现AlertView
+     let alertController = UIAlertController(title: "Title", message: "Are you OK?", preferredStyle: UIAlertControllerStyle.Alert)
+     alertController.addAction(UIAlertAction(title: "NO", style: UIAlertActionStyle.Cancel){(alertAction) -> Void in
+            print("No")
+     })  
+     alertController.addAction(UIAlertAction(title: "YES", style: UIAlertActionStyle.Default){(alertAction) -> Void in
+             print("Yes")
+     })
+     //显示
+     presentViewController(alertController, animated: true, completion: nil)
+
+
+ ※ 实现ActionSheet
+     let alertController = UIAlertController() 
+     alertController.addAction(UIAlertAction(title: "NO", style: UIAlertActionStyle.Cancel){(alertAction) -> Void in 
+            print("No")
+     }) 
+     alertController.addAction(UIAlertAction(title: "YES", style: UIAlertActionStyle.Default){(alertAction) -> Void in
+             print("Yes")
+     })
+     alertController.addAction(UIAlertAction(title: "CCC", style: UIAlertActionStyle.Default){(alertAction) -> Void in
+            print("CCC")
+     })
+     alertController.addAction(UIAlertAction(title: "Po", style: UIAlertActionStyle.Destructive){(alertAction) -> Void in
+            print("Po")
+     })
+     //显示
+     presentViewController(alertController, animated: true, completion: nil)
+
+---------------------------------------------------------------------------------------------------
+
+

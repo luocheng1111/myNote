@@ -1,0 +1,191 @@
+ 
+
+Http请求
+---------------------------------------------------------------------------------------------------
+ ※ 介绍
+    IOS SDK为Http请求提供了同步和异步请求的两种不同的API，而且可以使用GET和POST等请求方法
+    
+
+ ※ Http请求发展趋势
+    IOS 7之前，Http请求用NSURLConnection实现，
+    IOS 7之后，Apple提供了NSURLConnection的继任者，NSURLSesson
+ 
+
+ ※ NSURLSesson 对比 NSURLConnection
+    http://blog.csdn.net/djl4104804/article/details/22667273
+    1.NSURLSesson最直接的改善就是提供了配置每个会话的缓存、协议、cookie和证书政策(credential policies)
+      甚至跨应用程序共享它们的能力，这使得框架的网络基础架构和部分应用程序独立工作，而不会相互干扰
+    2.NSURLSession的另一重要组成部分是会话任务，它负责处理数据的加载，以及客户端与服务器之间的文件和数据的
+      上传下载服务。
+
+
+ ※ 网络请求需要加权限。步骤如下
+    http://blog.csdn.net/aries4ever/article/details/50704099
+    1.找到info.plist
+    2.Swift/Object-C 添加 App Transport Security Settings/NSAppTransportSecurity, Type为Dictionary
+    3.Swift/Object-C 添加 Allow Arbitrary Loads/NSAllowsArbitraryLoads, Type为Boolean,Value为YES
+      
+
+ ※ Swift Get/Post同步异步请求学习网址
+    http://www.hangge.com/blog/cache/detail_670.html
+
+
+ ※ Demo 见 ./Demo/请求网络数据
+
+---------------------------------------------------------------------------------------------------
+
+
+
+Get 同步请求
+---------------------------------------------------------------------------------------------------
+  
+    let url:NSURL! = NSURL(string: "http://www.weather.com.cn/data/cityinfo/101010100.html") 
+    let request = NSURLRequest(URL: url)
+    var response:NSURLResponse?
+    do{
+        //同步请求
+	let data:NSData = try NSURLConnection.sendSynchronousRequest(request, returningResponse: &response)
+	let result = NSString(data: data, encoding: NSUTF8StringEncoding)
+	print("请求结果:\(result)")
+    } catch let error as NSError{
+	print(error.code)
+	print(error.description)
+    }
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+Get 异步请求
+---------------------------------------------------------------------------------------------------
+  
+  //用于拼接网络请求数据
+  var responseData:NSMutableData = NSMutableData()
+
+  func Get_异步(){
+     let url:NSURL! = NSURL(string: "http://www.weather.com.cn/data/cityinfo/101010100.html") 
+     let request = NSURLRequest(URL: url)
+     let conn = NSURLConnection(request: request, delegate: self) //类要实现NSURLConnectionDataDelegate协议
+     conn?.start()
+     print(conn)
+  }
+
+  //建立连接成功后调用此方法，可做一些初始化工作
+  func connection(connection: NSURLConnection, didReceiveResponse response: NSURLResponse){
+     print("连接成功,连接信息:\(response)")
+     //做一些初始化工作
+     responseData.length = 0
+  }
+
+  //成功并建立连接后，开始接受数据，如果数据量很多，它会被调用多次
+  func connection(connection: NSURLConnection, didReceiveData data: NSData){
+     responseData.appendData(data)
+  }
+
+  //成功完成数据加载，didReceiveData方法后执行
+  func connectionDidFinishLoading(connection: NSURLConnection){
+     print("请求完成")
+     var responseResult:NSString! = NSString(data: responseData, encoding: NSUTF8StringEncoding)
+     print("请求得到的数据：\(responseResult)")
+     //数据解析
+     //....
+  }
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+Post 同步请求
+---------------------------------------------------------------------------------------------------
+
+    let requestUrl = "http://210.5.155.249:81/PaddyForLD/MyService.asmx"
+    let requestHeader:Dictionary<String, String> = ["Content-Type":"text/xml; charset=utf-8"]
+    let requestBody = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap12:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" 
+                      xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap12=\"http://www.w3.org/2003/05/soap-envelope\">
+                      soap12:Body><GetCollectintDateByString xmlns=\"http://tempuri.org/\"><c>
+                      {\"CollectionID\":\"670A5BD9-7D93-41C0-96B5-1007F23A4136\",\"StartTime\":\"2016-04-05\",\"EndTime\":\"2016-04-06\",
+                      \"DataNum\":1000}</c></GetCollectintDateByString></soap12:Body></soap12:Envelope>"
+    
+
+    let url:NSURL! = NSURL(string: requestUrl) 
+    var request = NSMutableURLRequest(URL: url)
+    request.HTTPMethod = "POST"
+    request.allHTTPHeaderFields = requestHeader
+    request.HTTPBody = requestBody.dataUsingEncoding(NSASCIIStringEncoding) //NSData类型,SASCII编码
+
+    var response:NSURLResponse?
+    do{
+        //同步请求
+	let data:NSData = try NSURLConnection.sendSynchronousRequest(request, returningResponse: &response)
+	let result = NSString(data: data, encoding: NSUTF8StringEncoding)
+	print("请求结果:\(result)")
+    } catch let error as NSError{
+	print(error.code)
+	print(error.description)
+    }
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+Post 异步请求
+---------------------------------------------------------------------------------------------------
+  
+  let requestUrl = "http://210.5.155.249:81/PaddyForLD/MyService.asmx"
+  let requestHeader:Dictionary<String, String> = ["Content-Type":"text/xml; charset=utf-8"]
+  let requestBody = "<?xml version=\"1.0\" encoding=\"utf-8\"?><soap12:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" 
+                      xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap12=\"http://www.w3.org/2003/05/soap-envelope\">
+                      soap12:Body><GetCollectintDateByString xmlns=\"http://tempuri.org/\"><c>
+                      {\"CollectionID\":\"670A5BD9-7D93-41C0-96B5-1007F23A4136\",\"StartTime\":\"2016-04-05\",\"EndTime\":\"2016-04-06\",
+                      \"DataNum\":1000}</c></GetCollectintDateByString></soap12:Body></soap12:Envelope>"
+  
+
+  //用于拼接网络请求数据
+  var responseData:NSMutableData = NSMutableData()
+
+  func Post_异步(){
+     let url:NSURL! = NSURL(string: requestUrl) 
+     var request = NSMutableURLRequest(URL: url)
+     request.HTTPMethod = "POST"
+     request.allHTTPHeaderFields = requestHeader
+     request.HTTPBody = requestBody.dataUsingEncoding(NSASCIIStringEncoding) //NSData类型,SASCII编码
+     let conn = NSURLConnection(request: request, delegate: self) //类要实现NSURLConnectionDataDelegate协议
+     conn?.start()
+     print(conn)
+  }
+
+  //建立连接成功后调用此方法，可做一些初始化工作
+  func connection(connection: NSURLConnection, didReceiveResponse response: NSURLResponse){
+     print("连接成功,连接信息:\(response)")
+     //做一些初始化工作
+     responseData.length = 0
+  }
+
+  //成功并建立连接后，开始接受数据，如果数据量很多，它会被调用多次
+  func connection(connection: NSURLConnection, didReceiveData data: NSData){
+     responseData.appendData(data)
+  }
+
+  //成功完成数据加载，didReceiveData方法后执行
+  func connectionDidFinishLoading(connection: NSURLConnection){
+     print("请求完成")
+     var responseResult:NSString! = NSString(data: responseData, encoding: NSUTF8StringEncoding)
+     print("请求得到的数据：\(responseResult)")
+     //数据解析
+     //....
+  }
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+NSURLSession 方式请求网络数据
+---------------------------------------------------------------------------------------------------
+  
+
+
+---------------------------------------------------------------------------------------------------

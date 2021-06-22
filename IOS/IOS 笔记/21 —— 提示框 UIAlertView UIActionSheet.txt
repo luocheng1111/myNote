@@ -1,0 +1,40 @@
+
+
+
+提示框 UIAlertView UIActionSheet
+----------------------------------------------------------------------------------------------------------------------------------------
+
+注：这两个控件已经不推荐使用，被UIAlertController替代
+
+
+※ UIAlertView 提示框 屏幕中间弹出
+   
+   //创建提示框
+   UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"提示框标题", message:@"提示框内容",
+   delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"选项一", @"选项二", nil];
+    
+   //显示提示框
+   [alertView show];
+   
+   //提示框监听事件，需要.h文件有<UIAlertViewDelegate>协议
+   - (void)alertView:(UIAlertView *)alertView clickButtonAtIndex:(NSInteger)buttonIndex{
+	NSLog(@"%d", buttonIndex); //取消的Index为0，其他依次递增
+   }
+   
+
+
+※ UIActionSheet 提示框 从底部弹出
+   //创建提示框
+   UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:@"提示框标题", delegate:self 
+   cancelButtonTitle:@"取消" destructiveButtonTitle:nil, otherButtonTitles:@"选项一", @"选项二", nil];
+    
+   //显示提示框
+   [actionSheet showInView:self.view];
+   
+
+   //提示框监听事件，需要.h文件有<UIActionSheetDelegate>协议
+   - (void)actionSheet:(UIActionSheet *)actionSheet clickButtonAtIndex:(NSInteger)buttonIndex{
+	NSLog(@"%d", buttonIndex); //Index从上倒下依次递增 0开始
+   } 
+ 
+----------------------------------------------------------------------------------------------------------------------------------------

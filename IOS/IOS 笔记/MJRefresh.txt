@@ -1,0 +1,50 @@
+
+
+
+MJRefresh
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+   能给UITableview、UIcollectionView、UIScrollview、UIWebView等很多控件提供上下拉刷新 上拉加载效果
+   是IOS开发中最好用的刷新第三方框架 MJRefresh
+   从iOS9之后,用MJRefresh框架的时候使用它的属性和方法,大部分需要加入mj_ 开头作为前缀
+   该框架纯ARC，兼容的系统>=iOS6.0、iPhone\iPad横竖屏
+   Github: https://link.jianshu.com/?t=https://github.com/CoderMJLee/MJRefresh
+
+
+※ 如何使用
+    1.导入MJRefresh
+      cocoapods导入：pod 'MJRefresh'
+      或者手动导入：将MJRefresh文件夹中的所有文件拽入项目中
+
+    2.给TableView添加下拉刷新效果
+      self.tableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        // 进入刷新状态后会自动调用这个block
+      }];
+      //或
+      // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadNewData方法）
+      self.tableView.header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(onRefresh)];
+
+      - (void)onRefresh {
+          [_tableView.mj_header endRefreshing];
+      };
+
+    3.给TableView添加上拉加载效果
+      _tableView.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(onLoadmore)];
+
+      - (void)onLoadmore {
+          [_tableView.mj_footer endRefreshing];
+      };
+
+    4.开始上拉刷新
+      [_tableView.mj_header beginRefreshing];
+
+
+※ 其他设置
+     // 是否隐藏下拉刷新最后更新时间
+	   header.lastUpdatedTimeLabel.hidden = YES;
+	   // 是否隐藏下拉刷新状态
+	   header.stateLabel.hidden = YES;
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

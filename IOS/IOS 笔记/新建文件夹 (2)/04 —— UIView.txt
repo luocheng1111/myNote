@@ -1,0 +1,131 @@
+ 
+
+学习自：慕课网/IOS基础教程之界面初体验/3-1
+
+UIView
+---------------------------------------------------------------------------------------------------
+
+ ※ UIView
+     UIView是UI的基类，基础
+     大多数的控件都是继承的UIView，并不是所有UI开头的类的都是继承自UIView，比如UIButton，
+     也可以说很多控件并不是直接继承自UIView
+  
+
+
+ ※ 创建一个View，并显示在屏幕上
+    // 视图
+    UIView *view1 = [[UIView alloc] init];
+    // 位置大小
+    view1.frame = CGRectMake(100, 100, 50, 50);
+    // 背景颜色
+    view1.backgroundColor = [UIColor redColor];
+    // 将视图加入到父视图中
+    [self.view addSubView:view1];
+
+---------------------------------------------------------------------------------------------------
+
+
+
+ ※ UIView类的继承层次
+
+                UIWindow
+	        UILabel 
+		UITableViewCell     UITableView
+		UIScrollView <----- UITextView
+		UIPickerView        UICollectionView
+		UIProgerssView
+    UIView <--  UIActivityIndicatorView
+		UIImageView	    UIBUtton
+		UITabBar	    UIDatePicker
+		UIToolbar	    UIPageControl
+		UIControl    <----- UISegmentedControl
+		UINavigationBar	    UITextField	 
+		UIActionSheet	    UISlider
+		UIAlertView	    UISwitch
+		UIWebView
+
+
+
+获取屏幕大小、控件大小、控件中心点
+---------------------------------------------------------------------------------------------------
+
+ ※ 获取屏幕宽高的属性(view1为上面代码的view1)
+    屏幕宽:[[UIScreen mainScreen] bounds].size.width
+    屏幕高:[[UIScreen mainScreen] bounds].size.height
+    状态栏：高度为20px,所以在设置控件的frame 高时需要让出20px
+    
+   frame:控件大小
+    控件本身的x/y坐标:view1.frame.origin.x/view1.frame.origin.y
+    控件本身的w/h大小: view1.frame.size.width/view1.frame.size.height
+   
+   bounds:边框大小 x.y永远为0
+
+   center:中心点坐标x/y
+    view1.center.x/view1.center.x
+
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+View 父视图、子视图
+---------------------------------------------------------------------------------------------------
+
+ ※ 如何获取父视图 
+    UIView *superView = view1.superView; //只会获取到此控件的父视图，不会获取到父视图的父视图
+    superView.backgroundColor = [UIColor greenColor];
+
+ ※ 获取子视图 
+   方式一：
+    NSArray *subViewsArray = view1.subview; //父视图只有一个，但子视图有多个
+    for(UIView *view in subViewsArray){
+      view.backgroundColor = [UIColor whiteColor];
+    }
+
+
+   方式二：
+    子视图可以设置tag view3.tag=3;
+    for(UIView *view in subViewsArray){
+      if(view.tag=3)
+         view.backgroundColor = [UIColor whiteColor];
+    }
+     直接根据tag值获取子视图
+    UIView *subView = [view1 viewWithTag:3];
+    subView.backgroundColor = [UIColor orangeColor];
+
+---------------------------------------------------------------------------------------------------
+
+
+
+
+View 层级关系  慕课网/IOS基础教程之界面初体验/3-4
+---------------------------------------------------------------------------------------------------
+ 
+ ※ 层级的处理与关系 3-4
+     1.同一个父视图中，后加入的View会盖在前加入的View上面
+     2.子视图是跟随父视图进行层级遮挡，如果父视图层级低于其他同级视图则父视图的子视图也会
+       被盖住，但是子视图和其他视图中的子视图是没有关系的
+     3.交换两个层的视图时需要注意必须填写正确的层数
+     4.当层交换了之后对应的子视图的数组下标也会进行改变！
+
+     
+ ※ 交换两个层的视图
+     [view1 exchangeSubviewAtIndex:0 withSubviewAtIdex:1] //第0和第1层进行交换，且必须填写正确的层数，层数从0开始，依次递增
+     
+
+ ※ 插入视图到某层
+     [view1 insertSubview:view5 atIndex:5];  //添加view5到第5层，如果没有第5层，会添加到最高的一层，比如先前只有2层，则此时虽然添加的第五层，但实际第三层
+     [view1 insertSubview:view5 aboveSubView:view3]; //view5添加到view3上面，view5如果和view3有重复部分，则view5会覆盖view3重复部分
+     [view1 insertSubview:view5 belowSubView:view2]; //view5添加到view2下面
+
+
+ ※ 将一个view放入到最顶层或者最底层
+     [view1 bringSubviewToFront:view3];//将view3添加到最顶层，最上面
+     [view1 sendSubviewToBack:view3];  //将view3添加到最底层
+
+
+---------------------------------------------------------------------------------------------------
+
+
+

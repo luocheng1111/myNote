@@ -1,0 +1,48 @@
+
+
+
+UISearchController
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ 介绍
+   UISearchController是iOS 8之后推出的一个新的控件, 用于创建搜索条, 及管理搜索事件
+   UISearchController一般是和UITableView结合使用, 很少会单独使用他, 而且使用UITableView** 来展示数据, 也是最佳的选择
+   UISearchController在使用的时候, 需要设置为全局的变量或者控制器属性, 使其生命周期与控制器相同; 如果设置为局部变量, 会提前销毁, 导致无法使用.
+
+
+※ 如何使用
+    1.导入MJRefresh
+      cocoapods导入：pod 'MJRefresh'
+      或者手动导入：将MJRefresh文件夹中的所有文件拽入项目中
+
+    2.给TableView添加下拉刷新效果
+      self.tableView.header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        // 进入刷新状态后会自动调用这个block
+      }];
+      //或
+      // 设置回调（一旦进入刷新状态，就调用target的action，也就是调用self的loadNewData方法）
+      self.tableView.header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(onRefresh)];
+
+      - (void)onRefresh {
+          [_tableView.mj_header endRefreshing];
+      };
+
+    3.给TableView添加上拉加载效果
+      _tableView.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingTarget:self refreshingAction:@selector(onLoadmore)];
+
+      - (void)onLoadmore {
+          [_tableView.mj_footer endRefreshing];
+      };
+
+    4.开始上拉刷新
+      [_tableView.mj_header beginRefreshing];
+
+
+※ 其他设置
+     // 是否隐藏下拉刷新最后更新时间
+	   header.lastUpdatedTimeLabel.hidden = YES;
+	   // 是否隐藏下拉刷新状态
+	   header.stateLabel.hidden = YES;
+
+
+----------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,47 @@
+
+
+
+NSDate 日期和时间 
+---------------------------------------------------------------------------------------------------
+
+ ※ NSDate
+    日期和时间类，可以处理时间和日期相关的类
+    
+    //得到当前时间
+    NSDate *date = [NSDate date];
+    NSLog(@"%@", date); //2017-08-12 20:13:38 +0000
+
+
+
+ ※ 时间格式化
+
+    //时间格式化类
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"yyyy年MM月dd日 HH点mm分ss秒";
+    
+    //日期格式器 -> 字符串 stringFromDate
+    NSString *str = [formatter stringFromDate:date];
+    NSLog(@"str = %@", str); //2017年08月12日 20点13分38秒
+
+    //字符串 -> 日期类型 dateFromString
+    NSDate *date = [formatter dateFromString:str];
+    NSLog(@"%@", date); //2017-08-12 20:13:38 +0000
+
+
+ ※ 时间的加减
+    //计算时间,在当前基础上加或者减时间，
+    NSDate *d1 = [NSDate dateWithTimeIntervalSinceNow:8*60*60];
+    
+    //求两个时间的差
+    - (NSTimeInterval)timeIntervalSinceDate:(NSDate *)anotherDate;
+
+
+ ※ 得到 年月日时分秒
+    //得到NSDate的年月日时分秒
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSDateComponents *com = [calendar components:NSCalendarUnitYear|NSCalendarUnitMonth|NSCalendarUnitDay fromDate:date];
+    NSLog(@"%ld-%ld-%ld", com.year, com.month, com.day);
+
+ 
+---------------------------------------------------------------------------------------------------
+

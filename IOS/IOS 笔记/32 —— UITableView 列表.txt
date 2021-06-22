@@ -1,0 +1,251 @@
+
+
+
+UITableView 列表
+----------------------------------------------------------------------------------------------------------------------------------------
+
+※ UITableView 列表
+   UITableView继承自UIScrollView，有两种风格，普通风格(UITableViewStylePlain)和分组风格(UITableViewStyleGrouped)
+   UITableViewCell介绍：
+     UITableView的每一行都是一个UITableViewCell，通过dataSource的tableView:cellForRowAtIndexPath:方法来初始化每一行
+     UITableViewCell内部有个默认的子视图:contentView，contentView是UITableViewCell所显示内容的父视图，可显示一些辅助指示视图。
+     辅助指示视图的作用是显示一个表示动作的图标，可以通过设置UITableViewCell的accessoryType来显示，默认是UITableViewCellAccessoryNone(不显示辅助指示视图)，其他值如
+       UITableViewCellAccessoryDisclosureIndicator      在右边显示一个右箭头图片
+       UITableViewCellAccessoryDetailButton             在右边显示一个信息图片
+       UITableViewCellAccessoryDetailDisclosureButton   在右边显示一个右箭头+信息图片
+       UITableViewCellAccessoryCheckmark                在右边显示一个对号图片
+       还可以通过cell的accessoryView属性来自定义辅助指示视图（比如往右边放一个开关）
+     contentView下默认有3个子视图
+       其中2个是UILabel(通过UITableViewCell的textLabel和detailTextLabel属性访问)
+       第3个是UIImageView(通过UITableViewCell的imageView属性访问)
+     UITableViewCell还有一个UITableViewCellStyle属性，用于决定使用contentView的哪些子视图，以及这些子视图在contentView中的位置
+
+
+
+※ 实现一个普通的UITableView demo见：\Demo\UITableView_study01 纯代码方式
+    //记得实现delegate和dataSource接口
+    //UITableView的创建 style有两种风格：普通风格和分组风格
+    UITableView *tableView = [[UITableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
+    tableView.delegate = self;
+    tableView.dataSource = self;
+    [self.view addSubview:tableView];
+
+
+    //有多少列
+    - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+      return 10;
+    }
+
+
+    //给各自列表赋值
+    - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+      static NSString *cellId = @"cell";
+      UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+      if(cell == nil){
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId];
+      }
+      //默认点tableCell中有textLable imageView deta控件
+      cell.textLabel.text = @"啦啦啦";
+      return cell;
+    }
+
+
+※ UITableView 自定义视图
+   有3种实现方式：
+    1.直接写一个类继承UITableViewCell，然后动态的添加子视图
+    2.通过storyboard 去设计一个单元格内容
+    3.建立一个xib文件，结合controller来实现。(逐渐被淘汰)
+
+   方式一：重写UITableViewCell
+   -(id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier{
+      if (self=[super initWithStyle:style reuseIdentifier:reuseIdentifier]){
+	      //设置一个按钮
+        UIButton *button = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        //设置button的frame
+        button.frame = CGRectMake(20, 20, 50, 50);
+        //button正常状态title设置为Yes，被选择状态title设置为No
+        [button setTitle:@"Yes" forState:UIControlStateNormal];
+
+        //设置button响应点击事件的方法是buttonPressed：
+        [button addTarget:self action:@selector(buttonPressed:) forControlEvents:UIControlEventTouchUpInside];
+
+        //创建imageView添加到cell中
+        UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Totoro副本"]];
+        imageView.frame = CGRectMake(150, 20, 150, 100);
+
+	      //添加到cell
+        [self addSubview:button];
+        [self addSubview:imageView];
+      }
+      return self;
+   }
+
+
+   方式二：结合storyboard自定义单元格样式 demo见：\Demo\UITableView_study_storyboard
+    步骤：
+    1.增加一个PrototypeCell
+    2.直接在cell上放控件，进行设计
+    3.保障cell和里面的子控件都有唯一tag标识符
+    4.可以使用了，viewWithTag方法
+
+    //首先设置在storyboard里设置动态单元格，然后拖拽的方式拖拽成自己想要的单元格样子，然后给每个元素设置tag
+    //给各自列表赋值
+    - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+      static NSString *cellId = @"cell";
+      UITableViewCell cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+      if(cell == nil){
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId];
+      }
+      //默认点tableCell中有textLable imageView deta控件
+      UILabel *lable = [cell viewWithTag:1];
+      UITextField *textField = [cell viewWithTag:2];
+      lable.text = @"1231";
+      textField.placeholder = @"hello"
+      return  cell;
+    }
+
+
+   方式三：结合xib自定义单元格样式 demo见：\Demo\UITableView_study_xib
+    步骤：
+    1.新建一个类继承自UITableViewCell,然后把xib的对勾勾上
+    2.直接在xib上放控件，进行设计
+    3.点击左右对比按钮，对控件赋名称
+    4.使用下列方法得到视图
+
+    - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+       static NSString *cellId = @"ViewControllerTableViewCell";
+       ViewControllerTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+       if(cell == nil){
+          cell = [[[NSBundle mainBundle] loadNibNamed:@"ViewControllerTableViewCell" owner:self options:nil] lastObject];
+       }
+
+       cell.label1.text = @"a阿啊";
+       cell.label2.text = [NSString stringWithFormat:@"%ld", indexPath.row];
+
+       return cell;
+    }
+
+
+
+※ UITableView 实现分组效果 参考：https://blog.csdn.net/u014360817/article/details/52027344
+   1.给storyboard中的UITableView Style属性设置为Grouped
+   2.关联代码，绑定数据源及代理delegate
+   3.具体代码
+    //显示多少组
+    - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+        return 4;
+    }
+
+
+    //每一组有多少行
+    - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+        if (section == 0) { //section组
+            return 2;
+        } else if (section == 1) {
+            return 3;
+        } else if (section == 2) {
+            return 4;
+        } else {
+            return 5;
+        }
+    }
+
+    //每一组的每一行都是一个UITableViewCell
+    - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+        UITableViewCell *cell = [[UITableViewCell alloc] init];
+        NSInteger section = indexPath.section;
+        NSInteger row = indexPath.row;
+        if (section == 0) {
+            if (row == 0) {
+                cell.textLabel.text = @"通用";
+            } else if(row == 1) {
+                cell.textLabel.text = @"设置";
+            }
+        } else {
+            cell.textLabel.text = @"Other";
+        }
+        return cell;
+    }
+
+    //设置头部 如果不需要 则不必重写
+    - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+        //获得哪一组
+        GGroupCarModle *groupModle = self.groupCarArray[section];
+        //返回哪一组的头部
+        return groupModle.header;
+    }
+
+    //尾部 如果不需要 则不必重写
+    - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
+        GGroupCarModle *groupModle = self.groupCarArray[section];
+        return groupModle.footer;
+    }
+
+
+
+※ UITableView 做静态单元格 参考：https://blog.csdn.net/qq_15267341/article/details/53364142
+   介绍：固定单元格的意思，在storyboard中定好单元格的内容，然后在界面中直接呈现
+   注意点：Controller必须继承UITableViewController
+   具体实现见网址
+
+
+
+※ UITableView 实现删除、添加、移动效果 Demo见：\Demo\UITableView_study02
+
+   删除、添加效果：
+   1.通过这个设定tableView是否进入编辑状态
+     [self.tableView setEditing:!self.tableView.editing animated:YES];
+   2.编辑状态下是删除效果还是添加效果
+     - (UITableViewCellEditingStyle)tableView:(UITableView *)tableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath{
+        return UITableViewCellEditingStyleInsert;
+     }
+   3.实现commitEditingStyle方法
+     - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath{
+        //有删除 有添加
+        if(editingStyle == UITableViewCellEditingStyleDelete){
+           [dataList removeObjectAtIndex:indexPath.row];
+        }else if(editingStyle == UITableViewCellEditingStyleInsert){
+           [dataList insertObject:@"666" atIndex:indexPath.row];
+        }
+        NSLog(@"删除后：%@", dataList);
+        [tableView reloadData];
+     }
+
+    移动效果：只需重写moveRowAtIndexPath就可以了
+    - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)sourceIndexPath toIndexPath:(NSIndexPath *)destinationIndexPath{
+        NSString *str = dataList[sourceIndexPath.row];
+        [dataList removeObjectAtIndex:sourceIndexPath.row];
+        [dataList insertObject:str atIndex:destinationIndexPath.row];
+
+        NSLog(@"移动后：%@", dataList);
+    }
+
+
+※ 给UITableView 添加索引
+   //只需要重下sectionIndexTitlesForTableView方法就行
+   //其原理不是根据关键词自动匹配，而是根据index匹配
+   - (NSArray<NSString *> *)sectionIndexTitlesForTableView:(UITableView *)tableView{
+    return @[@"A",@"B",@"C"];
+   }
+
+
+
+※ UITableView 自适应UITabBar的高度，不被UITabBar遮盖
+   // 自适应TabBar的高度，不被UITabBar遮盖
+   self.tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+
+
+
+
+※ TableViewController介绍
+    相对于TableView的好处
+    1.自带一个TableView，不需要写delegate和dataSource接口
+    2.带一个UIRefreshContrrol控件
+
+
+※ 学习
+   视频演示 http://www.maiziedu.com/course/275-2596/
+   UITableView 属性介绍 http://www.maiziedu.com/course/275-2597/
+   http://www.cnblogs.com/zhenzhen123/p/5071743.html
+
+----------------------------------------------------------------------------------------------------------------------------------------

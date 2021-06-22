@@ -1,0 +1,155 @@
+
+
+
+IOS 定位
+---------------------------------------------------------------------------------------------------
+ ※ IOS提供了4种不同的途径进行定位，具体如下所示
+     Wifi：通过Wifi路由器的地理位置信息查询，比较省电
+     基站：通过移动运营商基站定位
+     GPS卫星：通过GPS卫星位置定位，这种方式最为准确，但耗电量大，但不能遮挡
+     iBeacon微定位：苹果研发，使用低功耗蓝牙技术，通过多个iBeacon基站创建一个信号区域(地理围栏)，
+                    当设备进入该区域时，相应的应用程序便会提示用户进入这个地理围栏。
+
+    IOS不能指定采用哪种途径进行定位，也并不知道才哟哪种方式进行定位(微定位除外),IOS会根据设备情况和周围环境
+    采用一套最佳的解决方案。
+    总体比较：
+      GPS最准确，覆盖面广，但不能被遮挡，也比较费电
+      基站不仅误差比较大，而且会耗费用户流量
+      Wifi定位是最经济实惠的。
+
+    Demo见 ./IOS定位.zip
+---------------------------------------------------------------------------------------------------
+
+
+
+IOS 获取当前位置经纬度、高度 (Demo见 ./IOS定位服务.zip )
+---------------------------------------------------------------------------------------------------
+ ※ 定位服务
+    在IOS中，定位服务API主要使用Core Location框架，定位主要使用..这3个类，下面介绍这3个类,
+    CLLocationManager:用于定位服务管理类，它能够给我们提供位置、高度信息和设备的运行方向，也可以监控设备
+                      进入和离开某个区域
+    CLLocationManagerDelegate: CLLocationManager类的委托协议
+    CLLocation: 该类封装了位置和高度信息
+
+
+ ※ 定位精度的设置
+     定位服务管理类CLLocationManager的desiredAccuracy属性表示精准度，有如下6种选择：
+     kCLLocationAccuracyBestForNavigation ：精度最高，一般用于导航
+     kCLLocationAccuracyBest ： 精确度最佳
+     kCLLocationAccuracyNearestTenMeters ：精确度10m以内
+     kCLLocationAccuracyHundredMeters ：精确度100m以内
+     kCLLocationAccuracyKilometer ：精确度1000m以内
+     kCLLocationAccuracyThreeKilometers ：精确度3000m以内
+     车载导航时建议用 kCLLocationAccuracyBestForNavigation(导航最高精度，有外接电源时才能使用)
+     步行时建议使用   kCLLocationAccuracyHundredMeters(精确到100米)
+     设备电池供电时   kCLLocationAccuracyBest(设备使用电池供电时最高的精度)
+     代码使用eg：self.locationManager.desiredAccuracy = kCLLocationAccuracyBest
+
+
+ ※ 具体实现步骤 (Demo见 ./IOS定位服务.zip )
+     1.导入CoreLocayion.framework
+     2.在Info.plist里添加，添加后第一次进入程序后才会有定位提示框
+        NSLocationWhenInUseUsageDescription  String  ""
+        NSLocationAlwaysUsageDescription String  ""
+     3.在viewDidLoad()里初始化CLLocationManager类，并进行一些设置
+        locationManager = CLLocationManager()
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest //设置定位精度，详情见下面介绍
+        locationManager.distanceFilter = 1000.0 //设备移动后获取信息位置的最小距离，单位是米
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.requestAlwaysAuthorization();
+     4.开始定位或停止定位
+        //开始定位 如果想程序进入时定位，结束时停止定位，则可以在viewWillAppear()里调用开始定位，在viewWillDisappear()里调用停止定位
+        //在IOS6之后，新增pausesLocationUpdatesAutomatically属性，它能设定自动暂停位置更新，而把定位服务的开启和停止管理权交给系统。这样会更加合理和简单。
+	 if CLLocationManager.locationServicesEnabled(){
+            self.locationManager.startUpdatingLocation();
+        }
+
+        //停止定位
+        locationManager.stopUpdatingLocation();
+     5.监听方法，获得经纬度
+       locationManager:didUpdateLocations 定位成功
+       locationManager:didFailWithError 定位失败
+       locationManager:didChangeAuthorizationStatus 授权状态发生变化时调用
+    
+       //didUpdateLocations里
+       var currLocation = locations.last! as CLLocation
+       jdu.text = "经度:"+currLocation.coordinate.longitude.description
+       wdu.text = "纬度:"+currLocation.coordinate.latitude.description
+       gdu.text = "高度:"+currLocation.altitude.description
+
+---------------------------------------------------------------------------------------------------
+
+
+
+ 经纬度 <--> 地理位置   (Demo见 ./IOS定位服务.zip )
+ ---------------------------------------------------------------------------------------------------
+  ※ 地理信息反编码 相关类介绍
+      CLPlacemark：经纬度、地理信息在此类中，这个类被叫做"地标"类
+      CLGeocoder: 经纬度和地理信息转换需要用到的类，
+
+  ※ 经纬度 --> 地理位置 相关方法介绍，
+      reverseGeocodeLocation:completionHandler: 实现地理坐标与地理文字描述信息之间的转换
+
+  ※ 地理位置 --> 经纬度 相关方法介绍
+      geocodeAddressDictionary:completionHandler: 通过制定一个地址信息字典对象参数进行查询
+      geocodeAddressString:completionHandler:通过制定一个地址字符串参数进行查询
+      geocodeAddressString:inRegion:completionHandler:通过制定地址字符串和差选的范围作为参数进行查询 
+      
+  ※ CLPlacemark里的具体值 (以 上海市长宁区福泉北路388号(虹桥东方国信商务广场) 为例 )
+      print(placemark.name);//地名 Optional("虹桥东方国信商务广场2号楼")
+      print(placemark.locality); // 城市 Optional("上海市")
+      print(placemark.subLocality); // 城市相关信息，例如标志性建筑 Optional("长宁区")
+      print(placemark.thoroughfare);//街道 Optional("福泉北路388号")
+      print(placemark.addressDictionary);//详细地址信息字典, Optional([SubLocality: 长宁区, Street: 福泉北路388号, State: 上海市, CountryCode: CN, 
+                                         Thoroughfare: 福泉北路388号, Name: 虹桥东方国信商务广场2号楼, Country: 中国, 
+					 FormattedAddressLines: <__NSArrayM 0x157f044c0>(中国上海市长宁区新泾镇福泉北路388号), City: 上海市])
+
+      print(placemark.location);//位置 Optional(<+31.23054014,+121.35701644> +/- 100.00m (speed -1.00 mps / course -1.00) @ 16/6/2 中国标准时间 下午2:19:08)
+      print(placemark.region);//区域 Optional(CLCircularRegion (identifier:'<+31.23051800,+121.35684500> radius 197.19', center:<+31.23051800,+121.35684500>, radius:197.19m))
+     
+      print(placemark.subThoroughfare); //街道相关信息，例如门牌等 nil
+      print(placemark.administrativeArea); // 州 Optional("上海市")
+      print(placemark.subAdministrativeArea); //其他行政区域信息 nil
+      print(placemark.postalCode); //邮编 nil
+      print(placemark.ISOcountryCode); //国家编码 Optional("CN")
+      print(placemark.country); //国家 Optional("中国")
+      print(placemark.inlandWater); //水源、湖泊 nil
+      print(placemark.ocean); // 海洋 nil
+      print(placemark.areasOfInterest); //关联的或利益相关的地标 nil
+
+
+  ※ eg：经纬度 --> 地理位置(import AddressBook)
+        let geocoder = CLGeocoder();
+        geocoder.reverseGeocodeLocation(self.currLocation)
+        { (placemarks, error) in
+            if placemarks?.count > 0{
+                let placemark = placemarks![0] as CLPlacemark
+                let addressDictionary = placemark.addressDictionary! as NSDictionary
+
+                let state = addressDictionary.objectForKey(kABPersonAddressStateKey) as! NSString //州，省
+                let city = addressDictionary.objectForKey(kABPersonAddressCityKey) as! NSString //城市
+                let address = addressDictionary.objectForKey(kABPersonAddressStreetKey) as! NSString //街道信息
+                
+                self.reverseToLocation.text = "\(state),\(city),\(address)";
+            }  
+        }
+     
+  ※ eg：地理位置 --> 经纬度(import AddressBook)
+	let geocoder = CLGeocoder()
+        geocoder.geocodeAddressString(self.loaction.text!)
+        { (placemarks, error) in
+            if placemarks!.count > 0{
+                print("查询到的记录数:\(placemarks?.count)")
+                let placemark = placemarks![0] as CLPlacemark
+
+                let location = placemark.location?.coordinate
+                self.reverseToJW1.text = "经度:\(location?.longitude.description)";
+                self.reverseToJW2.text = "纬度:\(location?.latitude.description)";
+            }
+        }
+
+  
+---------------------------------------------------------------------------------------------------
+
+
