@@ -35,10 +35,14 @@
 
 
 ※ JavaScript 改变元素的显示
-  onclick='document.getElementById("demo").innerHTML="Hello JavaScrpt"' //改变元素显示的内容
-  onclick="document.getElementById('myImage').src='/i/eg_bulbon.gif'"   //改变元素属性的值
-  onclick="document.getElementById('demo').style.color = "blue";        //改变元素的CSS样式
-  onclick="document.getElementById('demo').style.display='none'"        //JS隐藏或显示HTML 元素显示*.style.display='block'
+  1.JS改变HTML内容
+    onclick='document.getElementById("demo").innerHTML="Hello JavaScrpt"'
+  2.JS改变HTML属性
+    onclick="document.getElementById('myImage').src='/i/eg_bulbon.gif'"
+  3.JS改变CSS样式
+    onclick="document.getElementById('demo').style.fontSize='35px'"
+  4.JS隐藏/显示HTML元素
+    onclick="document.getElementById('demo').style.display='none'"  //显示*.style.display='block'
 
 
 ※ JavaScript 给元素添加事件

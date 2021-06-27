@@ -1,0 +1,118 @@
+- [ ] Taro
+Taro是一个三方小程序跨度框架解决方案，支持使用React/Vue/Vue3来编写
+使用Taro开发后，通过编译转换，可以转换到一些平台的代码，然后运行
+目标支持转换的平台有 H5/微信小程序/ 京东小程序/ 百度小程序/ 支付宝小程序/ 字节跳动小程序/ QQ小程序 / RN 等应用。
+官方网址：https://taro-docs.jd.com/taro/docs/README
+
+
+环境
+1.node环境 版本>=12.0.0.
+2.使用 npm或yarn 安装 @tarojs/cli
+$ npm install -g @tarojs/cli (会全局安装最新版本)
+   如果要指定版本例如3.1.4版本 则npm install -g @tarojs/cli@3.1.4
+   如果安装过程出现sass相关的安装错误，请在安装 mirror-config-china 后重试 命令：$ npm install -g mirror-config-china
+3.在终端输入命令 taro，如果出现内容就说明安装成功了
+
+
+创建一个项目并运行到微信小程序运
+创建项目并编译成微信小程序代码
+1.在终端里cd到需要创建的文件夹下，之后输入命令创建项目： taro init myApp，再选择相应选项后即项目创建成功
+2.使用编译器WebStorm或VSCode  打开项目
+3.进行包安装工作 打开编译器里的命令行工具，输入npm install
+4.将项目编译成微信小程序：npm run dev:weapp或npm run build:weapp
+运行到微信小程序上
+1.使用微信开发者工具打开项目：打开时需要输入AppID,注册一个测试号即可，测试号会填写关于小程序的信息
+2.发布小程序：先在手机上先预览实际效果.如果可以的话，则点击上传，上传后用管理员进入微信开发者平台，点击审核后，等审核通过后即可发布成功
+   (注：测试的程序不能提交审核，如果多次提交测试的程序，则会有些惩罚，必须是完整的内容才能提交)
+
+
+常见问题：
+1.保持 CLI 的版本与各端依赖版本一致
+在使用 Taro 进行多端开发中，请保持 Taro CLI 的版本与你项目的依赖版本一致，否则可能会出现编译错误或者运行时错误。
+比如 Taro CLI 版本为 3.0.9，而项目里使用的依赖版本为 3.0.10，则有可能会出现问题
+解决方案：手动安装相应版本的CLI 或 修改package.json依赖版本号
+// 手动安装相应版本的CLI
+$ npm install -g @tarojs/cli@1.3.9
+
+
+编辑器
+推荐使用 WebStorm或 VSCode 
+WebStorm适合Java开发者，因为他和Android Studio编译器风格，快捷键几乎一样，但是WebStorm安装使用需要收费
+VSCode是免费的且功能强大，很多前端人员用这款软件，但安装时需要进行一些配置和插件安装
+
+
+
+Taro项目目录介绍
+目录结构：
+├── dist                   编译结果目录
+├── config                 编译配置目录
+|   ├── dev.js             项目预览时的配置
+|   ├── index.js           通用配置
+|   └── prod.js            项目打包时的配置
+├── src                    源码目录
+|   ├── pages              页面文件目录
+|   |   ├── index          index 页面目录
+|   |   |   ├── index.js   index 页面逻辑
+|   |   |   └── index.css  index 页面样式
+|   ├── app.css            项目总通用样式
+|   └── app.js             项目入口文件
+├── package.json
+└──project.config.json         # 微信小程序项目配置
+
+├── config                      # 编译配置目录
+    ├── index.js                   # 通用配置
+    ├── dev.js                      # 项目预览时的配置
+    └── prod.js                    # 项目打包时的配置
+├── src                           # 源码目录
+    ├── app.config.js           # 全局配置
+    ├── app.css                   # 全局 CSS
+    ├── app.js                     # 入口组件
+    ├── index.html              # H5 入口 HTML
+    └── pages                   # 页面组件
+        └── index
+            ├── index.config.js # 页面配置
+            ├── index.css       # 页面 CSS
+            └── index.jsx       # 页面组件，如果是 Vue 项目，此文件为 index.vue
+├── dist                        # 打包目录
+├── node_modules                        # node打包目录
+├── package.json                # Node.js manifest
+├── project.config.json         # 微信小程序项目配置 https://developers.weixin.qq.com/miniprogram/dev/devtools/projectconfig.html?search-key=%E9%A1%B9%E7%9B%AE%E9%85%8D%E7%BD%AE
+├── babel.config.js             # Babel 配置
+├── .eslintrc.js                # ESLint 配置
+
+
+入口组件及对应的全局配置文件
+app.js              入口组件   可以在入口组件中设置全局状态/全局生命周期
+app.config.js  一个全局配置文件  可以在全局配置文件中设置页面组件的路径、全局窗口、路由等信息
+
+页面组件
+每一个页面都会单独在pages下面
+Index.vue 页面组件，页面是怎么显示的
+Index.config.js  页面组件的配置文件，可以设置此页面的导航栏、背景颜色等参数
+
+
+Taro相关链接：
+Trao命令
+https://taro-docs.jd.com/taro/docs/cli
+Taro npm包介绍
+https://taro-docs.jd.com/taro/docs/CONTRIBUTING
+Taro 版本介绍
+https://taro-docs.jd.com/taro/docs/version
+Taro 编译配置文件属性介绍
+https://taro-docs.jd.com/taro/docs/config
+
+
+
+
+
+若使用 微信小程序预览模式 ，则需下载并使用微信开发者工具添加项目进行预览，此时需要注意微信开发者工具的项目设置
+* 需要设置关闭 ES6 转 ES5 功能，开启可能报错
+* 需要设置关闭上传代码时样式自动补全，开启可能报错
+* 需要设置关闭代码压缩上传，开启可能报错
+
+学习：
+基础教程
+https://taro-docs.jd.com/taro/docs/guide/
+
+安装及使用及常见问题
+https://taro-docs.jd.com/taro/docs/GETTING-STARTED
