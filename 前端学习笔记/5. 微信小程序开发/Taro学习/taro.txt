@@ -1,5 +1,5 @@
 - [ ] Taro
-Taro是一个三方小程序跨度框架解决方案，支持使用React/Vue/Vue3来编写
+Taro是一个多个小程序跨平台解决方案，支持使用React/Vue/Vue3来编写
 使用Taro开发后，通过编译转换，可以转换到一些平台的代码，然后运行
 目标支持转换的平台有 H5/微信小程序/ 京东小程序/ 百度小程序/ 支付宝小程序/ 字节跳动小程序/ QQ小程序 / RN 等应用。
 官方网址：https://taro-docs.jd.com/taro/docs/README
@@ -12,6 +12,18 @@ $ npm install -g @tarojs/cli (会全局安装最新版本)
    如果要指定版本例如3.1.4版本 则npm install -g @tarojs/cli@3.1.4
    如果安装过程出现sass相关的安装错误，请在安装 mirror-config-china 后重试 命令：$ npm install -g mirror-config-china
 3.在终端输入命令 taro，如果出现内容就说明安装成功了
+
+编辑器
+推荐使用 WebStorm或 VSCode 
+WebStorm编辑器是收费的，适合Java开发者，因为他和Android Studio编译器风格，快捷键几乎一样
+VSCode编辑器是免费的，很多前端人员用这款软件，但安装时需要进行一些配置和插件安装
+编辑器插件：
+ 插件推荐 ESLint 插件https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint，
+ 如果你使用 TypeScript，别忘了配置 eslint.probe 参数。
+如果使用VSCode，推荐安装 ESLint 插件https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint，
+ 如果你使用 TypeScript，别忘了配置 eslint.probe 参数。如果使用 Vue，推荐安装 Vetur https://marketplace.visualstudio.com/items?itemName=octref.vetur 插件。
+如果你愿意花钱又懒得折腾可以选择 WebStorm（或其它支持 Web 开发的 Jetbrains IDE），基本不需要配置。
+不管使用 VSCode 还是 WebStrom，安装了上述插件之后使用 Taro 都实现自动补全和代码实时检查（linting）的功能。
 
 
 创建一个项目并运行到微信小程序运
@@ -26,59 +38,39 @@ $ npm install -g @tarojs/cli (会全局安装最新版本)
    (注：测试的程序不能提交审核，如果多次提交测试的程序，则会有些惩罚，必须是完整的内容才能提交)
 
 
-常见问题：
-1.保持 CLI 的版本与各端依赖版本一致
-在使用 Taro 进行多端开发中，请保持 Taro CLI 的版本与你项目的依赖版本一致，否则可能会出现编译错误或者运行时错误。
-比如 Taro CLI 版本为 3.0.9，而项目里使用的依赖版本为 3.0.10，则有可能会出现问题
-解决方案：手动安装相应版本的CLI 或 修改package.json依赖版本号
-// 手动安装相应版本的CLI
-$ npm install -g @tarojs/cli@1.3.9
 
-
-编辑器
-推荐使用 WebStorm或 VSCode 
-WebStorm适合Java开发者，因为他和Android Studio编译器风格，快捷键几乎一样，但是WebStorm安装使用需要收费
-VSCode是免费的且功能强大，很多前端人员用这款软件，但安装时需要进行一些配置和插件安装
 
 
 
 Taro项目目录介绍
 目录结构：
+
 ├── dist                   编译结果目录
 ├── config                 编译配置目录
-|   ├── dev.js             项目预览时的配置
-|   ├── index.js           通用配置
-|   └── prod.js            项目打包时的配置
+    ├── dev.js             开发时配置
+    ├── index.js           通用配置
+    └── prod.js            项目打包时的配置
 ├── src                    源码目录
-|   ├── pages              页面文件目录
-|   |   ├── index          index 页面目录
-|   |   |   ├── index.js   index 页面逻辑
-|   |   |   └── index.css  index 页面样式
-|   ├── app.css            项目总通用样式
-|   └── app.js             项目入口文件
-├── package.json
-└──project.config.json         # 微信小程序项目配置
-
-├── config                      # 编译配置目录
-    ├── index.js                   # 通用配置
-    ├── dev.js                      # 项目预览时的配置
-    └── prod.js                    # 项目打包时的配置
-├── src                           # 源码目录
     ├── app.config.js           # 全局配置
     ├── app.css                   # 全局 CSS
-    ├── app.js                     # 入口组件
+    ├── app.js                     # **项目入口组件**
     ├── index.html              # H5 入口 HTML
-    └── pages                   # 页面组件
+    └── pages                    # 页面文件目录
         └── index
             ├── index.config.js # 页面配置
-            ├── index.css       # 页面 CSS
-            └── index.jsx       # 页面组件，如果是 Vue 项目，此文件为 index.vue
-├── dist                        # 打包目录
-├── node_modules                        # node打包目录
-├── package.json                # Node.js manifest
+            ├── index.css       #  index 页面 CSS
+            └── index.js         # index 页面逻辑
+├── node_modules             # node打包目录
+├── package.json                
 ├── project.config.json         # 微信小程序项目配置 https://developers.weixin.qq.com/miniprogram/dev/devtools/projectconfig.html?search-key=%E9%A1%B9%E7%9B%AE%E9%85%8D%E7%BD%AE
 ├── babel.config.js             # Babel 配置
 ├── .eslintrc.js                # ESLint 配置
+├── package.json
+
+
+配置文件介绍：
+
+//小程序全局配置
 
 
 入口组件及对应的全局配置文件
@@ -102,7 +94,111 @@ Taro 编译配置文件属性介绍
 https://taro-docs.jd.com/taro/docs/config
 
 
+微信小程序项目配置：
 
+项目配置 project.config.json文件
+https://developers.weixin.qq.com/miniprogram/dev/devtools/projectconfig.html?search-key=%E9%A1%B9%E7%9B%AE%E9%85%8D%E7%BD%AE
+主要用于指定项目源码的路径miniprogramRoot，项目的 appid，项目名称projectname，项目描述description及项目打包时打而一些配置选项
+
+编译配置：
+https://taro-docs.jd.com/taro/docs/config-detail
+主要用于项目编译时的输入输出文件，及编译时的一些配置
+config/index.js
+
+const config = {
+  // 项目名称
+  projectName: 'Awesome Next',
+  // 项目创建日期
+  date: '2020-6-2',
+  // 设计稿尺寸
+  designWidth: 750,
+  // 设计稿尺寸换算规则
+  deviceRatio: {
+    640: 2.34 / 2,
+    750: 1,
+    828: 1.81 / 2
+  },
+  // 项目源码目录
+  sourceRoot: 'src',
+  // 项目产出目录
+  outputRoot: 'dist',
+  // Taro 插件配置
+  plugins: [],
+  // 用于配置一些全局变量供代码中进行使用。
+  defineConstants: {},
+  // 文件 copy 配置 用于把文件从源码目录直接拷贝到编译后的生产目录。
+  copy: {
+    patterns: [
+    ],
+    options: {
+    }
+  },
+  // 框架，react，nerv，vue, vue3 等
+  framework: 'react',
+  // 小程序端专用配置
+  mini: {
+    postcss: {
+      autoprefixer: {
+        enable: true
+      },
+      // 小程序端样式引用本地资源内联配置
+      url: {
+        enable: true,
+        config: {
+          limit: 10240
+        }
+      },
+      cssModules: {
+        enable: false, // 默认为 false，如需使用 css modules 功能，则设为 true
+        config: {
+          namingPattern: 'module', // 转换模式，取值为 global/module
+          generateScopedName: '[name]__[local]___[hash:base64:5]'
+        }
+      }
+    },
+    // 自定义 Webpack 配置
+    webpackChain (chain, webpack) {}
+  },
+  // H5 端专用配置
+  h5: {
+    publicPath: '/',
+    staticDirectory: 'static',
+    postcss: {
+      autoprefixer: {
+        enable: true
+      },
+      cssModules: {
+        enable: false, // 默认为 false，如需使用 css modules 功能，则设为 true
+        config: {
+          namingPattern: 'module', // 转换模式，取值为 global/module
+          generateScopedName: '[name]__[local]___[hash:base64:5]'
+        }
+      }
+    },
+    // 自定义 Webpack 配置
+    webpackChain (chain, webpack) {},
+    devServer: {}
+  }
+};
+
+module.exports = function(merge) {
+  if (process.env.NODE_ENV === 'development') {
+    return merge({}, config, require('./dev'));
+  }
+  return merge({}, config, require('./prod'));
+};
+
+app.config.js
+//用于每个页面信息的设置及配置
+
+
+常见问题：
+1.保持 CLI 的版本与各端依赖版本一致
+在使用 Taro 进行多端开发中，请保持 Taro CLI 的版本与你项目的依赖版本一致，否则可能会出现编译错误或者运行时错误。
+比如 Taro CLI 版本为 3.0.9，而项目里使用的依赖版本为 3.0.10，则有可能会出现问题
+解决方案：手动安装相应版本的CLI 或 修改package.json依赖版本号
+// 手动安装相应版本的CLI
+$ npm install -g @tarojs/cli@1.3.9
 
 
 若使用 微信小程序预览模式 ，则需下载并使用微信开发者工具添加项目进行预览，此时需要注意微信开发者工具的项目设置
