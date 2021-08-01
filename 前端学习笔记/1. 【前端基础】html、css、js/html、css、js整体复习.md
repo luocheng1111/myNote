@@ -44,15 +44,14 @@
 ##  JavaScript 复习
 
 > 1. 介绍下JavaScript、介绍下HTML DOM
-> 2. JavaScript的基本形式/写法 3'
+> 2. JavaScript的基本形式/写法 4'
 > 3. JavaScript如何查找HTML元素3’，如何改变元素的显示3’，如何给元素添加事件 2'
 > 4. JS的输出方式 3'
 > 5. JavaScript的数据类型
->    * JavaScript有哪些数据类型
->    * 介绍下js的特殊类型：undefined、null、NaN、Infinity，什么情况下是这种情况，且type类型
->    * 介绍下字符串、数字、布尔类型
->    * 介绍下对象、方法、JSON
->    * 介绍下数组 3'+2'+1'+1'
+>    * JavaScript有哪些数据类型 3'+3'+4'
+>    * 介绍下字符串、数字、布尔类型6'
+>    * 介绍下对象、方法、数组 3'+2'+1'+1'
+>    * 介绍下js的特殊类型：undefined、null、NaN、Infinity，什么情况下是这种情况
 >    * typeof 6'
 > 6. 运算时需要注意的点 2’
 > 7. ==和===的区别
